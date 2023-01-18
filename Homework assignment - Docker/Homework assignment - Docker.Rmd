@@ -1,0 +1,52 @@
+---
+title: "Homework assignment - Docker"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Task 1:
+Create a 5 by 10 matrix of random integers
+```{r}
+set.seed(91711)
+# A 5 x 10 matrix requires 50 elements
+# Randomly generate 50 integer values
+randInts <- sample.int(50, replace = TRUE)
+randMatrix <- matrix(randInts, nrow = 5, ncol = 10)
+set.seed(NULL)
+
+randMatrix
+```
+
+## Task 2:
+Define column names as cond1, cond2, cond3, cond4, cond5, ctrl1, ctrl2, ctrl3, ctrl4, ctrl5
+```{r}
+colnames(randMatrix) <- c("cond1", "cond2", "cond3", "cond4", "cond5",
+                          "ctrl1", "ctrl2", "ctrl3", "ctrl4", "ctrl5")
+randMatrix
+```
+
+## Task 3:
+Define row names as gene1, gene2, gene3 ...
+```{r}
+rownames(randMatrix) <- c("gene1", "gene2", "gene3", "gene4", "gene5")
+randMatrix
+```
+
+## Task 4:
+Compute the fold change for each gene
+```{r}
+# Create a named vector to store the results
+log2FoldChange <- numeric(nrow(randMatrix))
+names(log2FoldChange) <- c("gene1", "gene2", "gene3", "gene4", "gene5")
+
+# Use a for loop to calcualte the fold change of each gene
+for (i in seq_len(nrow(randMatrix))) {
+    log2FoldChange[i] <- log2(mean(randMatrix[i, 1:5]) / 
+                                  mean(randMatrix[i, 6:10]))
+}
+
+# Result
+log2FoldChange
+```
+
