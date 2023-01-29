@@ -1,0 +1,89 @@
+---
+title: "Gene Expression Dataset Selection"
+output:
+  html_document:
+    df_print: paged
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# Preparation
+
+```{r}
+# Install the GEOmetadb package
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+if (!requireNamespace("GEOmetadb", quietly = TRUE))
+    BiocManager::install("GEOmetadb")
+
+# DBI and knitr packages are also required to manipulate and visualize the query
+```
+
+Prepare the database file for the GEO database:
+
+The directory where the database is located in the local disk. Currently
+the database is used for the purpose of this course, so it is downloaded
+into the project directory of the container
+
+```{r}
+# Check if a database already exists
+if(!file.exists('/home/rstudio/projects/GEOmetadb.sqlite')) 
+    GEOmetadb::getSQLiteFile()
+# Display the version of the database
+file.info("/home/rstudio/projects/GEOmetadb.sqlite")
+
+# Connect to the database using an absolute path to the file
+con <- DBI::dbConnect(RSQLite::SQLite(), 
+                      '/home/rstudio/projects/GEOmetadb.sqlite')
+```
+
+# Query the GEOmetadb database
+
+For database queries, a SQL query is constructed to select the
+appropriate series from GEO.
+
+In particular, we query the title, the technology used, the gse record
+number, the date of deposit to GEO, as well as the links to the
+supplementary files. We are looking for studies/series related to human
+heart regeneration, therefore the organism must contain `Homo sapiens`,
+and the title of the series must contain one of `heart`, `cardiac`,
+`cardiomyocyte`, and one of `regeneration`, `proliferation`, and
+`failure`.
+
+```{r}
+# Build the SQL query
+sql <- paste("SELECT DISTINCT gse.title, gse.gse, gpl.title,",
+             "gse.submission_date,  gse.supplementary_file",
+             "FROM gse",
+             "JOIN gse_gpl ON gse_gpl.gse=gse.gse",
+             "JOIN gpl ON gse_gpl.gpl=gpl.gpl",
+             "WHERE gse.submission_date > '2018-01-01'",
+             "AND (gse.title LIKE '%heart%' OR gse.title LIKE '%cardiac%'",
+             "OR gse.title LIKE '%cardiomyocyte%')",
+             "AND (gse.title LIKE '%regenerat%' OR gse.title LIKE '%proliferat%'",
+             "OR gse.title LIKE '%fail%')",
+             "AND gpl.technology LIKE '%high-throughput%'",
+             "AND gpl.organism LIKE '%Homo sapiens%'",
+             sep=" ")
+
+# Inidiate the query
+result <- DBI::dbGetQuery(con, sql)
+```
+
+How many records are obtained?
+
+```{r}
+# Number of records
+dim(result)[1]
+```
+
+Then we visualize the result by compiling a html table. Note, the links
+to the supplementary files are obtained, but are not displayed in the
+table. We will investigate the study/series first then check of the
+study have the required files we need.
+
+```{r}
+# Visualize the retrieved series
+knitr::kable(result[ , -5], table.attr = "class=\"striped\"", format = "html")
+```
