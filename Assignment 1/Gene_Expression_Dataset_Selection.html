@@ -1633,24 +1633,27 @@ if (!requireNamespace(&quot;GEOmetadb&quot;, quietly = TRUE))
     BiocManager::install(&quot;GEOmetadb&quot;)</code></pre>
 <pre><code>## Setting options(&#39;download.file.method.GEOquery&#39;=&#39;auto&#39;)</code></pre>
 <pre><code>## Setting options(&#39;GEOquery.inmemory.gpl&#39;=FALSE)</code></pre>
+<pre class="r"><code>getwd()</code></pre>
+<pre><code>## [1] &quot;/home/rstudio/projects/Jielin_Yang&quot;</code></pre>
 <pre class="r"><code># DBI and knitr packages are also required to manipulate and visualize the query</code></pre>
 <p>Prepare the database file for the GEO database:</p>
 <p>The directory where the database is located in the local disk.
 Currently the database is used for the purpose of this course, so it is
-downloaded into the project directory of the container</p>
+downloaded into the R project directory of the container,
+i.e. (home/rstudio/projects/Jielin_Yang/).</p>
 <pre class="r"><code># Check if a database already exists
-if(!file.exists(&#39;/home/rstudio/projects/GEOmetadb.sqlite&#39;)) 
+if(!file.exists(&quot;GEOmetadb.sqlite&quot;)) 
     GEOmetadb::getSQLiteFile()
 # Display the version of the database
-file.info(&quot;/home/rstudio/projects/GEOmetadb.sqlite&quot;)</code></pre>
+file.info(&quot;GEOmetadb.sqlite&quot;)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["size"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["isdir"],"name":[2],"type":["lgl"],"align":["right"]},{"label":["mode"],"name":[3],"type":["octmode"],"align":["right"]},{"label":["mtime"],"name":[4],"type":["dttm"],"align":["right"]},{"label":["ctime"],"name":[5],"type":["dttm"],"align":["right"]},{"label":["atime"],"name":[6],"type":["dttm"],"align":["right"]},{"label":["uid"],"name":[7],"type":["int"],"align":["right"]},{"label":["gid"],"name":[8],"type":["int"],"align":["right"]},{"label":["uname"],"name":[9],"type":["chr"],"align":["left"]},{"label":["grname"],"name":[10],"type":["chr"],"align":["left"]}],"data":[{"1":"13592906752","2":"FALSE","3":"644","4":"2023-01-25 06:24:22.554105","5":"2023-01-27 22:42:48.921648","6":"2023-01-27 22:42:48.921648","7":"1000","8":"1000","9":"rstudio","10":"rstudio","_rn_":"/home/rstudio/projects/GEOmetadb.sqlite"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["size"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["isdir"],"name":[2],"type":["lgl"],"align":["right"]},{"label":["mode"],"name":[3],"type":["octmode"],"align":["right"]},{"label":["mtime"],"name":[4],"type":["dttm"],"align":["right"]},{"label":["ctime"],"name":[5],"type":["dttm"],"align":["right"]},{"label":["atime"],"name":[6],"type":["dttm"],"align":["right"]},{"label":["uid"],"name":[7],"type":["int"],"align":["right"]},{"label":["gid"],"name":[8],"type":["int"],"align":["right"]},{"label":["uname"],"name":[9],"type":["chr"],"align":["left"]},{"label":["grname"],"name":[10],"type":["chr"],"align":["left"]}],"data":[{"1":"13592906752","2":"FALSE","3":"644","4":"2023-01-25 06:24:22.554105","5":"2023-02-01 00:15:07.862678","6":"2023-02-01 00:15:07.862678","7":"1000","8":"1000","9":"rstudio","10":"rstudio","_rn_":"GEOmetadb.sqlite"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <pre class="r"><code># Connect to the database using an absolute path to the file
 con &lt;- DBI::dbConnect(RSQLite::SQLite(), 
-                      &#39;/home/rstudio/projects/GEOmetadb.sqlite&#39;)</code></pre>
+                      &#39;GEOmetadb.sqlite&#39;)</code></pre>
 </div>
 <div id="query-the-geometadb-database" class="section level1">
 <h1>Query the GEOmetadb database</h1>

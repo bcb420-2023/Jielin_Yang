@@ -37,7 +37,7 @@ file.info("GEOmetadb.sqlite")
 
 # Connect to the database using an absolute path to the file
 con <- DBI::dbConnect(RSQLite::SQLite(), 
-                      '/home/rstudio/projects/GEOmetadb.sqlite')
+                      'GEOmetadb.sqlite')
 ```
 
 # Query the GEOmetadb database
