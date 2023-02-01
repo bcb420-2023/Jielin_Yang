@@ -17,6 +17,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 if (!requireNamespace("GEOmetadb", quietly = TRUE))
     BiocManager::install("GEOmetadb")
 
+getwd()
 # DBI and knitr packages are also required to manipulate and visualize the query
 ```
 
@@ -24,14 +25,15 @@ Prepare the database file for the GEO database:
 
 The directory where the database is located in the local disk. Currently
 the database is used for the purpose of this course, so it is downloaded
-into the project directory of the container
+into the R project directory of the container, 
+i.e. (home/rstudio/projects/Jielin_Yang/).
 
 ```{r}
 # Check if a database already exists
-if(!file.exists('/home/rstudio/projects/GEOmetadb.sqlite')) 
+if(!file.exists("GEOmetadb.sqlite")) 
     GEOmetadb::getSQLiteFile()
 # Display the version of the database
-file.info("/home/rstudio/projects/GEOmetadb.sqlite")
+file.info("GEOmetadb.sqlite")
 
 # Connect to the database using an absolute path to the file
 con <- DBI::dbConnect(RSQLite::SQLite(), 
