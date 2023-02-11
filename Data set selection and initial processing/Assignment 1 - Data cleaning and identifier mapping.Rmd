@@ -1,5 +1,65 @@
 ---
 title: "Assignment 1 - Data cleaning and identifier mapping"
-output: html_notebook
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+bibliography: Assignment1.bib
+csl: american-medical-association.csl
 ---
 
+# Preparations
+
+The current R Notebook assumes that it is being run on the BCB420-2023 base image. Additional packages required are noted below
+
+```{r, message = FALSE, tidy=TRUE}
+# BiocManager for installing a set of Bioconductor packages
+if (! requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+
+# GEOquery package for querying the GEO database
+if (! requireNamespace("GEOquery", quietly = TRUE)) {
+  BiocManager::install("GEOquery")
+}
+
+# Biobase package for Bioconduction base functions
+if (! requireNamespace("Biobase", quietly = TRUE)) {
+  BiocManager::install("Biobase")
+}
+```
+
+
+
+```{r, message = FALSE, tidy=TRUE}
+# Download the dataset for GSE203358
+if (!file.exists("./Data/GSE203358_count_matrix.txt")) {
+  gse203358 <- GEOquery::getGEO("GSE203358", GSEMatrix =TRUE)
+  
+} else {
+  read.table("./Data/GSE203358_count_matrix.txt")
+}
+gse203358 <- GEOquery::getGEO("GSE203358", GSEMatrix =TRUE)
+```
+
+
+```{r, message = FALSE, tidy=TRUE}
+# Checkpoint for data download
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+TODO:
+1. For R code chucks, set warnings to false
