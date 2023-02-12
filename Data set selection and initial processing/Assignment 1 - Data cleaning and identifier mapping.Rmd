@@ -43,7 +43,9 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 
 # Introduction
+
 ## Background
+
 Heart failure (HF) is one of the most common and life-threatening syndrome 
 associated with progressive morbidity and mortality that has implicated over 65 
 million patients worldwide in 2017. [@savarese2022global] It is characterized by 
@@ -145,6 +147,11 @@ if (! requireNamespace("GEOquery", quietly = TRUE)) {
 if (! requireNamespace("Biobase", quietly = TRUE)) {
   BiocManager::install("Biobase")
 }
+
+# stringr package for string manipulation
+if (! requireNamespace("stringr", quietly = TRUE)) {
+  install.packages("stringr")
+}
 ```
 
 
@@ -197,15 +204,103 @@ data from the GEO database and store it in a local directory.
 
 # Check if the data file exists, and if not, download and decompress it
 if (! file.exists("./Data/GSE203358_Count_Matrix.txt")) {
-  GEOquery::getGEOSuppFiles(geoAcc, makeDirectory = FALSE, baseDir = "./Data")
-  GEOquery::gunzip("./Data/GSE203358_Count_Matrix.txt.gz")
+  sfiles = GEOquery::getGEOSuppFiles(geoAcc, makeDirectory = FALSE, 
+                                     baseDir = "./Data")
+  fnames = rownames(sfiles)
+  GEOquery::gunzip(fnames[1])
 }
-
-
 ```
 
 Only one data file exists for this study. The raw counts for all 24 samples are
-located in the file: `GSE203358_Count_Matrix.txt`
+located in the file: `r stringr::str_remove_all(fnames[1], "\\.gz")`
+
+## Preliminary Data Checking
+The raw counts are stored in a tab-delimited text file. We will import the data
+into R using the `read.table()` function.
+
+```{r, message = FALSE, tidy=TRUE}
+# Get the unzipped file name
+file <- stringr::str_remove_all(fnames[1], "\\.gz")
+
+# Import the raw counts into R
+rawCounts <- read.table(file, sep = "\t", 
+                        header = TRUE, check.names = FALSE)
+
+colnames(rawCounts)
+```
+
+There are 25 columns in the dataset, with the first column as gene ID, and 
+the rest with 1 column per sample
+
+```{r, message = FALSE, tidy=TRUE}
+# Rename the rows with gene ID
+rownames(rawCounts) <- rawCounts$Geneid
+
+# Visualize the first 5 genes
+head(rawCounts)
+```
+
+The dataset does not contain the original Ensembl gene IDs, whereas the HUGO
+gene symbols are used.
+
+
+# Data QC and Processing
+
+## Sample Matrix
+
+First we will retrieve the smaple design matrix, and retrieve the replicate
+names under each of the four conditions
+
+```{r, message = FALSE, tidy=TRUE}
+# Obtain the sample names and treatment conditions using the column names from
+# the dataset
+samples <- data.frame(lapply(colnames(rawCounts)[2:25], 
+                             function(x){unlist(strsplit(x, split = "\\."))}))
+
+# rename the dataframe
+colnames(samples) <- colnames(ca125_exp)[2:25]
+rownames(samples) <- c("culture_rep","treatment")
+
+# Perform a matrix transposition, so that individual samples are listed in rows
+# Construct a data frame of the sample design matrix
+samples <- data.frame(t(samples))
+
+# Order the samples by their treatment conditions
+samples <- samples[order(samples$treatment), ]
+```
+
+## Mapped Genes
+
+### Gene duplication
+
+We will first assess whether there are any duplicated genes in the dataset.
+
+```{r, message = FALSE, tidy=TRUE}
+# How many genes are mapped in the data set?
+dim(rawCounts)
+```
+
+There are a total of `r dim(rawCounts)[1]` rows in the dataset, indicating the
+number of genes mapped. We will now deduplicate them and see if there is any 
+duplicated the genes.
+
+```{r, message = FALSE, tidy=TRUE}
+# Number of unique genes mapped
+length(unique(rawCounts$Geneid))
+
+# Whether there are any dupilcated genes
+!(length(unique(rawCounts$Geneid)) == dim(rawCounts)[1])    # No duplication
+```
+
+
+
+
+
+
+
+
+
+
 
 
 # Interpretation and Analysis
