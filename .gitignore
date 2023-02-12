@@ -40,3 +40,4 @@ GEOmetadb.sqlite
 .Rproj.user/shared/notebooks/18D6CD33-Gene_Expression_Dataset_Selection/1/s/con63tawpor1j/000011.rdf
 .Rproj.user
 Data/GSE203358_Count_Matrix.txt
+Data/gb_hgnc_conversion.rds

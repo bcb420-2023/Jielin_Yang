@@ -34,6 +34,10 @@ csl: /home/rstudio/projects/Jielin_Yang/american-medical-association.csl
         font-size: 16pt;
         font-weight: bold;
     }
+    h4 {
+        font-size: 14pt;
+        font-weight: bold;
+    }
     code {
         font-family: monospace;
         font-size: 11pt;
@@ -157,9 +161,9 @@ if (! requireNamespace("biomaRt", quietly = TRUE)) {
   BiocManager::install("biomaRt")
 }
 
-# Biobase package for Bioconduction base functions
-if (! requireNamespace("Biobase", quietly = TRUE)) {
-  BiocManager::install("Biobase")
+# stringr package for string manipulation
+if (! requireNamespace("stringr", quietly = TRUE)) {
+  install.packages("stringr")
 }
 
 # KableExtra package for creating tables and formatting
@@ -172,8 +176,17 @@ if (! requireNamespace("dplyr", quietly = TRUE)) {
   install.packages("dplyr")
 }
 
+# DT package for creating interactive tables
+if (! requireNamespace("DT", quietly = TRUE)) {
+  install.packages("DT")
+}
+
 # Load the dplyr package
 library("dplyr")
+
+# We will consistently use package::function() to avoid confusion
+# However, the dplyr package has to be loaded first to allow
+# definitions of various operators such as %>%
 ```
 
 
@@ -339,8 +352,8 @@ sumGeneCounts <- sort(sumGeneCounts, decreasing = TRUE)
 # Genes with expression values > 1, and show the top 10
 knitr::kable(sumGeneCounts[sumGeneCounts > 1][1:10], format = "html", 
              col.names = "Frequency") %>% 
-            kableExtra::kable_styling("striped", position = "center", 
-                                      full_width = F)
+            kableExtra::kable_styling(bootstrap_options = c("striped", "hover", 
+                "condensed", "responsive"), position = "center", full_width = F)
 ```
 
 The most highly expressed gene is `FN1`, which encodes Fibronectin, which has been
@@ -389,7 +402,8 @@ summaryVTP_TGFb <- summary(rowMeans(rawCounts[, grep("TGFb_VTP", colnames(rawCou
 sumStats <- rbind(summaryCtrl, summaryTGFb, summaryVTP, summaryVTP_TGFb)
 rownames(sumStats) <- c("CTRL", "TGFb", "VTP", "VTP_TGFb")
 knitr::kable(sumStats, format = "html", col.names = colnames(sumStats)) %>% 
-            kableExtra::kable_styling("striped", position = "center")
+            kableExtra::kable_styling(bootstrap_options = c("striped", "hover", 
+                              "condensed", "responsive"), position = "center")
 ```
 
 The mean values of the raw counts are similar across the different treatment. This 
@@ -435,11 +449,11 @@ Upon further checking of the dataset, we have found that the gene names are not 
 consistent with the HUGO gene symbols. Many genes have been annotated with the HUGO gene
 symbols, as shown in the several highly expressed genes in the previous section. However,
 there are also genes that are annotated with the 
-[European Nucleotide Archive (ENA)](https://www.ebi.ac.uk/ena/browser/home) gene
-symbols. We now check how many genes are annotated with the ENA gene symbols. Upon 
+[GenBank](https://www.ncbi.nlm.nih.gov/genbank/) gene
+accession numbers. We now check how many genes are annotated with the GenBank accession. Upon 
 observation, ENA gene symbols are composed of 2 parts, separated by a dot. The first part
 is 1-2 letters followed by 5-6 digits, after which there is a dot, and then the second part
-is a digit. Since the nomenclature of the 
+is a digit indicating the version of the gene. Since the nomenclature of the 
 [HUGO Gene Nomenclature Committee (HGNC)](https://www.genenames.org/) specifies
 that the gene symbols do not contain a dot, we will search for the dot in the gene names
 to identify the ENA gene symbols.
@@ -467,21 +481,150 @@ rownames(cpm_filtered)[setdiff(byDots, byName)]
 The gene **`r rownames(cpm_filtered)[setdiff(byDots, byName)]`** was identified
 by the first method but not by the second method. Upon further checking the
 gene with various resources, we found that the gene is not annotated in the
-HGNC database. However, it is documented in the ENA database. Futher cross-referencing
+HGNC database. However, it is documented in the GenBank database. Further cross-referencing
 with other literatures allowed us to realized that this gene is a long non-coding RNA,
 which has been identified as a differntially expressed lncRNA in a human iPSC-derived
 cardiomyocytes hypertrophy model. [@pohjolainen2022transcriptomics] Therefore, we 
 will keep this gene in the dataset.
 
-Since there are `r length(byDots)` genes annotated with the ENA gene symbols, we will
+Since there are `r length(byDots)` genes annotated with the GenBank accession, we will
 try to map these genes to the HUGO gene symbols.
 
-## Mapping ENA Gene Symbols to HUGO Gene Symbols
+## Mapping GenBank Accession to HUGO Gene Symbols
+
+### GenBank Accessions
+
+We first obtain the GenBank accessions of the genes that are not already annotated with the HUGO gene symbols.
 
 ```{r, message = FALSE, tidy=TRUE, attr.output='style="max-height: 200px;"'}
-# Get the ENA gene symbols of the genes that are not already annotated with the HUGO gene symbols
-(enaSymbols <- rownames(cpm_filtered)[byDots])
+# Get the GenBank accessions of the genes that are not already annotated with the HUGO gene symbols
+gbAcc <- rownames(cpm_filtered)[byDots]
+
+# Visualize the GenBank accessions, where we visualize the mean expression across biological replicates
+gbExpr <- data.frame(rowMeans(cpm_filtered[byDots, grep("CTRL", colnames(cpm_filtered))]))
+gbExpr <- cbind(gbExpr, rowMeans(cpm_filtered[byDots, grep("TGFb$", colnames(cpm_filtered))]))
+gbExpr <- cbind(gbExpr, rowMeans(cpm_filtered[byDots, grep("VTP$", colnames(cpm_filtered))]))
+gbExpr <- cbind(gbExpr, rowMeans(cpm_filtered[byDots, grep("TGFb_VTP", colnames(cpm_filtered))]))
+
+# Rename the columns
+colnames(gbExpr) <- c("CTRL", "TGFb", "VTP", "TGFb_VTP")
+
+# Visualize the data as an interactive table, where gene accessions can be searched
+DT::datatable(gbExpr, options = list(pageLength = 10))
 ```
+
+
+### ID Mapping with Ensembl Biomart
+
+#### Filter and Attribute Selection
+
+The authors of the primary literature of this dataset indicated that the reference genome
+used in this study is the [GRCh38/hg38](https://useast.ensembl.org/Homo_sapiens/Info/Index?db=core).
+This is the same reference genome used in the current version of 
+[Ensembl Biomart](https://www.ensembl.org/biomart/martview) (release 109). We will use
+this resource to map the GenBank accessions to the HUGO gene symbols.
+
+By investigation we found that GenBank, European Nucleotide Archive (ENA), and DDBJ are
+part of the [International Nucleotide Sequence Database Collaboration (INSDC)](https://www.insdc.org/). 
+The INSDC is a consortium of nucleotide sequence databases, where the three above mentioned
+databases share information on the daily basis. The gene accession numbers used by GenBank
+and ENA are identical, so we will search a matching filter that allows us to search for
+the accession numbers in `biomart`.
+
+```{r, message = FALSE, tidy=TRUE}
+# Connect to the Ensembl Biomart with the hsapiens_gene_ensembl dataset
+ensembl <- biomaRt::useDataset("hsapiens_gene_ensembl", 
+                               mart = biomaRt::useMart("ensembl"))
+
+# Find the filters that allows us to search for the accessions
+# Filters should match "genbank", "ena", "euro", "ddbj", "insdc", or "embl"
+biomartFilters <- biomaRt::listFilters(ensembl)
+sel <- grep(biomartFilters$name, pattern = "(genbank)|(ena)|(euro)|(ddbj)|(insdc)|(embl)")
+
+# Visualize the filters that match
+knitr::kable(biomartFilters[sel, ]) %>% kableExtra::row_spec(12, background = "yellow") %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover", 
+                "condensed", "responsive"), full_width = F, position = "center")
+```
+
+Among the filters, we found that `embl` has a description of European Nucleotide Archive ID(s).
+Since the GenBank accessions are identical to the ENA accessions, we will use this filter
+to search for the GenBank accessions.
+
+Additionally, we need a set of returned attributes, primarily the **HGNC symbols**.
+
+```{r, message = FALSE, tidy=TRUE}
+# Find the attributes that allows us to retrieve the HGNC symbols
+# We also search for the "embl" attribute, since to need to return it for ID mapping
+knitr::kable(biomaRt::searchAttributes(mart = ensembl, "hgnc|^embl$") , format="html") %>%
+ kableExtra::row_spec(c(1, 2), background = "yellow") %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover", 
+                "condensed", "responsive"), full_width = F, position = "center")
+```
+
+It follows that the `hgnc_symbol` attribute corresponds to HGNC symbols.
+
+Here, we tried to convert the GenBank accessions (ENA ID) to HGNC symbols.
+Therefore, we will use the following information:
+- Filter: `embl`
+- Attributes: `hgnc_symbol`, `embl`
+- Query values: `gbAcc`
+
+
+#### Duplicated ENA IDs
+
+Interestingly, Biomart does not accept the ENA IDs with the vwerion number, so we
+removed the version number from the ENA IDs.
+
+```{r, message = FALSE, tidy=TRUE}
+# Remove the version number from the ENA IDs
+gbAcc <- stringr::str_remove_all(gbAcc, "\\.[0-9]+")
+```
+
+Previously, we identified that all genes are unique using the ENA accession numbers
+with the associated version number. However, it is likely that two previously 
+considered unique genes are simply transcripts mapped to the same gene of 
+different version. Therefore, we will check if there are any duplicated ENA IDs.
+
+```{r, message = FALSE, tidy=TRUE}
+# Check if there are any duplicated ENA IDs
+sum(duplicated(gbAcc))
+
+gbAccDuplicates <- unique(gbAcc[duplicated(gbAcc)])
+```
+
+We found that there are `r length(gbAccDuplicates)` duplicated ENA IDs. This
+consitutes `r length(gbAccDuplicates)/nrow(cpm_filtered)*100`% of the total
+filtered genes. This is only a small fraction of the total genes, so we will
+proceed with the ID conversion and resolve the duplicates later.
+
+#### ID Conversion
+A query is constructed to retrieve the HGNC symbols for the ENA IDs, and
+the result is saved to a file under the `Data` directory.
+
+```{r, message = FALSE, tidy=TRUE}
+# Remove duplicates
+gbAcc <- unique(gbAcc)
+
+# To reduce computation time from querying the Ensembl Biomart server, we will
+# save the results to a file and load it if it exists
+idConversionFile <- "./Data/gb_hgnc_conversion.rds"
+if (file.exists(idConversionFile)) {
+  # Load the ID conversion file directly
+  idConversion <- readRDS(idConversionFile)
+} else {
+  # Query Biomart for the ID conversion
+  idConversion <- biomaRt::getBM(filters = "embl", 
+                                 attributes = c("hgnc_symbol", "embl"), 
+                                 values = gbAcc, 
+                                 mart = ensembl)
+  
+  # Save the results to a file
+  saveRDS(idConversion, idConversionFile)
+}
+```
+
+
 
 
 
@@ -524,8 +667,6 @@ try to map these genes to the HUGO gene symbols.
 
 
 
-TODO:
-1. For R code chucks, set warnings to false
 
 
 # Journal Link
