@@ -593,8 +593,9 @@ sum(duplicated(gbAcc))
 gbAccDuplicates <- unique(gbAcc[duplicated(gbAcc)])
 ```
 
-We found that there are `r length(gbAccDuplicates)` duplicated ENA IDs. This
-consitutes `r length(gbAccDuplicates)/nrow(cpm_filtered)*100`% of the total
+We found that there are `sum(duplicated(gbAcc))` duplicated ENA ID. These 
+duplications cover `r length(gbAccDuplicates)` unique ENA IDs. This
+constitutes `r length(gbAccDuplicates)/nrow(cpm_filtered)*100`% of the total
 filtered genes. This is only a small fraction of the total genes, so we will
 proceed with the ID conversion and resolve the duplicates later.
 
@@ -624,13 +625,120 @@ if (file.exists(idConversionFile)) {
 }
 ```
 
+Among the genes in the filtered dataset, there are `r length(gbAcc)` genes that
+are indicated with an ENA ID (GenBank ID). We check the number of genes that
+are successfully converted to HGNC symbols.
+
+```{r, message = FALSE, tidy=TRUE}
+length(which(gbAcc %in% idConversion$embl))
+```
+
+Therefore, `r length(gbAcc) - length(which(gbAcc %in% idConversion$embl))` genes
+are not successfully converted to HGNC symbols.
+
+Interestingly, despite the inability to map some of the ENA IDs to HGNC symbols,
+we obtained `r nrow(idConversion)` mappings. This result suggests that some of
+the ENA IDs are mapped to multiple HGNC symbols.
+
+```{r, message = FALSE, tidy=TRUE, attr.output='style="max-height: 200px;"'}
+# Obtain the set of ENA IDs that are mapped to multiple HGNC symbols
+multiMapped <- unique(idConversion$embl[duplicated(idConversion$embl)])
+
+# Visualize the non-unique mappings
+DT::datatable(idConversion[idConversion$embl %in% multiMapped, ])
+```
+
+To identify the source of the non-unique mappings, we directly searched for
+the ENA IDs in the [Ensembl Biomart](https://www.ensembl.org/biomart/martview/)
+and directly from the [ENA website](https://www.ebi.ac.uk/ena/browser/view/AC002456).
+For example, the first ENA ID in the table above is `AC002456`. We found that in
+Biomart, it is not only mapped to three different HGNC symbols, but also to
+three unique Ensembl gene IDs. However, when we directly searched for `AC002456`
+in the ENA website, we found that its description does not match to any of the 
+given HGNC symbols. This suggests that Ensembl gene IDs are likely more accurate
+and uniquely identify a gene than the ENA IDs. Since a single ENA ID can be mapped
+to multiple HGNC symbols, corresponding to very different genes that variate in 
+length, chromosomal locations, and sequence, we decided not to map any of the
+non-uniquely mapped ENA IDs to HGNC symbols.
+
+#### Translating ENA IDs to HGNC Symbols
+
+```{r, message = FALSE, tidy=TRUE}
+# Remove the non-unique mappings in the ID conversion table
+idConversion <- idConversion[!idConversion$embl %in% multiMapped, ]
+
+# Number of uniquely mapped ENA IDs (including not mapped)
+nrow(idConversion)
+```
 
 
+Since according to (ENA)[https://www.ebi.ac.uk/ena/], the different version of the
+same gene are considered as a single gene when processing accession numbers,
+we will remove the version number from the `cpm_filtered` table.
 
+```{r, message = FALSE, tidy=TRUE}
+# Remove the version number from the ENA IDs in the filtered CPM table
+rownames(cpm_filtered) <- gsub("\\.[0-9]+$", "", rownames(cpm_filtered))
+```
 
+Upon removal, we will then merge the ID conversion table with the `cpm_filtered`
+table, where we specify that a record is matched if and only if the ENA ID is
+identical.
 
+```{r, message = FALSE, tidy=TRUE}
+# Merge the HGNC symbols to the filtered CPM table
+cpm_filtered_translated <- merge(idConversion, cpm_filtered, by.x = 2, by.y = 0, all.y = TRUE)
 
+# Since ENA IDs are only a subset of the genes in the filtered CPM table, we will
+# fill in the missing values with the original names defined in the CPM table
+sel <- is.na(cpm_filtered_translated$hgnc_symbol)
+cpm_filtered_translated[sel, 2] <- cpm_filtered_translated[sel, 1]
+        
+# Rename the columns
+colnames(cpm_filtered_translated)[1:2] <- c("unmapped_gid", "gname")
 
+# Visualize
+head(cpm_filtered_translated)
+```
+
+The first few genes only shows the ones that do not require mapping. Here we selectively
+show some of the genes that require mapping.
+
+```{r, message = FALSE, tidy=TRUE, attr.output='style="max-height: 200px;"'}
+# Visualize the genes that require mapping
+head(cpm_filtered_translated[cpm_filtered_translated$unmapped_gid 
+                                      != cpm_filtered_translated$gname, ])
+```
+
+#### Duplicated Genes after Mapping
+
+Recall that there are a small number of genes 
+are considered duplicated due to the sharing of identical ENA accession number but
+different versions. We will now check if any of these genes are mapped to the
+same HGNC symbol. 
+
+```{r, message = FALSE, tidy=TRUE}
+# Any duplicated HGNC symbols?
+summarizedCounts <- sort(table(cpm_filtered_translated$gname), decreasing = TRUE)
+
+knitr::kable(summarizedCounts[summarizedCounts > 1][1:10]) %>% 
+    kableExtra::kable_styling(bootstrap_options = c("striped", "hover", 
+                "condensed", "responsive"), full_width = F, position = "center")
+```
+
+A small amount of duplications exist. By searching the genes against NCBI, we found
+that these top duplicated genes, [CHCHD3](https://www.ncbi.nlm.nih.gov/gene/54927), 
+[DGKI](https://www.ncbi.nlm.nih.gov/gene/9162), [PRKACB](https://www.ncbi.nlm.nih.gov/gene/5567),
+and [RGS7](https://www.ncbi.nlm.nih.gov/gene/6000), etc. do not seen to be highly
+related to the top expressed genes we previously identified. Therefore, we will
+proceed to data normalization while keeping these genes in the dataset.
+
+Finally, we save a newly mapped version of the filtered CPM table.
+
+```{r, message = FALSE, tidy=TRUE}
+file <- "./Data/cpm_filtered_translated.csv"
+write.csv(cpm_filtered_translated[ , 2:26], file, row.names = FALSE)
+```
 
 
 # Data Normalization
