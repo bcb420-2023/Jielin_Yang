@@ -34,6 +34,10 @@ csl: /home/rstudio/projects/Jielin_Yang/american-medical-association.csl
         font-size: 16pt;
         font-weight: bold;
     }
+    code {
+        font-family: monospace;
+        font-size: 11pt;
+    }
 </style>
 
 ```{r setup, include=FALSE}
@@ -146,6 +150,11 @@ if (! requireNamespace("GEOquery", quietly = TRUE)) {
 # edgeR package for manupulating and analyzing RNAseq data
 if (! requireNamespace("edgeR", quietly = TRUE)) {
   BiocManager::install("edgeR")
+}
+
+# biomaRt package for querying the Ensembl database
+if (! requireNamespace("biomaRt", quietly = TRUE)) {
+  BiocManager::install("biomaRt")
 }
 
 # Biobase package for Bioconduction base functions
@@ -411,8 +420,78 @@ cpm_filtered <- cpm[rowSums(cpm > 1) >= 6, ]
 dim(cpm_filtered)
 ```
 
-It is observed that `r (dim(rawCounts)[1] - dim(cpm_filtered)[1])/dim(rawCounts)[1] * 100`% of the genes were filtered out.
-Only `r dim(cpm_filtered)[1]` (`r dim(cpm_filtered)[1]/dim(rawCounts)[1] * 100`%) genes were retained for downstream analysis.
+It is observed that `r (dim(rawCounts)[1] - dim(cpm_filtered)[1])/dim(rawCounts)[1] * 100`% 
+of the genes were filtered out due to low number of reads.
+Only `r dim(cpm_filtered)[1]` (`r dim(cpm_filtered)[1]/dim(rawCounts)[1] * 100`%) 
+genes were retained for downstream analysis.
+
+
+
+# ID Mapping
+
+## Gene Names and ID
+
+Upon further checking of the dataset, we have found that the gene names are not completely
+consistent with the HUGO gene symbols. Many genes have been annotated with the HUGO gene
+symbols, as shown in the several highly expressed genes in the previous section. However,
+there are also genes that are annotated with the 
+[European Nucleotide Archive (ENA)](https://www.ebi.ac.uk/ena/browser/home) gene
+symbols. We now check how many genes are annotated with the ENA gene symbols. Upon 
+observation, ENA gene symbols are composed of 2 parts, separated by a dot. The first part
+is 1-2 letters followed by 5-6 digits, after which there is a dot, and then the second part
+is a digit. Since the nomenclature of the 
+[HUGO Gene Nomenclature Committee (HGNC)](https://www.genenames.org/) specifies
+that the gene symbols do not contain a dot, we will search for the dot in the gene names
+to identify the ENA gene symbols.
+
+```{r, message = FALSE, tidy=TRUE}
+# Check how many genes are annotated with the ENA gene symbols
+sum(grepl("\\.", rownames(cpm_filtered)))
+
+# To confirm, we also check how many genes are annotated with 2 letters followed by 6 digits
+sum(grepl("^[A-Z]{1,2}[0-9]{5,6}", rownames(cpm_filtered)))
+```
+
+The two method does not retrieve exactly the same number of genes, yet this is similar. 
+We will check the genes that are not found similarly by the two methods.
+
+```{r, message = FALSE, tidy=TRUE}
+# Get the index of the genes that are returned by each method
+byDots <- grep("\\.", rownames(cpm_filtered))
+byName <- grep("^[A-Z]{1,2}[0-9]{5,6}", rownames(cpm_filtered))
+
+# Genes that are differently identified by the two methods
+rownames(cpm_filtered)[setdiff(byDots, byName)]
+```
+
+The gene **`r rownames(cpm_filtered)[setdiff(byDots, byName)]`** was identified
+by the first method but not by the second method. Upon further checking the
+gene with various resources, we found that the gene is not annotated in the
+HGNC database. However, it is documented in the ENA database. Futher cross-referencing
+with other literatures allowed us to realized that this gene is a long non-coding RNA,
+which has been identified as a differntially expressed lncRNA in a human iPSC-derived
+cardiomyocytes hypertrophy model. [@pohjolainen2022transcriptomics] Therefore, we 
+will keep this gene in the dataset.
+
+Since there are `r length(byDots)` genes annotated with the ENA gene symbols, we will
+try to map these genes to the HUGO gene symbols.
+
+## Mapping ENA Gene Symbols to HUGO Gene Symbols
+
+```{r, message = FALSE, tidy=TRUE, attr.output='style="max-height: 200px;"'}
+# Get the ENA gene symbols of the genes that are not already annotated with the HUGO gene symbols
+(enaSymbols <- rownames(cpm_filtered)[byDots])
+```
+
+
+
+
+
+
+
+
+# Data Normalization
+
 
 
 # Interpretation and Analysis

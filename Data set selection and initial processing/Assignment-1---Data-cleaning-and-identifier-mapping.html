@@ -3100,6 +3100,10 @@ h3 {
 font-size: 16pt;
 font-weight: bold;
 }
+code {
+font-family: monospace;
+font-size: 11pt;
+}
 </style>
 <div id="introduction" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
@@ -3219,23 +3223,28 @@ below.</p>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    BiocManager<span class="sc">::</span><span class="fu">install</span>(<span class="st">&quot;edgeR&quot;</span>)</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Biobase package for Bioconduction base functions</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;Biobase&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    BiocManager<span class="sc">::</span><span class="fu">install</span>(<span class="st">&quot;Biobase&quot;</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># biomaRt package for querying the Ensembl database</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;biomaRt&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    BiocManager<span class="sc">::</span><span class="fu">install</span>(<span class="st">&quot;biomaRt&quot;</span>)</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># KableExtra package for creating tables and formatting</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;kableExtra&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">install.packages</span>(<span class="st">&quot;kableExtra&quot;</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Biobase package for Bioconduction base functions</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;Biobase&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    BiocManager<span class="sc">::</span><span class="fu">install</span>(<span class="st">&quot;Biobase&quot;</span>)</span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># dplyr package for data manipulation</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;dplyr&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">install.packages</span>(<span class="st">&quot;dplyr&quot;</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># KableExtra package for creating tables and formatting</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;kableExtra&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">install.packages</span>(<span class="st">&quot;kableExtra&quot;</span>)</span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the dplyr package</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;dplyr&quot;</span>)</span></code></pre></div>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># dplyr package for data manipulation</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;dplyr&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">install.packages</span>(<span class="st">&quot;dplyr&quot;</span>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the dplyr package</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;dplyr&quot;</span>)</span></code></pre></div>
 </div>
 <div id="data-download-and-initial-characterization" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Data Download and
@@ -3694,13 +3703,339 @@ treatment condition we have 4 biological replicates.<span class="citation"><sup>
 <span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize the summary statistics for the filtered dataset</span></span>
 <span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(cpm_filtered)</span></code></pre></div>
 <pre><code>## [1] 15111    24</code></pre>
-<p>It is observed that 75.0573593% of the genes were filtered out. Only
-15111 (24.9426407%) genes were retained for downstream analysis.</p>
+<p>It is observed that 75.0573593% of the genes were filtered out due to
+low number of reads. Only 15111 (24.9426407%) genes were retained for
+downstream analysis.</p>
 </div>
 </div>
 </div>
-<div id="interpretation-and-analysis" class="section level1" number="5">
-<h1><span class="header-section-number">5</span> Interpretation and
+<div id="id-mapping" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> ID Mapping</h1>
+<div id="gene-names-and-id" class="section level2" number="5.1">
+<h2><span class="header-section-number">5.1</span> Gene Names and
+ID</h2>
+<p>Upon further checking of the dataset, we have found that the gene
+names are not completely consistent with the HUGO gene symbols. Many
+genes have been annotated with the HUGO gene symbols, as shown in the
+several highly expressed genes in the previous section. However, there
+are also genes that are annotated with the <a href="https://www.ebi.ac.uk/ena/browser/home">European Nucleotide
+Archive (ENA)</a> gene symbols. We now check how many genes are
+annotated with the ENA gene symbols. Upon observation, ENA gene symbols
+are composed of 2 parts, separated by a dot. The first part is 1-2
+letters followed by 5-6 digits, after which there is a dot, and then the
+second part is a digit. Since the nomenclature of the <a href="https://www.genenames.org/">HUGO Gene Nomenclature Committee
+(HGNC)</a> specifies that the gene symbols do not contain a dot, we will
+search for the dot in the gene names to identify the ENA gene
+symbols.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check how many genes are annotated with the ENA gene symbols</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">grepl</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">.&quot;</span>, <span class="fu">rownames</span>(cpm_filtered)))</span></code></pre></div>
+<pre><code>## [1] 1066</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># To confirm, we also check how many genes are annotated with 2 letters</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># followed by 6 digits</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">grepl</span>(<span class="st">&quot;^[A-Z]{1,2}[0-9]{5,6}&quot;</span>, <span class="fu">rownames</span>(cpm_filtered)))</span></code></pre></div>
+<pre><code>## [1] 1065</code></pre>
+<p>The two method does not retrieve exactly the same number of genes,
+yet this is similar. We will check the genes that are not found
+similarly by the two methods.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the index of the genes that are returned by each method</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>byDots <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">.&quot;</span>, <span class="fu">rownames</span>(cpm_filtered))</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>byName <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">&quot;^[A-Z]{1,2}[0-9]{5,6}&quot;</span>, <span class="fu">rownames</span>(cpm_filtered))</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Genes that are differently identified by the two methods</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(cpm_filtered)[<span class="fu">setdiff</span>(byDots, byName)]</span></code></pre></div>
+<pre><code>## [1] &quot;AUXG01000058.1&quot;</code></pre>
+<p>The gene <strong>AUXG01000058.1</strong> was identified by the first
+method but not by the second method. Upon further checking the gene with
+various resources, we found that the gene is not annotated in the HGNC
+database. However, it is documented in the ENA database. Futher
+cross-referencing with other literatures allowed us to realized that
+this gene is a long non-coding RNA, which has been identified as a
+differntially expressed lncRNA in a human iPSC-derived cardiomyocytes
+hypertrophy model.<span class="citation"><sup>17</sup></span> Therefore,
+we will keep this gene in the dataset.</p>
+<p>Since there are 1066 genes annotated with the ENA gene symbols, we
+will try to map these genes to the HUGO gene symbols.</p>
+</div>
+<div id="mapping-ena-gene-symbols-to-hugo-gene-symbols" class="section level2" number="5.2">
+<h2><span class="header-section-number">5.2</span> Mapping ENA Gene
+Symbols to HUGO Gene Symbols</h2>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the ENA gene symbols of the genes that are not already annotated with the</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># HUGO gene symbols</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>(enaSymbols <span class="ot">&lt;-</span> <span class="fu">rownames</span>(cpm_filtered)[byDots])</span></code></pre></div>
+<pre style="max-height: 200px;"><code>##    [1] &quot;AP006222.1&quot;     &quot;AL669831.1&quot;     &quot;AL391244.2&quot;     &quot;AL645728.1&quot;    
+##    [5] &quot;AL691432.2&quot;     &quot;AL513477.1&quot;     &quot;AL450998.1&quot;     &quot;AL450998.2&quot;    
+##    [9] &quot;AL109627.1&quot;     &quot;BX284668.5&quot;     &quot;AL031727.1&quot;     &quot;AL031729.1&quot;    
+##   [13] &quot;AL020997.1&quot;     &quot;AL137792.1&quot;     &quot;AL138785.2&quot;     &quot;AC209007.1&quot;    
+##   [17] &quot;AL354702.1&quot;     &quot;AL139260.1&quot;     &quot;AL663070.2&quot;     &quot;AL512599.1&quot;    
+##   [21] &quot;AL050341.2&quot;     &quot;AL031985.3&quot;     &quot;AL512353.1&quot;     &quot;AL356653.1&quot;    
+##   [25] &quot;AL356968.2&quot;     &quot;AL596275.1&quot;     &quot;AL162430.2&quot;     &quot;AL139156.2&quot;    
+##   [29] &quot;AL445183.3&quot;     &quot;AC099789.1&quot;     &quot;AL035411.1&quot;     &quot;AL049636.1&quot;    
+##   [33] &quot;AL096829.1&quot;     &quot;AC113935.1&quot;     &quot;AC118549.1&quot;     &quot;AC138392.1&quot;    
+##   [37] &quot;AC103591.1&quot;     &quot;AC104837.1&quot;     &quot;AL359504.2&quot;     &quot;AL450063.1&quot;    
+##   [41] &quot;AC092807.4&quot;     &quot;AL049597.2&quot;     &quot;AL049597.1&quot;     &quot;AC093155.2&quot;    
+##   [45] &quot;AC093155.1&quot;     &quot;AC105942.1&quot;     &quot;AL445433.1&quot;     &quot;AC093157.1&quot;    
+##   [49] &quot;AL109741.2&quot;     &quot;AL512844.1&quot;     &quot;AC114491.1&quot;     &quot;BX679664.3&quot;    
+##   [53] &quot;AL356488.3&quot;     &quot;AL160006.1&quot;     &quot;AL357055.1&quot;     &quot;AL391058.1&quot;    
+##   [57] &quot;AL390066.2&quot;     &quot;AL139148.1&quot;     &quot;AC244669.1&quot;     &quot;AC241952.2&quot;    
+##   [61] &quot;AC241585.1&quot;     &quot;AC244394.1&quot;     &quot;AC241584.1&quot;     &quot;AC242426.1&quot;    
+##   [65] &quot;AC245100.8&quot;     &quot;AC245297.4&quot;     &quot;AC245297.1&quot;     &quot;AC244033.2&quot;    
+##   [69] &quot;BX470102.2&quot;     &quot;AL513523.3&quot;     &quot;AL358472.1&quot;     &quot;AL353807.3&quot;    
+##   [73] &quot;AL353807.5&quot;     &quot;AL365181.3&quot;     &quot;AL157713.1&quot;     &quot;AL356276.2&quot;    
+##   [77] &quot;AL365440.1&quot;     &quot;AL590560.3&quot;     &quot;AL354714.2&quot;     &quot;AL592295.1&quot;    
+##   [81] &quot;AL596087.1&quot;     &quot;Z99572.1&quot;       &quot;AL031274.1&quot;     &quot;AL645568.1&quot;    
+##   [85] &quot;AL359265.2&quot;     &quot;AL365357.1&quot;     &quot;AL513175.1&quot;     &quot;AL513175.2&quot;    
+##   [89] &quot;AL136454.1&quot;     &quot;AL513325.1&quot;     &quot;AL365258.3&quot;     &quot;AC099335.1&quot;    
+##   [93] &quot;AC104461.1&quot;     &quot;AC099336.1&quot;     &quot;AC099336.2&quot;     &quot;AL513343.1&quot;    
+##   [97] &quot;AL592114.1&quot;     &quot;AC096533.1&quot;     &quot;AC119673.3&quot;     &quot;AC244034.1&quot;    
+##  [101] &quot;AL591846.2&quot;     &quot;AC092017.2&quot;     &quot;AC092017.1&quot;     &quot;AL445305.1&quot;    
+##  [105] &quot;AL592148.1&quot;     &quot;AL392172.1&quot;     &quot;AC138393.1&quot;     &quot;AC092809.4&quot;    
+##  [109] &quot;AC099066.2&quot;     &quot;AL353593.1&quot;     &quot;AL162595.1&quot;     &quot;AL445524.1&quot;    
+##  [113] &quot;AL663058.1&quot;     &quot;AL355472.1&quot;     &quot;AL122018.1&quot;     &quot;AL359918.2&quot;    
+##  [117] &quot;AL365184.1&quot;     &quot;AL590682.1&quot;     &quot;AL359764.2&quot;     &quot;AL390728.6&quot;    
+##  [121] &quot;AL390728.4&quot;     &quot;AL390728.1&quot;     &quot;AC108488.3&quot;     &quot;AC010904.1&quot;    
+##  [125] &quot;AC010969.2&quot;     &quot;AC104794.3&quot;     &quot;AC007041.1&quot;     &quot;AC012065.5&quot;    
+##  [129] &quot;AC074117.1&quot;     &quot;AC104695.2&quot;     &quot;AC010878.1&quot;     &quot;AC012354.2&quot;    
+##  [133] &quot;AC079250.1&quot;     &quot;AC007560.1&quot;     &quot;AC007238.1&quot;     &quot;AC010733.1&quot;    
+##  [137] &quot;AC016747.1&quot;     &quot;AC016727.1&quot;     &quot;AC092155.2&quot;     &quot;AC016734.1&quot;    
+##  [141] &quot;AC096664.2&quot;     &quot;AC007318.1&quot;     &quot;AC016700.2&quot;     &quot;AC019069.1&quot;    
+##  [145] &quot;AC105399.1&quot;     &quot;AC022210.1&quot;     &quot;AC083899.1&quot;     &quot;AC133644.1&quot;    
+##  [149] &quot;AC012671.1&quot;     &quot;AC006453.3&quot;     &quot;AC027612.3&quot;     &quot;AC026273.1&quot;    
+##  [153] &quot;AC009237.14&quot;    &quot;AC009237.3&quot;     &quot;AC159540.2&quot;     &quot;AC092683.1&quot;    
+##  [157] &quot;AC012360.3&quot;     &quot;AC092106.1&quot;     &quot;AC140479.3&quot;     &quot;AC108463.1&quot;    
+##  [161] &quot;AC068491.1&quot;     &quot;AC104651.1&quot;     &quot;AC079922.1&quot;     &quot;AC079922.2&quot;    
+##  [165] &quot;AL078621.3&quot;     &quot;AL078621.1&quot;     &quot;AC009404.1&quot;     &quot;AC009303.4&quot;    
+##  [169] &quot;AC092646.1&quot;     &quot;AC068137.1&quot;     &quot;AC073869.1&quot;     &quot;AC093724.1&quot;    
+##  [173] &quot;AC064850.1&quot;     &quot;AC097523.1&quot;     &quot;AC097523.2&quot;     &quot;AC117947.1&quot;    
+##  [177] &quot;AC012066.1&quot;     &quot;AC009506.2&quot;     &quot;AC009961.4&quot;     &quot;AC009299.2&quot;    
+##  [181] &quot;AC009487.2&quot;     &quot;AC107075.1&quot;     &quot;AC019181.1&quot;     &quot;AC007969.1&quot;    
+##  [185] &quot;AC078883.1&quot;     &quot;AC016739.1&quot;     &quot;AC019080.1&quot;     &quot;AC009948.1&quot;    
+##  [189] &quot;AC010680.2&quot;     &quot;AC092642.1&quot;     &quot;AC067945.1&quot;     &quot;AC074290.1&quot;    
+##  [193] &quot;AC007256.1&quot;     &quot;AC125238.2&quot;     &quot;AC007383.2&quot;     &quot;AC007383.1&quot;    
+##  [197] &quot;AC012513.3&quot;     &quot;AC021016.2&quot;     &quot;AC021016.1&quot;     &quot;AC012510.1&quot;    
+##  [201] &quot;AC016712.1&quot;     &quot;AC074019.1&quot;     &quot;AC018738.1&quot;     &quot;AC012063.1&quot;    
+##  [205] &quot;AC022007.1&quot;     &quot;AC091492.1&quot;     &quot;AC104297.1&quot;     &quot;AC099535.1&quot;    
+##  [209] &quot;AC098614.3&quot;     &quot;AC025614.3&quot;     &quot;AC112220.2&quot;     &quot;AC097359.2&quot;    
+##  [213] &quot;AC099560.2&quot;     &quot;AC006058.1&quot;     &quot;AC099778.1&quot;     &quot;AC124916.1&quot;    
+##  [217] &quot;AC092045.1&quot;     &quot;AC012467.2&quot;     &quot;AC108725.1&quot;     &quot;AC026877.1&quot;    
+##  [221] &quot;AC110994.3&quot;     &quot;AC073861.1&quot;     &quot;AC091804.1&quot;     &quot;AC080097.2&quot;    
+##  [225] &quot;AC074043.1&quot;     &quot;AC079944.2&quot;     &quot;AC092910.3&quot;     &quot;AC063952.2&quot;    
+##  [229] &quot;AC117488.1&quot;     &quot;AC083799.1&quot;     &quot;AC117409.1&quot;     &quot;AC117382.1&quot;    
+##  [233] &quot;AC096992.2&quot;     &quot;AC046134.2&quot;     &quot;AC133435.1&quot;     &quot;AC109992.1&quot;    
+##  [237] &quot;AC021074.1&quot;     &quot;AC022494.1&quot;     &quot;AC092944.1&quot;     &quot;AC026316.1&quot;    
+##  [241] &quot;AC092919.3&quot;     &quot;AC069218.1&quot;     &quot;AC007953.1&quot;     &quot;AC131235.2&quot;    
+##  [245] &quot;AC107294.2&quot;     &quot;AC092952.1&quot;     &quot;AC046143.1&quot;     &quot;AC069213.3&quot;    
+##  [249] &quot;AC124944.2&quot;     &quot;AC132008.2&quot;     &quot;AC144530.1&quot;     &quot;AC079140.2&quot;    
+##  [253] &quot;AC139887.2&quot;     &quot;AC147067.1&quot;     &quot;AC093323.1&quot;     &quot;AC097382.3&quot;    
+##  [257] &quot;AC104825.1&quot;     &quot;AC005674.2&quot;     &quot;AC110768.2&quot;     &quot;AC114728.1&quot;    
+##  [261] &quot;AC079921.2&quot;     &quot;AC098591.3&quot;     &quot;AC098591.2&quot;     &quot;AC098590.1&quot;    
+##  [265] &quot;AC092597.1&quot;     &quot;AC107068.1&quot;     &quot;AC110611.2&quot;     &quot;AC022483.1&quot;    
+##  [269] &quot;AC115223.1&quot;     &quot;AC093677.1&quot;     &quot;AC104771.1&quot;     &quot;AC067942.1&quot;    
+##  [273] &quot;AC067942.2&quot;     &quot;AC093827.3&quot;     &quot;AC093827.4&quot;     &quot;AC093866.1&quot;    
+##  [277] &quot;AC095059.2&quot;     &quot;AC114811.2&quot;     &quot;AP002026.1&quot;     &quot;AP001816.1&quot;    
+##  [281] &quot;AC098487.1&quot;     &quot;AC004069.1&quot;     &quot;AC004057.1&quot;     &quot;AC092670.1&quot;    
+##  [285] &quot;AC110079.1&quot;     &quot;AC093752.1&quot;     &quot;AC093816.1&quot;     &quot;AC093591.1&quot;    
+##  [289] &quot;AC078850.1&quot;     &quot;AC105383.1&quot;     &quot;AC104619.1&quot;     &quot;AC104619.3&quot;    
+##  [293] &quot;AC098859.1&quot;     &quot;AC097658.2&quot;     &quot;AC093890.1&quot;     &quot;AC079228.1&quot;    
+##  [297] &quot;AC010683.1&quot;     &quot;AC098679.2&quot;     &quot;AC112247.1&quot;     &quot;AC105250.1&quot;    
+##  [301] &quot;AC106872.2&quot;     &quot;AC106872.6&quot;     &quot;AC079768.1&quot;     &quot;AC105285.1&quot;    
+##  [305] &quot;AC093849.2&quot;     &quot;AC074194.1&quot;     &quot;AC099343.4&quot;     &quot;AC108073.1&quot;    
+##  [309] &quot;AC093909.1&quot;     &quot;AC021087.2&quot;     &quot;AC026748.3&quot;     &quot;AC026412.1&quot;    
+##  [313] &quot;AC010342.1&quot;     &quot;AC025458.1&quot;     &quot;AC025181.2&quot;     &quot;AC010343.1&quot;    
+##  [317] &quot;AC008875.3&quot;     &quot;AC025171.1&quot;     &quot;AC025171.2&quot;     &quot;AC093297.2&quot;    
+##  [321] &quot;AC008966.1&quot;     &quot;AC016596.3&quot;     &quot;AC092353.2&quot;     &quot;AC022107.1&quot;    
+##  [325] &quot;AC020893.1&quot;     &quot;AC093214.1&quot;     &quot;AC113404.3&quot;     &quot;AC020898.1&quot;    
+##  [329] &quot;AC026410.1&quot;     &quot;AC026410.3&quot;     &quot;AC008771.1&quot;     &quot;AC020899.1&quot;    
+##  [333] &quot;AC091429.1&quot;     &quot;AC008840.1&quot;     &quot;AC009126.1&quot;     &quot;AC116347.1&quot;    
+##  [337] &quot;AC024587.1&quot;     &quot;AC133134.1&quot;     &quot;AC034207.1&quot;     &quot;AC010468.1&quot;    
+##  [341] &quot;AC034236.1&quot;     &quot;AC106806.1&quot;     &quot;AC113398.1&quot;     &quot;AC093535.2&quot;    
+##  [345] &quot;AC113367.1&quot;     &quot;AC010240.3&quot;     &quot;AC106791.1&quot;     &quot;AC005618.1&quot;    
+##  [349] &quot;AC091825.3&quot;     &quot;AC011352.1&quot;     &quot;AC021078.1&quot;     &quot;AC008427.2&quot;    
+##  [353] &quot;AC026688.1&quot;     &quot;AC008677.2&quot;     &quot;AC008677.1&quot;     &quot;AC112191.2&quot;    
+##  [357] &quot;AC116917.1&quot;     &quot;AC026403.1&quot;     &quot;AC027309.2&quot;     &quot;AC008429.1&quot;    
+##  [361] &quot;AC008429.2&quot;     &quot;AC145098.2&quot;     &quot;AC139795.2&quot;     &quot;AC139795.1&quot;    
+##  [365] &quot;AC106795.1&quot;     &quot;AC106795.2&quot;     &quot;AC104117.2&quot;     &quot;AC008443.1&quot;    
+##  [369] &quot;AL391422.4&quot;     &quot;AL590004.3&quot;     &quot;AL359643.3&quot;     &quot;AL136968.2&quot;    
+##  [373] &quot;AL139095.2&quot;     &quot;AL138878.2&quot;     &quot;AL137003.1&quot;     &quot;AL138724.2&quot;    
+##  [377] &quot;U91328.1&quot;       &quot;AL031777.2&quot;     &quot;AL121944.2&quot;     &quot;AL662795.2&quot;    
+##  [381] &quot;AL645933.3&quot;     &quot;AL645933.4&quot;     &quot;AL354740.1&quot;     &quot;AL451165.2&quot;    
+##  [385] &quot;AL139100.2&quot;     &quot;AL138721.1&quot;     &quot;AL033519.3&quot;     &quot;AL157823.1&quot;    
+##  [389] &quot;AL079341.2&quot;     &quot;FO393411.1&quot;     &quot;AL355802.1&quot;     &quot;AL353138.1&quot;    
+##  [393] &quot;AL158050.1&quot;     &quot;AL109918.1&quot;     &quot;AL135905.1&quot;     &quot;AL135905.2&quot;    
+##  [397] &quot;AL365217.1&quot;     &quot;AL583856.1&quot;     &quot;AC019205.1&quot;     &quot;AL591135.1&quot;    
+##  [401] &quot;AL391416.1&quot;     &quot;AL135903.1&quot;     &quot;AL079342.1&quot;     &quot;AL590635.1&quot;    
+##  [405] &quot;AL078595.1&quot;     &quot;AL513550.1&quot;     &quot;AL133338.1&quot;     &quot;AL133338.2&quot;    
+##  [409] &quot;AL024507.3&quot;     &quot;AL445189.2&quot;     &quot;AL358942.1&quot;     &quot;AL050331.1&quot;    
+##  [413] &quot;AL450405.1&quot;     &quot;Z99129.4&quot;       &quot;AL445259.1&quot;     &quot;AL356534.1&quot;    
+##  [417] &quot;AL356124.1&quot;     &quot;AL356234.3&quot;     &quot;AL590617.1&quot;     &quot;AL590617.2&quot;    
+##  [421] &quot;AL136116.3&quot;     &quot;AL356599.1&quot;     &quot;AL603766.1&quot;     &quot;AL133260.1&quot;    
+##  [425] &quot;AL356535.1&quot;     &quot;AL590867.2&quot;     &quot;AL390955.1&quot;     &quot;AL353625.1&quot;    
+##  [429] &quot;AL023775.1&quot;     &quot;AL109924.1&quot;     &quot;AC093627.4&quot;     &quot;AC091729.3&quot;    
+##  [433] &quot;AC102953.2&quot;     &quot;AC092171.5&quot;     &quot;AC006483.1&quot;     &quot;AC013470.3&quot;    
+##  [437] &quot;AC005014.1&quot;     &quot;AC002480.1&quot;     &quot;AC002480.2&quot;     &quot;AC073072.1&quot;    
+##  [441] &quot;AC006026.1&quot;     &quot;AC005165.2&quot;     &quot;AC006978.1&quot;     &quot;AC018647.2&quot;    
+##  [445] &quot;AC004987.2&quot;     &quot;AC004453.1&quot;     &quot;AC004854.2&quot;     &quot;AC074397.1&quot;    
+##  [449] &quot;AC073136.1&quot;     &quot;AC092447.2&quot;     &quot;AC091799.1&quot;     &quot;AC008267.5&quot;    
+##  [453] &quot;AC006001.3&quot;     &quot;AC006001.2&quot;     &quot;AC027644.3&quot;     &quot;AC073335.1&quot;    
+##  [457] &quot;AC004980.1&quot;     &quot;AC002456.1&quot;     &quot;AC007566.1&quot;     &quot;AC073063.1&quot;    
+##  [461] &quot;AC007683.1&quot;     &quot;AC004884.1&quot;     &quot;AC073073.1&quot;     &quot;AC002467.1&quot;    
+##  [465] &quot;AC074085.2&quot;     &quot;AC006333.1&quot;     &quot;AC000123.3&quot;     &quot;AC090114.2&quot;    
+##  [469] &quot;AC090114.1&quot;     &quot;AC108010.1&quot;     &quot;AC018638.4&quot;     &quot;AC018638.2&quot;    
+##  [473] &quot;AC018638.5&quot;     &quot;AC025594.1&quot;     &quot;AC018639.1&quot;     &quot;AC011005.1&quot;    
+##  [477] &quot;AC078846.1&quot;     &quot;AUXG01000058.1&quot; &quot;AC016831.6&quot;     &quot;AC016831.1&quot;    
+##  [481] &quot;AC009362.1&quot;     &quot;AC008038.1&quot;     &quot;AC083873.1&quot;     &quot;AC009275.1&quot;    
+##  [485] &quot;AC090498.1&quot;     &quot;AC009245.1&quot;     &quot;AC009220.1&quot;     &quot;AC004918.5&quot;    
+##  [489] &quot;AC093673.1&quot;     &quot;AC005229.1&quot;     &quot;AC005229.4&quot;     &quot;AC004890.2&quot;    
+##  [493] &quot;AC004941.2&quot;     &quot;AC073111.4&quot;     &quot;AC021097.1&quot;     &quot;AC104692.2&quot;    
+##  [497] &quot;AC144652.1&quot;     &quot;BX890604.2&quot;     &quot;AC112656.1&quot;     &quot;AC078991.1&quot;    
+##  [501] &quot;AC006062.1&quot;     &quot;AC002524.1&quot;     &quot;AC004552.1&quot;     &quot;AC097263.1&quot;    
+##  [505] &quot;AC006210.2&quot;     &quot;BX842568.2&quot;     &quot;AC091806.1&quot;     &quot;AL627402.1&quot;    
+##  [509] &quot;AL034370.1&quot;     &quot;AL139811.1&quot;     &quot;AL512633.1&quot;     &quot;AL606490.2&quot;    
+##  [513] &quot;AC231533.2&quot;     &quot;AC233279.1&quot;     &quot;BX322784.1&quot;     &quot;AL450487.1&quot;    
+##  [517] &quot;AL158201.1&quot;     &quot;AL590762.3&quot;     &quot;AL590762.1&quot;     &quot;Z83843.1&quot;      
+##  [521] &quot;AC004386.1&quot;     &quot;AL512504.1&quot;     &quot;AL391294.1&quot;     &quot;AL121871.1&quot;    
+##  [525] &quot;AL359263.1&quot;     &quot;AL354685.2&quot;     &quot;Z95327.2&quot;       &quot;AC234775.2&quot;    
+##  [529] &quot;Z68871.1&quot;       &quot;AL390039.1&quot;     &quot;AL928646.1&quot;     &quot;AC005000.1&quot;    
+##  [533] &quot;AL022718.1&quot;     &quot;AL627231.1&quot;     &quot;AL049792.1&quot;     &quot;AL009174.1&quot;    
+##  [537] &quot;FO393409.1&quot;     &quot;AL136169.1&quot;     &quot;AL355309.1&quot;     &quot;Z97180.1&quot;      
+##  [541] &quot;U40455.1&quot;       &quot;BX322650.1&quot;     &quot;AC244090.1&quot;     &quot;AC100810.1&quot;    
+##  [545] &quot;AC016065.1&quot;     &quot;AC145124.1&quot;     &quot;AC037459.2&quot;     &quot;AC107959.1&quot;    
+##  [549] &quot;AC100861.1&quot;     &quot;AC090197.1&quot;     &quot;AC102945.2&quot;     &quot;AC090281.1&quot;    
+##  [553] &quot;AC090204.1&quot;     &quot;AC087343.1&quot;     &quot;AC091182.2&quot;     &quot;AC124067.2&quot;    
+##  [557] &quot;AC024451.2&quot;     &quot;AC064807.1&quot;     &quot;AC022034.1&quot;     &quot;AC046176.1&quot;    
+##  [561] &quot;AC009927.1&quot;     &quot;AC068522.1&quot;     &quot;AC022182.3&quot;     &quot;AC110998.1&quot;    
+##  [565] &quot;AF201337.1&quot;     &quot;AC022868.1&quot;     &quot;AC115837.1&quot;     &quot;AC083837.1&quot;    
+##  [569] &quot;AC009812.1&quot;     &quot;AF117829.1&quot;     &quot;AC104339.1&quot;     &quot;AC024995.1&quot;    
+##  [573] &quot;AP002982.1&quot;     &quot;AC090686.1&quot;     &quot;AC027031.2&quot;     &quot;AC091563.1&quot;    
+##  [577] &quot;AC018992.1&quot;     &quot;AC083843.3&quot;     &quot;AC040970.1&quot;     &quot;AC234917.3&quot;    
+##  [581] &quot;AC109322.1&quot;     &quot;AC084125.2&quot;     &quot;AL162253.2&quot;     &quot;AL592293.2&quot;    
+##  [585] &quot;AL356000.1&quot;     &quot;AL161909.1&quot;     &quot;AL158206.1&quot;     &quot;AL353662.2&quot;    
+##  [589] &quot;AL162231.2&quot;     &quot;AL133476.1&quot;     &quot;AL513165.1&quot;     &quot;AL138752.1&quot;    
+##  [593] &quot;AL353763.2&quot;     &quot;AL512625.3&quot;     &quot;AL353616.1&quot;     &quot;AL158047.1&quot;    
+##  [597] &quot;AL354920.1&quot;     &quot;AL353743.1&quot;     &quot;AL353678.1&quot;     &quot;AL161787.1&quot;    
+##  [601] &quot;AL353748.3&quot;     &quot;AL353150.1&quot;     &quot;AL691447.2&quot;     &quot;AL133477.1&quot;    
+##  [605] &quot;AL445487.1&quot;     &quot;AL669983.1&quot;     &quot;AL158823.1&quot;     &quot;AL138756.1&quot;    
+##  [609] &quot;AL596244.1&quot;     &quot;AL359091.4&quot;     &quot;AL441992.2&quot;     &quot;AL355574.1&quot;    
+##  [613] &quot;BX255925.3&quot;     &quot;AP006621.3&quot;     &quot;AP006621.5&quot;     &quot;AC107884.1&quot;    
+##  [617] &quot;AC011979.1&quot;     &quot;AC080023.2&quot;     &quot;AC116533.1&quot;     &quot;AC107956.1&quot;    
+##  [621] &quot;AC124798.1&quot;     &quot;AP006296.1&quot;     &quot;AC009549.1&quot;     &quot;AC100771.1&quot;    
+##  [625] &quot;AC104563.1&quot;     &quot;AL049714.1&quot;     &quot;AL136126.1&quot;     &quot;AL139174.1&quot;    
+##  [629] &quot;AC021723.1&quot;     &quot;AC024475.2&quot;     &quot;AC024293.1&quot;     &quot;AC090589.1&quot;    
+##  [633] &quot;AC090559.1&quot;     &quot;AC023232.1&quot;     &quot;AC109635.5&quot;     &quot;AP004245.1&quot;    
+##  [637] &quot;AP001803.1&quot;     &quot;AP000662.1&quot;     &quot;AP001453.4&quot;     &quot;AP003068.2&quot;    
+##  [641] &quot;AP000944.5&quot;     &quot;AP000944.7&quot;     &quot;AP000769.1&quot;     &quot;AP002748.4&quot;    
+##  [645] &quot;AP002807.1&quot;     &quot;AP002387.2&quot;     &quot;AP002495.1&quot;     &quot;AP002761.4&quot;    
+##  [649] &quot;AP002761.3&quot;     &quot;AP001372.2&quot;     &quot;AP001324.1&quot;     &quot;AP002360.2&quot;    
+##  [653] &quot;AP000580.1&quot;     &quot;AP002985.1&quot;     &quot;AP000873.2&quot;     &quot;AP003097.1&quot;    
+##  [657] &quot;AP001528.1&quot;     &quot;AP001528.2&quot;     &quot;AP002784.1&quot;     &quot;AP002784.2&quot;    
+##  [661] &quot;AP000942.1&quot;     &quot;AP001282.1&quot;     &quot;AP002353.1&quot;     &quot;AP001024.1&quot;    
+##  [665] &quot;AP001889.1&quot;     &quot;AP000936.3&quot;     &quot;AP001994.1&quot;     &quot;AP003040.1&quot;    
+##  [669] &quot;AP000866.1&quot;     &quot;AP001000.1&quot;     &quot;AP003486.1&quot;     &quot;AL137186.2&quot;    
+##  [673] &quot;AL157392.3&quot;     &quot;AL365203.2&quot;     &quot;AL133216.2&quot;     &quot;AL137026.1&quot;    
+##  [677] &quot;AL356056.2&quot;     &quot;FO681492.1&quot;     &quot;AC016397.2&quot;     &quot;AC016394.3&quot;    
+##  [681] &quot;AC016394.4&quot;     &quot;AC022400.8&quot;     &quot;AL132656.4&quot;     &quot;AL135925.1&quot;    
+##  [685] &quot;AC067750.1&quot;     &quot;AL158212.3&quot;     &quot;AL391988.1&quot;     &quot;AC007406.5&quot;    
+##  [689] &quot;AC004803.1&quot;     &quot;AC125807.2&quot;     &quot;AC125807.1&quot;     &quot;AC005912.1&quot;    
+##  [693] &quot;AC005831.1&quot;     &quot;AC137627.1&quot;     &quot;AC005840.1&quot;     &quot;AC005840.3&quot;    
+##  [697] &quot;AC006927.1&quot;     &quot;AC124891.1&quot;     &quot;AC006511.4&quot;     &quot;AC007688.2&quot;    
+##  [701] &quot;AC023512.1&quot;     &quot;AC022509.3&quot;     &quot;AC092747.4&quot;     &quot;AC009509.2&quot;    
+##  [705] &quot;AC022364.1&quot;     &quot;AC010198.2&quot;     &quot;AC024940.3&quot;     &quot;AC023157.1&quot;    
+##  [709] &quot;AC084824.2&quot;     &quot;AC020629.1&quot;     &quot;AC079601.3&quot;     &quot;AC093012.1&quot;    
+##  [713] &quot;AC008124.1&quot;     &quot;AC008014.1&quot;     &quot;AC004241.1&quot;     &quot;AC004801.1&quot;    
+##  [717] &quot;AC020612.1&quot;     &quot;AC025259.2&quot;     &quot;AC021066.1&quot;     &quot;AC055716.2&quot;    
+##  [721] &quot;AC068888.1&quot;     &quot;AC073611.1&quot;     &quot;AC009779.5&quot;     &quot;AC009779.3&quot;    
+##  [725] &quot;AC034102.1&quot;     &quot;AC073896.2&quot;     &quot;AC022506.2&quot;     &quot;AC079905.1&quot;    
+##  [729] &quot;AC048341.1&quot;     &quot;AC048341.2&quot;     &quot;AC135279.3&quot;     &quot;AC107032.1&quot;    
+##  [733] &quot;AC093014.1&quot;     &quot;AC068993.1&quot;     &quot;AC078817.1&quot;     &quot;AC024909.1&quot;    
+##  [737] &quot;AC063949.1&quot;     &quot;AC026111.1&quot;     &quot;AC012085.1&quot;     &quot;AC023161.2&quot;    
+##  [741] &quot;AC018475.1&quot;     &quot;AC126474.2&quot;     &quot;AC063947.2&quot;     &quot;AC078819.1&quot;    
+##  [745] &quot;AC089983.1&quot;     &quot;AC084880.1&quot;     &quot;AC004812.2&quot;     &quot;AC156455.1&quot;    
+##  [749] &quot;AC027290.3&quot;     &quot;AC122688.3&quot;     &quot;AC131212.3&quot;     &quot;AL355001.2&quot;    
+##  [753] &quot;AL161772.1&quot;     &quot;AL445985.1&quot;     &quot;AL162377.1&quot;     &quot;AC000403.1&quot;    
+##  [757] &quot;AL139385.1&quot;     &quot;AL442125.1&quot;     &quot;AL589743.1&quot;     &quot;AC243972.2&quot;    
+##  [761] &quot;AL132780.2&quot;     &quot;AL135999.1&quot;     &quot;AL096870.10&quot;    &quot;AL132800.1&quot;    
+##  [765] &quot;AL079352.1&quot;     &quot;AL139353.3&quot;     &quot;AL445363.3&quot;     &quot;AL121603.2&quot;    
+##  [769] &quot;AL109628.1&quot;     &quot;AL121821.2&quot;     &quot;AL109766.1&quot;     &quot;AL049870.1&quot;    
+##  [773] &quot;AL365475.1&quot;     &quot;AL158801.6&quot;     &quot;AL158801.4&quot;     &quot;AL049873.1&quot;    
+##  [777] &quot;AL049873.2&quot;     &quot;AL355916.1&quot;     &quot;AL136038.7&quot;     &quot;AC005476.2&quot;    
+##  [781] &quot;AC005476.1&quot;     &quot;AC007160.1&quot;     &quot;AC004846.1&quot;     &quot;AC005520.4&quot;    
+##  [785] &quot;AC013451.2&quot;     &quot;AF111167.2&quot;     &quot;AC007182.2&quot;     &quot;AL049775.1&quot;    
+##  [789] &quot;AL049834.1&quot;     &quot;AL122020.1&quot;     &quot;AL049872.1&quot;     &quot;AL159141.1&quot;    
+##  [793] &quot;AL162151.2&quot;     &quot;AL157871.3&quot;     &quot;AL355032.1&quot;     &quot;AL118558.3&quot;    
+##  [797] &quot;AL049840.5&quot;     &quot;AL049840.6&quot;     &quot;AL928654.4&quot;     &quot;AL928654.1&quot;    
+##  [801] &quot;AC246787.1&quot;     &quot;AC068446.1&quot;     &quot;AC100757.1&quot;     &quot;AC061965.2&quot;    
+##  [805] &quot;AC022613.1&quot;     &quot;AC111152.3&quot;     &quot;AC127502.1&quot;     &quot;AC127502.2&quot;    
+##  [809] &quot;AC135983.3&quot;     &quot;AC090877.2&quot;     &quot;AC010809.2&quot;     &quot;AC010809.1&quot;    
+##  [813] &quot;AC018868.1&quot;     &quot;AC021231.2&quot;     &quot;AC103988.1&quot;     &quot;AC013652.1&quot;    
+##  [817] &quot;AC037198.1&quot;     &quot;AC020658.1&quot;     &quot;AC011330.1&quot;     &quot;AC044787.1&quot;    
+##  [821] &quot;AC084757.3&quot;     &quot;AC022306.1&quot;     &quot;AC090971.5&quot;     &quot;AC023906.1&quot;    
+##  [825] &quot;AC090517.5&quot;     &quot;AC079328.1&quot;     &quot;AC090543.3&quot;     &quot;AC103691.1&quot;    
+##  [829] &quot;AC027237.5&quot;     &quot;AC064799.1&quot;     &quot;AC091230.1&quot;     &quot;AC068338.2&quot;    
+##  [833] &quot;AC015871.3&quot;     &quot;AC015871.1&quot;     &quot;AC068870.2&quot;     &quot;AC243919.1&quot;    
+##  [837] &quot;AC107954.1&quot;     &quot;AC124068.1&quot;     &quot;AC104390.1&quot;     &quot;AC087633.2&quot;    
+##  [841] &quot;AC090825.1&quot;     &quot;AC015712.2&quot;     &quot;Z92544.2&quot;       &quot;AC106820.1&quot;    
+##  [845] &quot;AC093525.8&quot;     &quot;AC093525.7&quot;     &quot;AC141586.1&quot;     &quot;AC004224.1&quot;    
+##  [849] &quot;AC022167.2&quot;     &quot;AC092324.2&quot;     &quot;AC138932.1&quot;     &quot;AC138932.4&quot;    
+##  [853] &quot;AC026401.3&quot;     &quot;AC138969.1&quot;     &quot;AC138969.3&quot;     &quot;AC126755.1&quot;    
+##  [857] &quot;AC008915.3&quot;     &quot;AC009093.1&quot;     &quot;AC009133.1&quot;     &quot;AC120114.3&quot;    
+##  [861] &quot;AC093512.2&quot;     &quot;AC135050.6&quot;     &quot;AC026471.1&quot;     &quot;AC002519.2&quot;    
+##  [865] &quot;AC092368.3&quot;     &quot;AC007728.2&quot;     &quot;AC026462.1&quot;     &quot;AC007906.2&quot;    
+##  [869] &quot;AC040160.1&quot;     &quot;AC009061.2&quot;     &quot;AC126773.5&quot;     &quot;AC092115.2&quot;    
+##  [873] &quot;AC009022.1&quot;     &quot;AC010653.3&quot;     &quot;AC004943.2&quot;     &quot;AC009120.2&quot;    
+##  [877] &quot;AC009053.2&quot;     &quot;AC009078.1&quot;     &quot;AC009078.3&quot;     &quot;AC092718.4&quot;    
+##  [881] &quot;AC134312.5&quot;     &quot;AC138028.6&quot;     &quot;AC009113.1&quot;     &quot;AC130689.1&quot;    
+##  [885] &quot;AC002316.1&quot;     &quot;AC027796.4&quot;     &quot;AC091153.1&quot;     &quot;AC012146.1&quot;    
+##  [889] &quot;AC087500.1&quot;     &quot;AC055839.2&quot;     &quot;AC004706.3&quot;     &quot;AC040977.1&quot;    
+##  [893] &quot;AC016876.2&quot;     &quot;AC025518.1&quot;     &quot;AC087501.4&quot;     &quot;AC005291.2&quot;    
+##  [897] &quot;AC005291.1&quot;     &quot;AC005244.1&quot;     &quot;AC015922.3&quot;     &quot;AC005822.1&quot;    
+##  [901] &quot;AC055811.4&quot;     &quot;AC107983.1&quot;     &quot;AC026271.1&quot;     &quot;AC126365.1&quot;    
+##  [905] &quot;AC024619.4&quot;     &quot;AC104996.2&quot;     &quot;AC138207.8&quot;     &quot;AC060766.4&quot;    
+##  [909] &quot;AC060766.7&quot;     &quot;AC060766.1&quot;     &quot;AC015911.4&quot;     &quot;AC015849.6&quot;    
+##  [913] &quot;AC244153.1&quot;     &quot;AC006449.7&quot;     &quot;AC110749.1&quot;     &quot;AC080112.2&quot;    
+##  [917] &quot;AC073508.3&quot;     &quot;AC067852.2&quot;     &quot;AC060780.1&quot;     &quot;AC087650.1&quot;    
+##  [921] &quot;AC003102.1&quot;     &quot;AC005670.3&quot;     &quot;AC018521.5&quot;     &quot;AC015909.1&quot;    
+##  [925] &quot;AC007485.2&quot;     &quot;AC105021.1&quot;     &quot;AC015813.1&quot;     &quot;AC015813.5&quot;    
+##  [929] &quot;AC015813.6&quot;     &quot;AC025048.2&quot;     &quot;AC011921.3&quot;     &quot;AC008026.2&quot;    
+##  [933] &quot;AC008026.1&quot;     &quot;AC080038.2&quot;     &quot;AC046185.3&quot;     &quot;AC132812.1&quot;    
+##  [937] &quot;AC005332.6&quot;     &quot;AC005332.5&quot;     &quot;AC005332.4&quot;     &quot;AC025198.1&quot;    
+##  [941] &quot;AC022211.3&quot;     &quot;AC011933.1&quot;     &quot;AC022966.1&quot;     &quot;AC087741.1&quot;    
+##  [945] &quot;AC127496.7&quot;     &quot;AC027601.6&quot;     &quot;AC139530.1&quot;     &quot;AC132872.4&quot;    
+##  [949] &quot;AC130371.2&quot;     &quot;AC144831.1&quot;     &quot;AP000894.1&quot;     &quot;AP005119.2&quot;    
+##  [953] &quot;AP000919.1&quot;     &quot;AP005431.2&quot;     &quot;AP005329.3&quot;     &quot;AP005403.1&quot;    
+##  [957] &quot;AP002414.4&quot;     &quot;AP001029.2&quot;     &quot;AC007996.1&quot;     &quot;AC018371.2&quot;    
+##  [961] &quot;AC105245.1&quot;     &quot;AC009831.1&quot;     &quot;AC011815.1&quot;     &quot;AC023043.1&quot;    
+##  [965] &quot;AC012569.1&quot;     &quot;AC090771.1&quot;     &quot;AC090409.1&quot;     &quot;AC110597.1&quot;    
+##  [969] &quot;AC022968.1&quot;     &quot;AC018413.1&quot;     &quot;AC068473.5&quot;     &quot;AL117335.1&quot;    
+##  [973] &quot;AL109976.1&quot;     &quot;AL109618.1&quot;     &quot;AL121723.1&quot;     &quot;AL035071.1&quot;    
+##  [977] &quot;AL035458.1&quot;     &quot;AL121753.2&quot;     &quot;AL162458.1&quot;     &quot;AL162615.1&quot;    
+##  [981] &quot;AL118506.1&quot;     &quot;AC027307.2&quot;     &quot;AC012615.1&quot;     &quot;AC008760.2&quot;    
+##  [985] &quot;AC114271.1&quot;     &quot;AC008481.1&quot;     &quot;AC012618.1&quot;     &quot;AC010422.8&quot;    
+##  [989] &quot;AC020916.1&quot;     &quot;AC022098.1&quot;     &quot;AC022149.1&quot;     &quot;AC005255.1&quot;    
+##  [993] &quot;AC024075.2&quot;     &quot;AC024075.1&quot;     &quot;AC010618.3&quot;     &quot;AC020904.2&quot;    
+##  [997] &quot;AC005759.1&quot;     &quot;AC078899.1&quot;     &quot;AC092279.2&quot;     &quot;AC092279.1&quot;    
+## [1001] &quot;AC006504.1&quot;     &quot;AC006504.5&quot;     &quot;AC020910.6&quot;     &quot;AD000090.1&quot;    
+## [1005] &quot;AC016582.2&quot;     &quot;AC007842.1&quot;     &quot;AC118344.4&quot;     &quot;AC020929.1&quot;    
+## [1009] &quot;AC011462.5&quot;     &quot;AC243960.2&quot;     &quot;AC010247.1&quot;     &quot;AC011497.2&quot;    
+## [1013] &quot;AC006213.2&quot;     &quot;AC021092.1&quot;     &quot;AC021092.2&quot;     &quot;AC074212.1&quot;    
+## [1017] &quot;AC011495.1&quot;     &quot;AC022150.4&quot;     &quot;AC008813.1&quot;     &quot;AC010328.2&quot;    
+## [1021] &quot;AC092070.2&quot;     &quot;AC022137.3&quot;     &quot;AC008753.1&quot;     &quot;AC010327.4&quot;    
+## [1025] &quot;AC025588.1&quot;     &quot;AC005261.2&quot;     &quot;AC005261.1&quot;     &quot;AC010326.5&quot;    
+## [1029] &quot;AC010326.1&quot;     &quot;AC008969.1&quot;     &quot;AC020915.3&quot;     &quot;AC010642.2&quot;    
+## [1033] &quot;AC012313.10&quot;    &quot;AC012313.2&quot;     &quot;AC012313.1&quot;     &quot;AC012313.5&quot;    
+## [1037] &quot;AC134878.2&quot;     &quot;AP000529.1&quot;     &quot;AP000547.3&quot;     &quot;AC000089.1&quot;    
+## [1041] &quot;AC245452.1&quot;     &quot;AP000350.2&quot;     &quot;AP000357.1&quot;     &quot;AL008721.2&quot;    
+## [1045] &quot;Z97353.1&quot;       &quot;AC005005.1&quot;     &quot;Z74021.1&quot;       &quot;AL021877.1&quot;    
+## [1049] &quot;AL031587.5&quot;     &quot;AL021707.2&quot;     &quot;AL080243.4&quot;     &quot;AL080243.2&quot;    
+## [1053] &quot;AL035398.1&quot;     &quot;AL022328.4&quot;     &quot;FP565260.1&quot;     &quot;FP565260.6&quot;    
+## [1057] &quot;CU633906.2&quot;     &quot;FP236241.2&quot;     &quot;FP671120.4&quot;     &quot;AF127577.4&quot;    
+## [1061] &quot;AP000281.2&quot;     &quot;AP000695.1&quot;     &quot;AP000695.2&quot;     &quot;AP000695.3&quot;    
+## [1065] &quot;AP001062.1&quot;     &quot;AP001505.1&quot;</code></pre>
+</div>
+</div>
+<div id="data-normalization" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> Data Normalization</h1>
+</div>
+<div id="interpretation-and-analysis" class="section level1" number="7">
+<h1><span class="header-section-number">7</span> Interpretation and
 Analysis</h1>
 <ul>
 <li><p>What are the control and test conditions of the dataset?</p></li>
@@ -3715,8 +4050,8 @@ HUGO symbols?</p></li>
 </ul>
 <p>TODO: 1. For R code chucks, set warnings to false</p>
 </div>
-<div id="journal-link" class="section level1" number="6">
-<h1><span class="header-section-number">6</span> Journal Link</h1>
+<div id="journal-link" class="section level1" number="8">
+<h1><span class="header-section-number">8</span> Journal Link</h1>
 <p>The link to the concurrent journal entry can be found <a href="https://github.com/bcb420-2023/Jielin_Yang/wiki/Dataset-Cleaning-and-Identifier-Mapping">here</a>.</p>
 </div>
 <div id="references" class="section level1 unnumbered">
@@ -3812,6 +4147,12 @@ Medicine and Biology Society (EMBC)</em>. IEEE; 2015:6461-6464.</div>
 Count-based differential expression analysis of RNA sequencing data
 using r and bioconductor. <em>Nature protocols</em>.
 2013;8(9):1765-1786.</div>
+</div>
+<div id="ref-pohjolainen2022transcriptomics" class="csl-entry">
+<div class="csl-left-margin">17. </div><div class="csl-right-inline">Pohjolainen L, Ruskoaho H, Talman V.
+Transcriptomics reveal stretched human pluripotent stem cell-derived
+cardiomyocytes as an advantageous hypertrophy model. <em>Journal of
+Molecular and Cellular Cardiology Plus</em>. 2022;2:100020.</div>
 </div>
 </div>
 </div>
