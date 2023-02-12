@@ -6,11 +6,11 @@ date: Feb. 14th, 2023
 output: 
   html_document:
     toc: true
-    toc_depth: 2
+    toc_depth: 3
     toc_float: true
     number_sections: true
     df_print: paged
-    highlight: textmate
+    highlight: pygments
 bibliography: Assignment1.bib
 csl: /home/rstudio/projects/Jielin_Yang/american-medical-association.csl
 ---
@@ -143,15 +143,28 @@ if (! requireNamespace("GEOquery", quietly = TRUE)) {
   BiocManager::install("GEOquery")
 }
 
+# edgeR package for manupulating and analyzing RNAseq data
+if (! requireNamespace("edgeR", quietly = TRUE)) {
+  BiocManager::install("edgeR")
+}
+
 # Biobase package for Bioconduction base functions
 if (! requireNamespace("Biobase", quietly = TRUE)) {
   BiocManager::install("Biobase")
 }
 
-# stringr package for string manipulation
-if (! requireNamespace("stringr", quietly = TRUE)) {
-  install.packages("stringr")
+# KableExtra package for creating tables and formatting
+if (! requireNamespace("kableExtra", quietly = TRUE)) {
+  install.packages("kableExtra")
 }
+
+# dplyr package for data manipulation
+if (! requireNamespace("dplyr", quietly = TRUE)) {
+  install.packages("dplyr")
+}
+
+# Load the dplyr package
+library("dplyr")
 ```
 
 
@@ -212,7 +225,7 @@ if (! file.exists("./Data/GSE203358_Count_Matrix.txt")) {
 ```
 
 Only one data file exists for this study. The raw counts for all 24 samples are
-located in the file: `r stringr::str_remove_all(fnames[1], "\\.gz")`
+located in the file: `r list.files(path = "./Data", pattern = "\\.txt")`
 
 ## Preliminary Data Checking
 The raw counts are stored in a tab-delimited text file. We will import the data
@@ -220,10 +233,10 @@ into R using the `read.table()` function.
 
 ```{r, message = FALSE, tidy=TRUE}
 # Get the unzipped file name
-file <- stringr::str_remove_all(fnames[1], "\\.gz")
+file <- list.files(path = "./Data", pattern = "\\.txt")
 
 # Import the raw counts into R
-rawCounts <- read.table(file, sep = "\t", 
+rawCounts <- read.table(paste0("./Data/", file), sep = "\t", 
                         header = TRUE, check.names = FALSE)
 
 colnames(rawCounts)
@@ -258,7 +271,7 @@ samples <- data.frame(lapply(colnames(rawCounts)[2:25],
                              function(x){unlist(strsplit(x, split = "\\."))}))
 
 # rename the dataframe
-colnames(samples) <- colnames(ca125_exp)[2:25]
+colnames(samples) <- colnames(rawCounts)[2:25]
 rownames(samples) <- c("culture_rep","treatment")
 
 # Perform a matrix transposition, so that individual samples are listed in rows
@@ -267,6 +280,8 @@ samples <- data.frame(t(samples))
 
 # Order the samples by their treatment conditions
 samples <- samples[order(samples$treatment), ]
+
+samples
 ```
 
 ## Mapped Genes
@@ -292,15 +307,112 @@ length(unique(rawCounts$Geneid))
 !(length(unique(rawCounts$Geneid)) == dim(rawCounts)[1])    # No duplication
 ```
 
+### Gene mapping
+
+Previously, we did not observe any duplicated genes in the dataset based on the gene names.
+According to the method section the publication, total RNA was extracted from the cells
+and subjected to library preparation using the poly-A enrichment method. Therefore, it
+is expected that the genes selected for sequencing and analysis are protein-coding genes.
+We will now check the highly expressed genes in the dataset, and see if these genes 
+are consistent with our expectation. Since we only have gene names rather than
+Ensembl gene ID, we can directly search for and understand potential functions of 
+these highly expressed genes. While we are not performing differential gene 
+expression analysis, understanding the most highly enriched genes would allow us
+to check whether the general gene expression profile matches with the experimental
+condition, i.e, cells cultured under profibrotic mechanical strains.
+
+```{r, message = FALSE, tidy=TRUE}
+# Calculate the total counts for each gene and sort them in descending order
+sumGeneCounts <- rowSums(rawCounts[, 2:25])
+names(sumGeneCounts) <- rawCounts$Geneid
+sumGeneCounts <- sort(sumGeneCounts, decreasing = TRUE)
+
+# Genes with expression values > 1, and show the top 10
+knitr::kable(sumGeneCounts[sumGeneCounts > 1][1:10], format = "html", 
+             col.names = "Frequency") %>% 
+            kableExtra::kable_styling("striped", position = "center", 
+                                      full_width = F)
+```
+
+The most highly expressed gene is `FN1`, which encodes Fibronectin, which has been
+found to be highly enriched in the extracellular matrix (ECM) of the heart tissue
+following myocardial injury. [@wang2013fibronectin] Additionally, we have seen
+`COL1A1`, `COL1A2` genes, which encode different chains of type 1 collagen that
+are a common marker for fibrotic scars. [@hua2020multi] [@umbarkar2021mechanisms]
+The gene expression profile is consistent with the expectation, as the highly
+expressed genes (raw counts) across all biological replicates and test conditions
+are found to be associated with fibrosis and ECM remodelling.
+
+### Summary Statistics
+
+We will then calculate the summary statistics for the raw counts for each 
+of the 24 samples.
+
+```{r, message = FALSE, tidy=TRUE}
+# Calculate the summary statistics for the raw counts
+summaryStats <- data.frame(apply(rawCounts[, 2:25], 2, summary))
+
+# Visualize with a table
+summaryStats
+```
+
+Since the samples are sequenced multiplexed in the same lane, under a randomized 
+assumption, these samples should have similar sequencing depth. There are slight
+variations in terms of the global distribution of the raw counts. We will check if
+these variations are present between the different treatment conditions.
+
+```{r, message = FALSE, tidy=TRUE}
+# Calculate the summary statistics for the raw counts for each treatment condition
+
+# Control
+summaryCtrl <- summary(rowMeans(rawCounts[, grep("CTRL", colnames(rawCounts))]))
+
+# TGFb only
+summaryTGFb <- summary(rowMeans(rawCounts[, grep("TGFb$", colnames(rawCounts))]))
+
+# VTP only
+summaryVTP <- summary(rowMeans(rawCounts[, grep("VTP$", colnames(rawCounts))]))
+
+# VTP + TGFb
+summaryVTP_TGFb <- summary(rowMeans(rawCounts[, grep("TGFb_VTP", colnames(rawCounts))]))
+
+# Combine the data frames and visualize
+sumStats <- rbind(summaryCtrl, summaryTGFb, summaryVTP, summaryVTP_TGFb)
+rownames(sumStats) <- c("CTRL", "TGFb", "VTP", "VTP_TGFb")
+knitr::kable(sumStats, format = "html", col.names = colnames(sumStats)) %>% 
+            kableExtra::kable_styling("striped", position = "center")
+```
+
+The mean values of the raw counts are similar across the different treatment. This 
+suggests that the previously observed variations in the raw counts are mainly 
+due to the biological replicates.
 
 
+### Data Filtering
+Since the presence of lowly expressed genes would not contribute to the downstream
+analysis, which would even decrese the statistical power and sensitivity of detecting 
+differentially expressed genes, we will filter out the genes with low gene counts.
+[@sha2015effect]
 
+According to the edgeR protocol, we will filter out the genes with no more than 
+1 read per million in 6 of the samples, because for each treatment condition we
+have 4 biological replicates. [@anders2013count]
 
+```{r, message = FALSE, tidy=TRUE}
+# Translating the raw counts into counts per million (CPM)
+cpm <- edgeR::cpm(rawCounts[, 2:25])
+# and rename the gene names
+rownames(cpm) <- rawCounts$Geneid
 
+# Filter out the genes with no more than 1 read per million in 6 of the samples
+cpm_filtered <- cpm[rowSums(cpm > 1) >= 6, ]
 
+# Visualize the summary statistics for the filtered dataset
+dim(cpm_filtered)
+```
 
-
-
+It is observed that `r (dim(rawCounts)[1] - dim(cpm_filtered)[1])/dim(rawCounts)[1] * 100`% of the genes were filtered out.
+Only `r dim(cpm_filtered)[1]` (`r dim(cpm_filtered)[1]/dim(rawCounts)[1] * 100`%) genes were retained for downstream analysis.
 
 
 # Interpretation and Analysis
@@ -337,5 +449,7 @@ TODO:
 1. For R code chucks, set warnings to false
 
 
+# Journal Link
+The link to the concurrent journal entry can be found [here](https://github.com/bcb420-2023/Jielin_Yang/wiki/Dataset-Cleaning-and-Identifier-Mapping).
 
 # References
