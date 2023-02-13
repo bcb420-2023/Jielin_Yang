@@ -42,3 +42,4 @@ GEOmetadb.sqlite
 Data/GSE203358_Count_Matrix.txt
 Data/gb_hgnc_conversion.rds
 Data/cpm_filtered_translated.csv
+Data/raw_counts_filtered_translated.csv

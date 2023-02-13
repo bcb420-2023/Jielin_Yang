@@ -132,7 +132,7 @@ Total RNA was extracted from each independent cell culture 72 hours after
 phamalogical treatments using the Trizol method. RNA library was made following 
 enrichment of the polyadenylated mRNAs.
 
-![Schematics of RNAseq experiment design. Samples were cultured under maximal mechanical strains. Six independent cell cultures were used for each treatment condition. cSt-Cs:  cardiospheres-derived primitive cardiac stromal cells; VTP: verteporfin; TGF-β1: transforming growth factor beta-1. Figure created with BioRender.com](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/schematics.png)
+![**Figrue 1.** Schematics of RNAseq experiment design. Samples were cultured under maximal mechanical strains. Six independent cell cultures were used for each treatment condition. cSt-Cs:  cardiospheres-derived primitive cardiac stromal cells; VTP: verteporfin; TGF-β1: transforming growth factor beta-1. Figure created with BioRender.com](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/schematics.png)
 
 # Preparations
 
@@ -180,6 +180,11 @@ if (! requireNamespace("DT", quietly = TRUE)) {
   install.packages("DT")
 }
 
+# ggplot2 package for data visualization
+if (! requireNamespace("ggplot2", quietly = TRUE)) {
+  install.packages("ggplot2")
+}
+
 # here package for file path management
 if (! requireNamespace("here", quietly = TRUE)) {
   install.packages("here")
@@ -187,6 +192,9 @@ if (! requireNamespace("here", quietly = TRUE)) {
 
 # Load the dplyr package
 library("dplyr")
+
+# Load the ggplot2 package
+library("ggplot2")
 
 # We will consistently use package::function() to avoid confusion
 # However, the dplyr package has to be loaded first to allow
@@ -262,10 +270,10 @@ into R using the `read.table()` function.
 file <- list.files(path = "./Data", pattern = "\\.txt")
 
 # Import the raw counts into R
-rawCounts <- read.table(paste0("./Data/", file), sep = "\t", 
+raw_counts <- read.table(paste0("./Data/", file), sep = "\t", 
                         header = TRUE, check.names = FALSE)
 
-colnames(rawCounts)
+colnames(raw_counts)
 ```
 
 There are 25 columns in the dataset, with the first column as gene ID, and 
@@ -273,10 +281,10 @@ the rest with 1 column per sample
 
 ```{r, message = FALSE, tidy=TRUE}
 # Rename the rows with gene ID
-rownames(rawCounts) <- rawCounts$Geneid
+rownames(raw_counts) <- raw_counts$Geneid
 
 # Visualize the first 5 genes
-head(rawCounts)
+head(raw_counts)
 ```
 
 The dataset does not contain the original Ensembl gene IDs, whereas the HUGO
@@ -293,11 +301,11 @@ names under each of the four conditions
 ```{r, message = FALSE, tidy=TRUE}
 # Obtain the sample names and treatment conditions using the column names from
 # the dataset
-samples <- data.frame(lapply(colnames(rawCounts)[2:25], 
+samples <- data.frame(lapply(colnames(raw_counts)[2:25], 
                              function(x){unlist(strsplit(x, split = "\\."))}))
 
 # rename the dataframe
-colnames(samples) <- colnames(rawCounts)[2:25]
+colnames(samples) <- colnames(raw_counts)[2:25]
 rownames(samples) <- c("culture_rep","treatment")
 
 # Perform a matrix transposition, so that individual samples are listed in rows
@@ -318,19 +326,19 @@ We will first assess whether there are any duplicated genes in the dataset.
 
 ```{r, message = FALSE, tidy=TRUE}
 # How many genes are mapped in the data set?
-dim(rawCounts)
+dim(raw_counts)
 ```
 
-There are a total of `r dim(rawCounts)[1]` rows in the dataset, indicating the
+There are a total of `r dim(raw_counts)[1]` rows in the dataset, indicating the
 number of genes mapped. We will now deduplicate them and see if there is any 
 duplicated the genes.
 
 ```{r, message = FALSE, tidy=TRUE}
 # Number of unique genes mapped
-length(unique(rawCounts$Geneid))
+length(unique(raw_counts$Geneid))
 
 # Whether there are any dupilcated genes
-!(length(unique(rawCounts$Geneid)) == dim(rawCounts)[1])    # No duplication
+!(length(unique(raw_counts$Geneid)) == dim(raw_counts)[1])    # No duplication
 ```
 
 ### Gene mapping
@@ -349,8 +357,8 @@ condition, i.e, cells cultured under profibrotic mechanical strains.
 
 ```{r, message = FALSE, tidy=TRUE}
 # Calculate the total counts for each gene and sort them in descending order
-sumGeneCounts <- rowSums(rawCounts[, 2:25])
-names(sumGeneCounts) <- rawCounts$Geneid
+sumGeneCounts <- rowSums(raw_counts[, 2:25])
+names(sumGeneCounts) <- raw_counts$Geneid
 sumGeneCounts <- sort(sumGeneCounts, decreasing = TRUE)
 
 # Genes with expression values > 1, and show the top 10
@@ -376,7 +384,7 @@ of the 24 samples.
 
 ```{r, message = FALSE, tidy=TRUE}
 # Calculate the summary statistics for the raw counts
-summaryStats <- data.frame(apply(rawCounts[, 2:25], 2, summary))
+summaryStats <- data.frame(apply(raw_counts[, 2:25], 2, summary))
 
 # Visualize with a table
 summaryStats
@@ -391,16 +399,16 @@ these variations are present between the different treatment conditions.
 # Calculate the summary statistics for the raw counts for each treatment condition
 
 # Control
-summaryCtrl <- summary(rowMeans(rawCounts[, grep("CTRL", colnames(rawCounts))]))
+summaryCtrl <- summary(rowMeans(raw_counts[, grep("CTRL", colnames(raw_counts))]))
 
 # TGFb only
-summaryTGFb <- summary(rowMeans(rawCounts[, grep("TGFb$", colnames(rawCounts))]))
+summaryTGFb <- summary(rowMeans(raw_counts[, grep("TGFb$", colnames(raw_counts))]))
 
 # VTP only
-summaryVTP <- summary(rowMeans(rawCounts[, grep("VTP$", colnames(rawCounts))]))
+summaryVTP <- summary(rowMeans(raw_counts[, grep("VTP$", colnames(raw_counts))]))
 
 # VTP + TGFb
-summaryVTP_TGFb <- summary(rowMeans(rawCounts[, grep("TGFb_VTP", colnames(rawCounts))]))
+summaryVTP_TGFb <- summary(rowMeans(raw_counts[, grep("TGFb_VTP", colnames(raw_counts))]))
 
 # Combine the data frames and visualize
 sumStats <- rbind(summaryCtrl, summaryTGFb, summaryVTP, summaryVTP_TGFb)
@@ -427,22 +435,24 @@ have 4 biological replicates. [@anders2013count]
 
 ```{r, message = FALSE, tidy=TRUE}
 # Translating the raw counts into counts per million (CPM)
-cpm <- edgeR::cpm(rawCounts[, 2:25])
+cpm <- edgeR::cpm(raw_counts[, 2:25])
 # and rename the gene names
-rownames(cpm) <- rawCounts$Geneid
+rownames(cpm) <- raw_counts$Geneid
 
 # Filter out the genes with no more than 1 read per million in 6 of the samples
-cpm_filtered <- cpm[rowSums(cpm > 1) >= 6, ]
+# We will use pothole case for variable to hold the expression data, and camel case
+# for any other variables
+keep <- rowSums(cpm > 1) >= 6
+raw_counts_filtered <- raw_counts[keep, ]
 
 # Visualize the summary statistics for the filtered dataset
-dim(cpm_filtered)
+dim(raw_counts_filtered)
 ```
 
-It is observed that `r (dim(rawCounts)[1] - dim(cpm_filtered)[1])/dim(rawCounts)[1] * 100`% 
+It is observed that `r (dim(raw_counts)[1] - dim(raw_counts_filtered)[1])/dim(raw_counts)[1] * 100`% 
 of the genes were filtered out due to low number of reads.
-Only `r dim(cpm_filtered)[1]` (`r dim(cpm_filtered)[1]/dim(rawCounts)[1] * 100`%) 
+Only `r dim(raw_counts_filtered)[1]` (`r dim(raw_counts_filtered)[1]/dim(raw_counts)[1] * 100`%) 
 genes were retained for downstream analysis.
-
 
 
 # ID Mapping
@@ -464,10 +474,10 @@ to identify the ENA gene symbols.
 
 ```{r, message = FALSE, tidy=TRUE}
 # Check how many genes are annotated with the ENA gene symbols
-sum(grepl("\\.", rownames(cpm_filtered)))
+sum(grepl("\\.", rownames(raw_counts_filtered)))
 
 # To confirm, we also check how many genes are annotated with 2 letters followed by 6 digits
-sum(grepl("^[A-Z]{1,2}[0-9]{5,6}", rownames(cpm_filtered)))
+sum(grepl("^[A-Z]{1,2}[0-9]{5,6}", rownames(raw_counts_filtered)))
 ```
 
 The two method does not retrieve exactly the same number of genes, yet this is similar. 
@@ -475,14 +485,14 @@ We will check the genes that are not found similarly by the two methods.
 
 ```{r, message = FALSE, tidy=TRUE}
 # Get the index of the genes that are returned by each method
-byDots <- grep("\\.", rownames(cpm_filtered))
-byName <- grep("^[A-Z]{1,2}[0-9]{5,6}", rownames(cpm_filtered))
+byDots <- grep("\\.", rownames(raw_counts_filtered))
+byName <- grep("^[A-Z]{1,2}[0-9]{5,6}", rownames(raw_counts_filtered))
 
 # Genes that are differently identified by the two methods
-rownames(cpm_filtered)[setdiff(byDots, byName)]
+rownames(raw_counts_filtered)[setdiff(byDots, byName)]
 ```
 
-The gene **`r rownames(cpm_filtered)[setdiff(byDots, byName)]`** was identified
+The gene **`r rownames(raw_counts_filtered)[setdiff(byDots, byName)]`** was identified
 by the first method but not by the second method. Upon further checking the
 gene with various resources, we found that the gene is not annotated in the
 HGNC database. However, it is documented in the GenBank database. Further cross-referencing
@@ -502,13 +512,13 @@ We first obtain the GenBank accessions of the genes that are not already annotat
 
 ```{r, message = FALSE, tidy=TRUE, attr.output='style="max-height: 200px;"'}
 # Get the GenBank accessions of the genes that are not already annotated with the HUGO gene symbols
-gbAcc <- rownames(cpm_filtered)[byDots]
+gbAcc <- rownames(raw_counts_filtered)[byDots]
 
 # Visualize the GenBank accessions, where we visualize the mean expression across biological replicates
-gbExpr <- data.frame(rowMeans(cpm_filtered[byDots, grep("CTRL", colnames(cpm_filtered))]))
-gbExpr <- cbind(gbExpr, rowMeans(cpm_filtered[byDots, grep("TGFb$", colnames(cpm_filtered))]))
-gbExpr <- cbind(gbExpr, rowMeans(cpm_filtered[byDots, grep("VTP$", colnames(cpm_filtered))]))
-gbExpr <- cbind(gbExpr, rowMeans(cpm_filtered[byDots, grep("TGFb_VTP", colnames(cpm_filtered))]))
+gbExpr <- data.frame(rowMeans(raw_counts_filtered[byDots, grep("CTRL", colnames(raw_counts_filtered))]))
+gbExpr <- cbind(gbExpr, rowMeans(raw_counts_filtered[byDots, grep("TGFb$", colnames(raw_counts_filtered))]))
+gbExpr <- cbind(gbExpr, rowMeans(raw_counts_filtered[byDots, grep("VTP$", colnames(raw_counts_filtered))]))
+gbExpr <- cbind(gbExpr, rowMeans(raw_counts_filtered[byDots, grep("TGFb_VTP", colnames(raw_counts_filtered))]))
 
 # Rename the columns
 colnames(gbExpr) <- c("CTRL", "TGFb", "VTP", "TGFb_VTP")
@@ -599,7 +609,7 @@ gbAccDuplicates <- unique(gbAcc[duplicated(gbAcc)])
 
 We found that there are `sum(duplicated(gbAcc))` duplicated ENA ID. These 
 duplications cover `r length(gbAccDuplicates)` unique ENA IDs. This
-constitutes `r length(gbAccDuplicates)/nrow(cpm_filtered)*100`% of the total
+constitutes `r length(gbAccDuplicates)/nrow(raw_counts_filtered)*100`% of the total
 filtered genes. This is only a small fraction of the total genes, so we will
 proceed with the ID conversion and resolve the duplicates later.
 
@@ -669,49 +679,51 @@ non-uniquely mapped ENA IDs to HGNC symbols.
 
 ```{r, message = FALSE, tidy=TRUE}
 # Remove the non-unique mappings in the ID conversion table
-idConversion <- idConversion[!idConversion$embl %in% multiMapped, ]
+idConversion <- idConversion[!(idConversion$embl %in% multiMapped), ]
 
 # Number of uniquely mapped ENA IDs (including not mapped)
 nrow(idConversion)
 ```
 
 
-Since according to (ENA)[https://www.ebi.ac.uk/ena/], the different version of the
+Since according to [ENA](https://www.ebi.ac.uk/ena/), the different version of the
 same gene are considered as a single gene when processing accession numbers,
-we will remove the version number from the `cpm_filtered` table.
+we will remove the version number from the `raw_counts_filtered` table.
 
 ```{r, message = FALSE, tidy=TRUE}
 # Remove the version number from the ENA IDs in the filtered CPM table
-rownames(cpm_filtered) <- gsub("\\.[0-9]+$", "", rownames(cpm_filtered))
+raw_counts_filtered$Geneid <- gsub("\\.[0-9]+$", "", rownames(raw_counts_filtered))
 ```
 
-Upon removal, we will then merge the ID conversion table with the `cpm_filtered`
+Upon removal, we will then merge the ID conversion table with the `raw_counts_filtered`
 table, where we specify that a record is matched if and only if the ENA ID is
 identical.
 
 ```{r, message = FALSE, tidy=TRUE}
-# Merge the HGNC symbols to the filtered CPM table
-cpm_filtered_translated <- merge(idConversion, cpm_filtered, by.x = 2, by.y = 0, all.y = TRUE)
+# Merged the HGNC symbols to the filtered raw counts table
+raw_counts_filtered_translated <- merge(idConversion, raw_counts_filtered, 
+                                        by.x = 2, by.y = "Geneid", all.y = TRUE)
 ```
+
 
 ```{r, message = FALSE, tidy=TRUE, echo=FALSE}
 # If there is any empty entries in the merged table, fill them with NA
 # This could be an empty string, rather than NA
-sel <- which(cpm_filtered_translated$hgnc_symbol == "")
-cpm_filtered_translated$hgnc_symbol[sel] <- NA
+sel <- which(raw_counts_filtered_translated$hgnc_symbol == "")
+raw_counts_filtered_translated$hgnc_symbol[sel] <- NA
 ```
 
 ```{r, message = FALSE, tidy=TRUE, attr.output='style="max-height: 200px;"'}
 # Since ENA IDs are only a subset of the genes in the filtered CPM table, we will
 # fill in the missing values with the original names defined in the CPM table
-sel <- is.na(cpm_filtered_translated$hgnc_symbol)
-cpm_filtered_translated[sel, 2] <- cpm_filtered_translated[sel, 1]
+sel <- is.na(raw_counts_filtered_translated$hgnc_symbol)
+raw_counts_filtered_translated[sel, 2] <- raw_counts_filtered_translated[sel, 1]
         
 # Rename the columns
-colnames(cpm_filtered_translated)[1:2] <- c("unmapped_gid", "gname")
+colnames(raw_counts_filtered_translated)[1:2] <- c("unmapped_gid", "gname")
 
 # Visualize
-head(cpm_filtered_translated)
+head(raw_counts_filtered_translated)
 ```
 
 The first few genes only shows the ones that do not require mapping. Here we selectively
@@ -719,8 +731,8 @@ show some of the genes that require mapping.
 
 ```{r, message = FALSE, tidy=TRUE, attr.output='style="max-height: 200px;"'}
 # Visualize the genes that require mapping
-head(cpm_filtered_translated[cpm_filtered_translated$unmapped_gid 
-                                      != cpm_filtered_translated$gname, ])
+head(raw_counts_filtered_translated[raw_counts_filtered_translated$unmapped_gid 
+                                      != raw_counts_filtered_translated$gname, ])
 ```
 
 #### Duplicated Genes after Mapping
@@ -732,7 +744,7 @@ same HGNC symbol.
 
 ```{r, message = FALSE, tidy=TRUE}
 # Any duplicated HGNC symbols?
-summarizedCounts <- sort(table(cpm_filtered_translated$gname), decreasing = TRUE)
+summarizedCounts <- sort(table(raw_counts_filtered_translated$gname), decreasing = TRUE)
 
 knitr::kable(summarizedCounts[summarizedCounts > 1][1:10]) %>% 
     kableExtra::kable_styling(bootstrap_options = c("striped", "hover", 
@@ -750,30 +762,30 @@ concate the expression values of the duplicated genes. [@deschamps2020handling]
 
 ```{r, message = FALSE, tidy=TRUE}
 # A data frame of deduplicated genes by summing the expression values
-cpm_filtered_translated_no_dups <- aggregate(cpm_filtered_translated[ , 3:26], 
-        by = list(cpm_filtered_translated$gname), FUN = sum)
+raw_counts_filtered_translated_no_dups <- aggregate(raw_counts_filtered_translated[ , 3:26], 
+        by = list(raw_counts_filtered_translated$gname), FUN = sum)
 
 # Rename the columns
-colnames(cpm_filtered_translated_no_dups)[1] <- "gname"
+colnames(raw_counts_filtered_translated_no_dups)[1] <- "gname"
 
 # Check that there is no duplicated genes
-summarizedCounts <- sort(table(cpm_filtered_translated_no_dups$gname), decreasing = TRUE)
+summarizedCounts <- sort(table(raw_counts_filtered_translated_no_dups$gname), decreasing = TRUE)
 sum(summarizedCounts > 1) == 0
 ```
 
 At this point, we have obtained a set of unique, filtered CPM table with genes
 identified by their HGNC symbols. Here is a summary of the expression statistics:
 
-- **Number of genes:** `r nrow(cpm_filtered_translated_no_dups)`
-- **Number of samples:** `r ncol(cpm_filtered_translated_no_dups) - 1`
-- **Treatment conditions:** `r paste(unique(gsub("M[0-9]{2}\\.", "", colnames(cpm_filtered_translated_no_dups[, 2:25]))), collapse = ", ")`
+- **Number of genes:** `r nrow(raw_counts_filtered_translated_no_dups)`
+- **Number of samples:** `r ncol(raw_counts_filtered_translated_no_dups) - 1`
+- **Treatment conditions:** `r paste(unique(gsub("M[0-9]{2}\\.", "", colnames(raw_counts_filtered_translated_no_dups[, 2:25]))), collapse = ", ")`
 - **Number of replicates per condition:** 6
 
 Finally, we save a newly mapped version of the filtered CPM table.
 
 ```{r, message = FALSE, tidy=TRUE}
-file <- "./Data/cpm_filtered_translated.csv"
-write.csv(cpm_filtered_translated_no_dups, file, row.names = FALSE)
+file <- "./Data/raw_counts_filtered_translated.csv"
+write.csv(raw_counts_filtered_translated_no_dups, file, row.names = FALSE)
 ```
 
 
@@ -781,15 +793,179 @@ write.csv(cpm_filtered_translated_no_dups, file, row.names = FALSE)
 
 ## Pre-normalization Statistics
 
+In the [summary statistics](#summary-statistics) section, we have observed some 
+variations in the expression values of the genes across the samples. Although
+by the method description of the original publication, authors have tried to
+reduce batch effects and other variations during the library preparation and
+sequencing protocol, it is still likely that technical and biological
+variations exist across the samples. [@garoffolo2022reduction]
+This may be a result of the different amount of cells used for RNA extraction,
+fragmentation process, or slight variations during PCR
+amplication, etc. which may lead to variabilities in sequencing depth,
+read length, and other factors that evetaully affect the quantification
+of gene expression. Therefore, we first examined the distribution of the
+expression values across the samples to identify any potential outliers.
+Following this, data will be normalized to allow comparison of expression 
+in genes we are interested in.
+
+```{r, message = FALSE, tidy=TRUE}
+# Rename the variable that is used to stored filtered, mapped, and deduplicated CPM table
+expr <- raw_counts_filtered_translated_no_dups
+rownames(expr) <- expr$gname
+```
+
+
 ### Data Distribution - Boxplot
 
+Boxplot allows us to visualize the distribution of expression values across
+all genes and samples. Here we construct a boxplot based on the log2-transformed
+`cpm` values. Only genes retained after the prior filtering and deduplication
+steps are included in the boxplot.
+
+```{r, message = FALSE, tidy=FALSE, fig.height = 5, fig.width = 10}
+# Log2-transform the CPM values
+expr_log2_cpm <- edgeR::cpm(expr[2:25], log = TRUE)
+
+# Boxplot of the log2-transformed CPM values
+# We will use the ggplot2 package to construct the boxplot
+
+# Convert the data frame to a long format
+expr2Boxplot <- data.frame(expr_log2_cpm)
+expr2Boxplot$gname <- rownames(expr2Boxplot)
+expr2Boxplot <- reshape2::melt(expr2Boxplot, id.vars = "gname")
+
+# Specify treatment conditions for each sample
+expr2Boxplot$Treatment <- gsub("M[0-9]{2}\\.", "", expr2Boxplot$variable)
+
+# Median log2-CPM across samples
+median <- median(apply(expr_log2_cpm, 2, median))
+
+# Plot the boxplot
+# A horizontal line is added to indicate the median log2-CPM across samples
+pNoNorm <- ggplot(expr2Boxplot, aes(x = variable, y = value)) + 
+    geom_boxplot() + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + 
+    labs(x = "Sample", y = "Log2-transformed CPM") +
+    geom_hline(yintercept = median, color = "red", linetype = "dashed") +
+    facet_wrap(~Treatment, nrow = 1, scales = "free_x")
+
+pNoNorm
+```
+**Figure 2.** Expression of cSt-Cs under mechanical strain with pharmacological treatments
+
+<br />
+
+We observed
+
+
+
+
+
+
+
+
+
 ### Data Distribution - Density Plot
+
+To further examine the distribution of expression values across the samples,
+we plotted a density plot.
+
+```{r, message = FALSE, tidy=FALSE, fig.height = 5, fig.width = 10}
+# Density counting
+densityCounts <- apply(expr_log2_cpm, 2, density)
+
+# Calculate x, y limits across all samples
+xlim <- 0
+ylim <- 0
+for (i in 1:length(densityCounts)) {
+    xlim <- range(c(xlim, densityCounts[[i]]$x))
+    ylim <- range(c(ylim, densityCounts[[i]]$y))
+}
+
+# Initialize line colours and type
+cols <- rainbow(length(densityCounts))
+ltys <- rep(1, length(densityCounts))
+
+# Plot initialization
+plot(densityCounts[[1]], xlim=xlim, ylim=ylim, type="n", 
+ylab="Smoothing density of log2-CPM", main="")
+
+# Adding each samples via a loop
+for (i in 1:length(densityCounts)) {
+    lines(densityCounts[[i]], col=cols[i], lty=ltys[i])
+}
+
+# Add legend
+legend("topright", legend = colnames(expr_log2_cpm), 
+       col = cols, lty = ltys, cex = 0.9,
+       text.col = "black", bty = "n", merge = TRUE, bg = "grey90")
+```
+**Figure 3.** Density distribution of cSt-Cs gene expression across samples
+
+<br />
 
 
 ## Normalization
 
+### Normalization Methods
+TMM
+
+### Applying TMM Normalization
+
+```{r, message = FALSE, tidy=TRUE}
+# Convert raw counts data frame to a matrix
+expr_matrix <- as.matrix(expr[2:25])
+rownames(expr_matrix) <- expr$gname
+
+# Create a DGEList object
+expr_dge <- edgeR::DGEList(counts = expr_matrix, group = samples$treatment)
+
+# Apply TMM normalization
+expr_dge <- edgeR::calcNormFactors(expr_dge)
+
+# Extract normalized CPM values for normalized counts
+expr_norm_cpm <- edgeR::cpm(expr_dge)
+```
 
 ## Post-normalization Comparative Statistics
+
+### Boxplot
+
+```{r, message = FALSE, tidy=FALSE, fig.height = 5, fig.width = 10}
+# Log2-transform the CPM values
+expr_norm_log2_cpm <- log2(expr_norm_cpm)
+
+# Convert the data frame to a long format
+normExpr2Boxplot <- data.frame(expr_norm_log2_cpm)
+normExpr2Boxplot$gname <- rownames(normExpr2Boxplot)
+normExpr2Boxplot <- reshape2::melt(normExpr2Boxplot, id.vars = "gname")
+
+# Setting group variable for normalized and unnormalized data
+normExpr2Boxplot$normalized <- "Normalized"
+expr2Boxplot <- expr2Boxplot[ , -4]
+expr2Boxplot$normalized <- "Original Counts"
+
+# Combine normalized and unnormalized data for plotting
+compExpr2Boxplot <- rbind(expr2Boxplot, normExpr2Boxplot)
+
+# Median log2-CPM across samples of the normalized data
+medianNormalzied <- median(apply(expr_norm_log2_cpm, 2, median))
+
+# Plot the boxplot
+# A horizontal line is added to indicate the median log2-CPM across samples
+ggplot(compExpr2Boxplot, aes(x = variable, y = value)) + 
+    geom_boxplot() + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + 
+    labs(x = "Sample", y = "Log2-transformed CPM") +
+    geom_hline(yintercept = median, color = "red", linetype = "dashed", 
+        show.legend = "Median of original counts") +
+    geom_hline(yintercept = medianNormalzied, color = "blue", linetype = "dashed", 
+        show.legend = "Median of normalized counts") +
+    facet_wrap(~normalized, nrow = 1, scales = "free_x")
+```
+
+
+
 
 
 # Interpretation and Analysis
