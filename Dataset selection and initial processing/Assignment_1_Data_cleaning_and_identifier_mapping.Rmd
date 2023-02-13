@@ -132,9 +132,7 @@ Total RNA was extracted from each independent cell culture 72 hours after
 phamalogical treatments using the Trizol method. RNA library was made following 
 enrichment of the polyadenylated mRNAs.
 
-```{r echo = FALSE, fig.align = 'center', out.width = "80%", fig.cap = "Schematics of RNAseq experiment design. Samples were cultured under maximal mechanical strains. Six independent cell cultures were used for each treatment condition. cSt-Cs:  cardiospheres-derived primitive cardiac stromal cells; VTP: verteporfin; TGF-β1: transforming growth factor beta-1. Figure created with BioRender.com"}
-knitr::include_graphics("./Dataset selection and initial processing/schematics.png")
-```
+![Schematics of RNAseq experiment design. Samples were cultured under maximal mechanical strains. Six independent cell cultures were used for each treatment condition. cSt-Cs:  cardiospheres-derived primitive cardiac stromal cells; VTP: verteporfin; TGF-β1: transforming growth factor beta-1. Figure created with BioRender.com](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/schematics.png)
 
 # Preparations
 
@@ -781,6 +779,17 @@ write.csv(cpm_filtered_translated_no_dups, file, row.names = FALSE)
 
 # Data Normalization
 
+## Pre-normalization Statistics
+
+### Data Distribution - Boxplot
+
+### Data Distribution - Density Plot
+
+
+## Normalization
+
+
+## Post-normalization Comparative Statistics
 
 
 # Interpretation and Analysis
