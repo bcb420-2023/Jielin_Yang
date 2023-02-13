@@ -12,7 +12,7 @@ output:
     df_print: paged
     highlight: pygments
 bibliography: Assignment1.bib
-csl: /home/rstudio/projects/Jielin_Yang/american-medical-association.csl
+csl: "../american-medical-association.csl"
 ---
 
 <style type="text/css">
@@ -46,6 +46,7 @@ csl: /home/rstudio/projects/Jielin_Yang/american-medical-association.csl
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_knit$set(root.dir = here::here())  # Must be the project directory
 ```
     
 
@@ -132,7 +133,7 @@ phamalogical treatments using the Trizol method. RNA library was made following
 enrichment of the polyadenylated mRNAs.
 
 ```{r echo = FALSE, fig.align = 'center', out.width = "80%", fig.cap = "Schematics of RNAseq experiment design. Samples were cultured under maximal mechanical strains. Six independent cell cultures were used for each treatment condition. cSt-Cs:  cardiospheres-derived primitive cardiac stromal cells; VTP: verteporfin; TGF-β1: transforming growth factor beta-1. Figure created with BioRender.com"}
-knitr::include_graphics("schematics.png")
+knitr::include_graphics("./Dataset selection and initial processing/schematics.png")
 ```
 
 # Preparations
@@ -179,6 +180,11 @@ if (! requireNamespace("dplyr", quietly = TRUE)) {
 # DT package for creating interactive tables
 if (! requireNamespace("DT", quietly = TRUE)) {
   install.packages("DT")
+}
+
+# here package for file path management
+if (! requireNamespace("here", quietly = TRUE)) {
+  install.packages("here")
 }
 
 # Load the dplyr package
@@ -492,7 +498,7 @@ try to map these genes to the HUGO gene symbols.
 
 ## Mapping GenBank Accession to HUGO Gene Symbols
 
-### GenBank Accessions
+### GenBank Accessions (ENA IDs)
 
 We first obtain the GenBank accessions of the genes that are not already annotated with the HUGO gene symbols.
 
@@ -557,7 +563,7 @@ Additionally, we need a set of returned attributes, primarily the **HGNC symbols
 # Find the attributes that allows us to retrieve the HGNC symbols
 # We also search for the "embl" attribute, since to need to return it for ID mapping
 knitr::kable(biomaRt::searchAttributes(mart = ensembl, "hgnc|^embl$") , format="html") %>%
- kableExtra::row_spec(c(1, 2), background = "yellow") %>% 
+ kableExtra::row_spec(c(1, 3), background = "yellow") %>% 
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover", 
                 "condensed", "responsive"), full_width = F, position = "center")
 ```
@@ -688,7 +694,16 @@ identical.
 ```{r, message = FALSE, tidy=TRUE}
 # Merge the HGNC symbols to the filtered CPM table
 cpm_filtered_translated <- merge(idConversion, cpm_filtered, by.x = 2, by.y = 0, all.y = TRUE)
+```
 
+```{r, message = FALSE, tidy=TRUE, echo=FALSE}
+# If there is any empty entries in the merged table, fill them with NA
+# This could be an empty string, rather than NA
+sel <- which(cpm_filtered_translated$hgnc_symbol == "")
+cpm_filtered_translated$hgnc_symbol[sel] <- NA
+```
+
+```{r, message = FALSE, tidy=TRUE, attr.output='style="max-height: 200px;"'}
 # Since ENA IDs are only a subset of the genes in the filtered CPM table, we will
 # fill in the missing values with the original names defined in the CPM table
 sel <- is.na(cpm_filtered_translated$hgnc_symbol)
@@ -730,14 +745,37 @@ A small amount of duplications exist. By searching the genes against NCBI, we fo
 that these top duplicated genes, [CHCHD3](https://www.ncbi.nlm.nih.gov/gene/54927), 
 [DGKI](https://www.ncbi.nlm.nih.gov/gene/9162), [PRKACB](https://www.ncbi.nlm.nih.gov/gene/5567),
 and [RGS7](https://www.ncbi.nlm.nih.gov/gene/6000), etc. do not seen to be highly
-related to the top expressed genes we previously identified. Therefore, we will
-proceed to data normalization while keeping these genes in the dataset.
+related to the top expressed genes we previously identified. However, since
+the RNAseq reads are mapped to multiple versions of the same gene, we will
+concate the expression values of the duplicated genes. [@deschamps2020handling] 
+[@li2010rna]
+
+```{r, message = FALSE, tidy=TRUE}
+# A data frame of deduplicated genes by summing the expression values
+cpm_filtered_translated_no_dups <- aggregate(cpm_filtered_translated[ , 3:26], 
+        by = list(cpm_filtered_translated$gname), FUN = sum)
+
+# Rename the columns
+colnames(cpm_filtered_translated_no_dups)[1] <- "gname"
+
+# Check that there is no duplicated genes
+summarizedCounts <- sort(table(cpm_filtered_translated_no_dups$gname), decreasing = TRUE)
+sum(summarizedCounts > 1) == 0
+```
+
+At this point, we have obtained a set of unique, filtered CPM table with genes
+identified by their HGNC symbols. Here is a summary of the expression statistics:
+
+- **Number of genes:** `r nrow(cpm_filtered_translated_no_dups)`
+- **Number of samples:** `r ncol(cpm_filtered_translated_no_dups) - 1`
+- **Treatment conditions:** `r paste(unique(gsub("M[0-9]{2}\\.", "", colnames(cpm_filtered_translated_no_dups[, 2:25]))), collapse = ", ")`
+- **Number of replicates per condition:** 6
 
 Finally, we save a newly mapped version of the filtered CPM table.
 
 ```{r, message = FALSE, tidy=TRUE}
 file <- "./Data/cpm_filtered_translated.csv"
-write.csv(cpm_filtered_translated[ , 2:26], file, row.names = FALSE)
+write.csv(cpm_filtered_translated_no_dups, file, row.names = FALSE)
 ```
 
 
