@@ -96,7 +96,8 @@ profibrotic cytokine TGF-β1. [@giraud2020verteporfin] [@piersma2015signaling]
 The research study aimed to establish the connection between the response of 
 human myocardial stromal cells (cSt-Cs) to straining forces and the activation 
 of the profibrotic pathway downsteam of YAP/TAZ. In addition, they tested 
-whether the inhibition of YAP/TAZ translocation to the nucleus. 
+whether the inhibition of YAP/TAZ translocation to the nucleus is sufficient
+to produce an antifibrotic effect. 
 [@garoffolo2022reduction]
 
 Here, we focused on a particular part of the larger objective, where we 
@@ -770,10 +771,10 @@ knitr::kable(summarizedCounts[summarizedCounts > 1][1:10]) %>%
                 "condensed", "responsive"), full_width = F, position = "center")
 ```
 
-A small amount of duplications exist. By searching the genes against NCBI, we found
+A small amount of duplications exist. By searching the genes against NCBI and ENA, we found
 that these top duplicated genes, [CHCHD3](https://www.ncbi.nlm.nih.gov/gene/54927), 
-[DGKI](https://www.ncbi.nlm.nih.gov/gene/9162), [PRKACB](https://www.ncbi.nlm.nih.gov/gene/5567),
-and [RGS7](https://www.ncbi.nlm.nih.gov/gene/6000), etc. do not seen to be highly
+[ZNF124](https://www.ncbi.nlm.nih.gov/gtr/genes/7678/), [ASCC3](https://www.ncbi.nlm.nih.gov/gene/10973),
+and [AC012313](https://www.ebi.ac.uk/ena/browser/view/AC012313), etc. do not seen to be highly
 related to the top expressed genes we previously identified. However, since
 the RNAseq reads are mapped to multiple versions of the same gene, we will
 concate the expression values of the duplicated genes. [@deschamps2020handling] 
@@ -822,7 +823,7 @@ variations exist across the samples. [@garoffolo2022reduction]
 This may be a result of the different amount of cells used for RNA extraction,
 fragmentation process, or slight variations during PCR
 amplication, etc. which may lead to variabilities in sequencing depth,
-read length, and other factors that evetaully affect the quantification
+read length, and other factors that eventually affect the quantification
 of gene expression. Therefore, we first examined the distribution of the
 expression values across the samples to identify any potential outliers.
 Following this, data will be normalized to allow comparison of expression 
@@ -879,7 +880,7 @@ pNoNorm
 We observed a median log2-CPM of `r median` across all samples. The boxplot
 is grouped into treatment conditions, where variations are relatively small
 within each condition. Furthermore, we also observed few variations across
-conditions. Additionally, the data is obserbed to be slightly skewed to the
+conditions. Additionally, the data is observed to be slightly skewed to the
 high expression values. However, we do not observe outliers in the data.
 This suggests that the data is fairly consistent across the samples and 
 shows no obvious outliers.
@@ -1193,7 +1194,7 @@ write.csv(expr_norm_matrix, file = "./Data/expr_norm_counts.csv", row.names = TR
     outliers from the dataset. The distribution of the normalized data is sufficient
     for downstream differential gene expression analysis.
 
-    See [outliers](#outliers) for more details.
+    See [pre-normalization statistics](#pre-norm) for more details.
 
 - **How did you handle replicates?**
 
