@@ -54,6 +54,7 @@ knitr::opts_knit$set(root.dir = here::here())  # Must be the project directory
 # Introduction
 
 ## Background
+<a name="background"></a>
 
 Heart failure (HF) is one of the most common and life-threatening syndrome 
 associated with progressive morbidity and mortality that has implicated over 65 
@@ -91,6 +92,7 @@ progression of cardiac fibrosis with and without the presence of the potent
 profibrotic cytokine TGF-β1. [@giraud2020verteporfin] [@piersma2015signaling]
 
 ## Objectives
+
 The research study aimed to establish the connection between the response of 
 human myocardial stromal cells (cSt-Cs) to straining forces and the activation 
 of the profibrotic pathway downsteam of YAP/TAZ. In addition, they tested 
@@ -106,6 +108,7 @@ VTP under *in vitro* conditions is able to attenuate the progression of cardiac
 fibrosis, with and without the presence of TGF-β. [@garoffolo2022reduction]
 
 ## Data
+
 As documented in the previous [journal](https://github.com/bcb420-2023/Jielin_Yang/wiki/Gene-Expression-Dataset-Selection) 
 and [R Notebook](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Data%20set%20selection%20and%20initial%20processing/Gene_Expression_Dataset_Selection.Rmd),
 we have performed a search for gene expression datasets that are related to the 
@@ -117,10 +120,14 @@ The original publication can be found
 [here](https://doi.org/10.1161/CIRCRESAHA.121.319373).
 
 ## Study Summary
+<a name="summary"></a>
+
 ### Publication Title
+
 Reduction of Cardiac Fibrosis by Interference With YAP-Dependent Transactivation
 
 ### General Experimental Design
+
 To access whether direct inhibition of the YAP/TAZ complex contributes to
 anti-fibrotic activities under chronic mechanical strain and profibrotic 
 signalling, RNA sequencing was performed in the following way. 
@@ -139,7 +146,7 @@ enrichment of the polyadenylated mRNAs.
 The current R Notebook assumes that it is being run on the BCB420-2023 base 
 image. Additional packages required are noted below.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # BiocManager for installing a set of Bioconductor packages
 if (! requireNamespace("BiocManager", quietly = TRUE)) {
   install.packages("BiocManager")
@@ -153,6 +160,11 @@ if (! requireNamespace("GEOquery", quietly = TRUE)) {
 # edgeR package for manupulating and analyzing RNAseq data
 if (! requireNamespace("edgeR", quietly = TRUE)) {
   BiocManager::install("edgeR")
+}
+
+# limma package for manupulating and analyzing RNAseq data
+if (! requireNamespace("limma", quietly = TRUE)) {
+  BiocManager::install("limma")
 }
 
 # biomaRt package for querying the Ensembl database
@@ -214,7 +226,7 @@ of the cardiac stromal cells (cSt-Cs) activates the YAP/TAZ complex.
 [@garoffolo2022reduction] To better understand the dataset itself, here we 
 retrieve the GEO description of the dataset.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Accession number
 geoAcc <- "GSE203358"
 
@@ -245,7 +257,7 @@ The description of the dataset shows that there are a total of 24 samples, with
 6 replicates for each of the 4 treatment conditions. We will download the raw
 data from the GEO database and store it in a local directory.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # A `./Data` directory has been created to store the data.
 # We will download the raw data using the GEOquery package.
 
@@ -265,7 +277,7 @@ located in the file: `r list.files(path = "./Data", pattern = "\\.txt")`
 The raw counts are stored in a tab-delimited text file. We will import the data
 into R using the `read.table()` function.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Get the unzipped file name
 file <- list.files(path = "./Data", pattern = "\\.txt")
 
@@ -279,7 +291,7 @@ colnames(raw_counts)
 There are 25 columns in the dataset, with the first column as gene ID, and 
 the rest with 1 column per sample
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Rename the rows with gene ID
 rownames(raw_counts) <- raw_counts$Geneid
 
@@ -294,11 +306,12 @@ gene symbols are used.
 # Data QC and Processing
 
 ## Sample Matrix
+<a name="sample"></a>
 
 First we will retrieve the smaple design matrix, and retrieve the replicate
 names under each of the four conditions
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Obtain the sample names and treatment conditions using the column names from
 # the dataset
 samples <- data.frame(lapply(colnames(raw_counts)[2:25], 
@@ -319,12 +332,13 @@ samples
 ```
 
 ## Mapped Genes
+<a name="mapped-genes"></a>
 
 ### Gene duplication
 
 We will first assess whether there are any duplicated genes in the dataset.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # How many genes are mapped in the data set?
 dim(raw_counts)
 ```
@@ -333,7 +347,7 @@ There are a total of `r dim(raw_counts)[1]` rows in the dataset, indicating the
 number of genes mapped. We will now deduplicate them and see if there is any 
 duplicated the genes.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Number of unique genes mapped
 length(unique(raw_counts$Geneid))
 
@@ -355,7 +369,7 @@ expression analysis, understanding the most highly enriched genes would allow us
 to check whether the general gene expression profile matches with the experimental
 condition, i.e, cells cultured under profibrotic mechanical strains.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Calculate the total counts for each gene and sort them in descending order
 sumGeneCounts <- rowSums(raw_counts[, 2:25])
 names(sumGeneCounts) <- raw_counts$Geneid
@@ -382,7 +396,7 @@ are found to be associated with fibrosis and ECM remodelling.
 We will then calculate the summary statistics for the raw counts for each 
 of the 24 samples.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Calculate the summary statistics for the raw counts
 summaryStats <- data.frame(apply(raw_counts[, 2:25], 2, summary))
 
@@ -395,7 +409,7 @@ assumption, these samples should have similar sequencing depth. There are slight
 variations in terms of the global distribution of the raw counts. We will check if
 these variations are present between the different treatment conditions.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Calculate the summary statistics for the raw counts for each treatment condition
 
 # Control
@@ -424,6 +438,8 @@ due to the biological replicates.
 
 
 ### Data Filtering
+<a name="filter"></a>
+
 Since the presence of lowly expressed genes would not contribute to the downstream
 analysis, which would even decrese the statistical power and sensitivity of detecting 
 differentially expressed genes, we will filter out the genes with low gene counts.
@@ -433,7 +449,7 @@ According to the edgeR protocol, we will filter out the genes with no more than
 1 read per million in 6 of the samples, because for each treatment condition we
 have 4 biological replicates. [@anders2013count]
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Translating the raw counts into counts per million (CPM)
 cpm <- edgeR::cpm(raw_counts[, 2:25])
 # and rename the gene names
@@ -472,7 +488,7 @@ is a digit indicating the version of the gene. Since the nomenclature of the
 that the gene symbols do not contain a dot, we will search for the dot in the gene names
 to identify the ENA gene symbols.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Check how many genes are annotated with the ENA gene symbols
 sum(grepl("\\.", rownames(raw_counts_filtered)))
 
@@ -483,7 +499,7 @@ sum(grepl("^[A-Z]{1,2}[0-9]{5,6}", rownames(raw_counts_filtered)))
 The two method does not retrieve exactly the same number of genes, yet this is similar. 
 We will check the genes that are not found similarly by the two methods.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Get the index of the genes that are returned by each method
 byDots <- grep("\\.", rownames(raw_counts_filtered))
 byName <- grep("^[A-Z]{1,2}[0-9]{5,6}", rownames(raw_counts_filtered))
@@ -510,7 +526,7 @@ try to map these genes to the HUGO gene symbols.
 
 We first obtain the GenBank accessions of the genes that are not already annotated with the HUGO gene symbols.
 
-```{r, message = FALSE, tidy=TRUE, attr.output='style="max-height: 200px;"'}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE, attr.output='style="max-height: 200px;"'}
 # Get the GenBank accessions of the genes that are not already annotated with the HUGO gene symbols
 gbAcc <- rownames(raw_counts_filtered)[byDots]
 
@@ -545,7 +561,7 @@ databases share information on the daily basis. The gene accession numbers used 
 and ENA are identical, so we will search a matching filter that allows us to search for
 the accession numbers in `biomart`.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Connect to the Ensembl Biomart with the hsapiens_gene_ensembl dataset
 ensembl <- biomaRt::useDataset("hsapiens_gene_ensembl", 
                                mart = biomaRt::useMart("ensembl"))
@@ -567,7 +583,7 @@ to search for the GenBank accessions.
 
 Additionally, we need a set of returned attributes, primarily the **HGNC symbols**.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Find the attributes that allows us to retrieve the HGNC symbols
 # We also search for the "embl" attribute, since to need to return it for ID mapping
 knitr::kable(biomaRt::searchAttributes(mart = ensembl, "hgnc|^embl$") , format="html") %>%
@@ -586,11 +602,12 @@ Therefore, we will use the following information:
 
 
 #### Duplicated ENA IDs
+<a name="dup-id"></a>
 
 Interestingly, Biomart does not accept the ENA IDs with the vwerion number, so we
 removed the version number from the ENA IDs.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Remove the version number from the ENA IDs
 gbAcc <- stringr::str_remove_all(gbAcc, "\\.[0-9]+")
 ```
@@ -600,7 +617,7 @@ with the associated version number. However, it is likely that two previously
 considered unique genes are simply transcripts mapped to the same gene of 
 different version. Therefore, we will check if there are any duplicated ENA IDs.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Check if there are any duplicated ENA IDs
 sum(duplicated(gbAcc))
 
@@ -614,10 +631,12 @@ filtered genes. This is only a small fraction of the total genes, so we will
 proceed with the ID conversion and resolve the duplicates later.
 
 #### ID Conversion
+<a name="id-convert"></a>
+
 A query is constructed to retrieve the HGNC symbols for the ENA IDs, and
 the result is saved to a file under the `Data` directory.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Remove duplicates
 gbAcc <- unique(gbAcc)
 
@@ -643,7 +662,7 @@ Among the genes in the filtered dataset, there are `r length(gbAcc)` genes that
 are indicated with an ENA ID (GenBank ID). We check the number of genes that
 are successfully converted to HGNC symbols.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, warning=FALSE, tidy=TRUE}
 length(which(gbAcc %in% idConversion$embl))
 ```
 
@@ -654,7 +673,7 @@ Interestingly, despite the inability to map some of the ENA IDs to HGNC symbols,
 we obtained `r nrow(idConversion)` mappings. This result suggests that some of
 the ENA IDs are mapped to multiple HGNC symbols.
 
-```{r, message = FALSE, tidy=TRUE, attr.output='style="max-height: 200px;"'}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE, attr.output='style="max-height: 200px;"'}
 # Obtain the set of ENA IDs that are mapped to multiple HGNC symbols
 multiMapped <- unique(idConversion$embl[duplicated(idConversion$embl)])
 
@@ -677,7 +696,7 @@ non-uniquely mapped ENA IDs to HGNC symbols.
 
 #### Translating ENA IDs to HGNC Symbols
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, warning=FALSE, tidy=TRUE}
 # Remove the non-unique mappings in the ID conversion table
 idConversion <- idConversion[!(idConversion$embl %in% multiMapped), ]
 
@@ -690,7 +709,7 @@ Since according to [ENA](https://www.ebi.ac.uk/ena/), the different version of t
 same gene are considered as a single gene when processing accession numbers,
 we will remove the version number from the `raw_counts_filtered` table.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, warning=FALSE, tidy=TRUE}
 # Remove the version number from the ENA IDs in the filtered CPM table
 raw_counts_filtered$Geneid <- gsub("\\.[0-9]+$", "", rownames(raw_counts_filtered))
 ```
@@ -699,21 +718,21 @@ Upon removal, we will then merge the ID conversion table with the `raw_counts_fi
 table, where we specify that a record is matched if and only if the ENA ID is
 identical.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, warning=FALSE, tidy=TRUE}
 # Merged the HGNC symbols to the filtered raw counts table
 raw_counts_filtered_translated <- merge(idConversion, raw_counts_filtered, 
                                         by.x = 2, by.y = "Geneid", all.y = TRUE)
 ```
 
 
-```{r, message = FALSE, tidy=TRUE, echo=FALSE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE, echo=FALSE}
 # If there is any empty entries in the merged table, fill them with NA
 # This could be an empty string, rather than NA
 sel <- which(raw_counts_filtered_translated$hgnc_symbol == "")
 raw_counts_filtered_translated$hgnc_symbol[sel] <- NA
 ```
 
-```{r, message = FALSE, tidy=TRUE, attr.output='style="max-height: 200px;"'}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE, attr.output='style="max-height: 200px;"'}
 # Since ENA IDs are only a subset of the genes in the filtered CPM table, we will
 # fill in the missing values with the original names defined in the CPM table
 sel <- is.na(raw_counts_filtered_translated$hgnc_symbol)
@@ -742,7 +761,7 @@ are considered duplicated due to the sharing of identical ENA accession number b
 different versions. We will now check if any of these genes are mapped to the
 same HGNC symbol. 
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Any duplicated HGNC symbols?
 summarizedCounts <- sort(table(raw_counts_filtered_translated$gname), decreasing = TRUE)
 
@@ -760,7 +779,7 @@ the RNAseq reads are mapped to multiple versions of the same gene, we will
 concate the expression values of the duplicated genes. [@deschamps2020handling] 
 [@li2010rna]
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # A data frame of deduplicated genes by summing the expression values
 raw_counts_filtered_translated_no_dups <- aggregate(raw_counts_filtered_translated[ , 3:26], 
         by = list(raw_counts_filtered_translated$gname), FUN = sum)
@@ -792,6 +811,7 @@ write.csv(raw_counts_filtered_translated_no_dups, file, row.names = FALSE)
 # Data Normalization
 
 ## Pre-normalization Statistics
+<a name="pre-norm"></a>
 
 In the [summary statistics](#summary-statistics) section, we have observed some 
 variations in the expression values of the genes across the samples. Although
@@ -808,7 +828,7 @@ expression values across the samples to identify any potential outliers.
 Following this, data will be normalized to allow comparison of expression 
 in genes we are interested in.
 
-```{r, message = FALSE, tidy=TRUE}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Rename the variable that is used to stored filtered, mapped, and deduplicated CPM table
 expr <- raw_counts_filtered_translated_no_dups
 rownames(expr) <- expr$gname
@@ -822,7 +842,7 @@ all genes and samples. Here we construct a boxplot based on the log2-transformed
 `cpm` values. Only genes retained after the prior filtering and deduplication
 steps are included in the boxplot.
 
-```{r, message = FALSE, tidy=FALSE, fig.height = 5, fig.width = 10}
+```{r, message = FALSE, tidy=FALSE, warning=FALSE, fig.height = 5, fig.width = 10}
 # Log2-transform the CPM values
 expr_log2_cpm <- edgeR::cpm(expr[2:25], log = TRUE)
 
@@ -851,26 +871,25 @@ pNoNorm <- ggplot(expr2Boxplot, aes(x = variable, y = value)) +
 
 pNoNorm
 ```
+
 **Figure 2.** Expression of cSt-Cs under mechanical strain with pharmacological treatments
 
 <br />
 
-We observed
-
-
-
-
-
-
-
-
+We observed a median log2-CPM of `r median` across all samples. The boxplot
+is grouped into treatment conditions, where variations are relatively small
+within each condition. Furthermore, we also observed few variations across
+conditions. Additionally, the data is obserbed to be slightly skewed to the
+high expression values. However, we do not observe outliers in the data.
+This suggests that the data is fairly consistent across the samples and 
+shows no obvious outliers.
 
 ### Data Distribution - Density Plot
 
 To further examine the distribution of expression values across the samples,
 we plotted a density plot.
 
-```{r, message = FALSE, tidy=FALSE, fig.height = 5, fig.width = 10}
+```{r, message = FALSE, tidy=TRUE, warning=FALSE, fig.height = 7, fig.width = 8}
 # Density counting
 densityCounts <- apply(expr_log2_cpm, 2, density)
 
@@ -900,19 +919,40 @@ legend("topright", legend = colnames(expr_log2_cpm),
        col = cols, lty = ltys, cex = 0.9,
        text.col = "black", bty = "n", merge = TRUE, bg = "grey90")
 ```
-**Figure 3.** Density distribution of cSt-Cs gene expression across samples
 
+**Figure 3.** Density distribution of cSt-Cs gene expression across samples
 <br />
+
+The density plot reveals that the data is not normally distributed. A second
+peak is observed toward the left of the distribution. Additionally, some samples 
+also reveal a small peak at the very left of the distribution. This is also
+observed in several other RNAseq studies before and after normalizations. [@hart2013finding]
+Comparatively, some variations are observed across the samples. However, these
+variations do not seem to be extreme. Therefore, we will proceed with the
+normalization step.
 
 
 ## Normalization
 
 ### Normalization Methods
-TMM
+
+Normalization aims to reduce the variations across samples. It is highly important
+in the data preparation workflow for RNAseq analysis as it could significantly
+affect the result. According to the edgeR protocol for analyzing RNAseq data based on count values,
+Trimmed Mean of M-values (TMM) normalization is recommended for most cases. 
+[@anders2013count] TMM is based on the assuption that most genes are not differentially
+expressed, and that upregalted genes in one sample are likely to be downregulated in others
+correspondingly. [@robinson2010scaling] Since in the previous steps we observed that the
+distributions of the expression values are relatively consistent across samples, we 
+would expect that TMM as a robust normalization method to account for highly
+differentially expressed genes which could in turn negatively impact the normalization
+process. [@robinson2010scaling]
 
 ### Applying TMM Normalization
 
-```{r, message = FALSE, tidy=TRUE}
+Here we apply the TMM normalization using the edgeR package.
+
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
 # Convert raw counts data frame to a matrix
 expr_matrix <- as.matrix(expr[2:25])
 rownames(expr_matrix) <- expr$gname
@@ -928,10 +968,15 @@ expr_norm_cpm <- edgeR::cpm(expr_dge)
 ```
 
 ## Post-normalization Comparative Statistics
+<a name="post-norm"></a>
+
+Following normalization, we will perform a comparative analysis of the
+normalized data with the original count data. We expect a more consistent
+distribution of the expression values across samples after normalization.
 
 ### Boxplot
 
-```{r, message = FALSE, tidy=FALSE, fig.height = 5, fig.width = 10}
+```{r, message = FALSE, tidy=FALSE, warning=FALSE, fig.height = 5, fig.width = 10}
 # Log2-transform the CPM values
 expr_norm_log2_cpm <- log2(expr_norm_cpm)
 
@@ -964,40 +1009,215 @@ ggplot(compExpr2Boxplot, aes(x = variable, y = value)) +
     facet_wrap(~normalized, nrow = 1, scales = "free_x")
 ```
 
+**Figure 4.** Comparative expression of cSt-Cs under mechanical strain with pharmacological
+ treatments before and after TMM normalization
+<br />
+
+ The boxplots shows a highly consistent boxplot distribution across samples. In comparison
+ to the unnormalized counts, the median of the samples are similar. However, the interquartile
+ range and the median acorss samples are more consistent after normalization. Interestingly,
+ R reports some expression values becoming outliers after normalziation. This may be a result
+ of the global shift of the distribution to the lower end. This hypothesis is supported by the
+ observation of more genes considered lowly expressed after normalization.
+
+### Density Plot
+
+To further assess the global shift of the distribution, we plot the density
+distribution of the expression values across samples.
 
 
+```{r, message = FALSE, tidy=TRUE, warning=FALSE, fig.height = 7, fig.width = 10}
+# Density counting
+normDensityCounts <- apply(expr_norm_log2_cpm, 2, density)
 
+# Calculate x, y limits across all samples
+xlimNorm <- 0
+ylimNorm <- 0
+for (i in 1:length(normDensityCounts)) {
+    xlimNorm <- range(c(xlimNorm, normDensityCounts[[i]]$x))
+    ylimNorm <- range(c(ylimNorm, normDensityCounts[[i]]$y))
+}
+
+# Define range for both plots
+xlim[1] <- min(xlim[1], xlimNorm[1])
+xlim[2] <- max(xlim[2], xlimNorm[2])
+ylim[1] <- min(ylim[1], ylimNorm[1])
+ylim[2] <- max(ylim[2], ylimNorm[2])
+
+# Initialize line colours and type
+cols <- rainbow(length(normDensityCounts))
+ltys <- rep(1, length(normDensityCounts))
+
+# Plotting the normalized and original density plots together
+par(mfrow = c(1, 2))
+
+# Density plot of original counts
+plot(densityCounts[[1]], xlim=xlim, ylim=ylim, type="n",
+ylab="Smoothing density of log2-CPM", main="Original Counts")
+# Adding each samples via a loop
+for (i in 1:length(densityCounts)) {
+    lines(densityCounts[[i]], col=cols[i], lty=ltys[i])
+}
+
+# Density plot of normalized counts
+plot(normDensityCounts[[1]], xlim=xlim, ylim=ylim, type="n",
+ylab="Smoothing density of log2-CPM", main="Normalized Counts")
+# Adding each samples via a loop
+for (i in 1:length(normDensityCounts)) {
+    lines(normDensityCounts[[i]], col=cols[i], lty=ltys[i])
+}
+
+# Add legend
+legend("topright", legend = colnames(expr_norm_log2_cpm), 
+       col = cols, lty = ltys, cex = 0.9,
+       text.col = "black", bty = "n", merge = TRUE, bg = "grey90")
+```
+
+**Figure 5.** Comparative distribution of cSt-Cs gene expression across samples before and after TMM normalization
+<br />
+
+In the density plot, we did not observe a global shift of the distribution. In particular,
+the major peak remains at the same position. However, the variations of the distribution
+across samples are reduced after normalization, manifested by the more closely aligened
+lines near the center of the plot. The second peak observed previously is also smoothened
+after normalization. However, slightly more variations are observed in the normalized data
+around the high and low end of the distribution. 
+
+```{r, message = FALSE, tidy=TRUE, warning=FALSE, echo=FALSE}
+# Reset par
+par(mfrow = c(1, 1))
+```
+
+
+### Multidimensional Scaling
+
+A multidimensional scaling (MDS) plot allows for the reduction of the dimensionality of
+the data to visualize variations across samples using the two most important dimensions.
+In this case, we visualize the variation of the samples after normalization.
+
+```{r, message = FALSE, tidy=TRUE, warning=FALSE, fig.height = 7, fig.width = 8}
+# MDS plot of normalized data
+limma::plotMDS(expr_norm_log2_cpm, labels = rownames(samples), 
+    col = c("blue", "green", "orange", "purple")[factor(samples$treatment)], 
+    pch = 19, cex = 1)
+```
+
+**Figure 6.** Multidimensional scaling plot of cSt-Cs gene expression across samples after TMM normalization.
+Samples are coloured by treatment conditions and shows moderate clustering based on treatment conditions.
+<br />
+
+The MDS plots shows a moderate clustering of the samples based on the treatment conditions.
+In particular, the control group samples are mostly clustered together and are the farthest
+away from samples with any other treatment in both dimensions. Additionally, other samples
+are moderately clustered based on the treatment conditions. Although they scatter along
+dimension 2, we observed that samples treated with VTP are more clusterd along dimension 2.
+Thus, this result suggests that the VTP treatment may show a different expression 
+profile compared to either the control or the sole TGF-β1 treatment, which do not
+show any antifibrotic effects.
+
+
+## Saving Normalized Data
+
+Finally, we save the normalized data as a csv file for future analysis.
+
+```{r, message = FALSE, tidy=TRUE, warning=FALSE}
+# Use edgeR to convert the DGEList object to a matrix of normalized counts
+expr_norm_matrix <- edgeR::as.matrix.DGEList(expr_dge)
+
+# Save the normalized data as a csv file
+write.csv(expr_norm_matrix, file = "./Data/expr_norm_counts.csv", row.names = TRUE)
+```
 
 # Interpretation and Analysis
-- What are the control and test conditions of the dataset?
+- **What are the control and test conditions of the dataset?**
+  
+    The dataset includes 4 treatment conditions, all of them are based on a common
+    backgroud condition. The cardiosphere derived cardiac stromal cells (cSt-Cs) were
+    cultured independently on glass slides, which provides the maximal mechanical
+    strain for the cell cytoskeletons. In the control group, all cells were cultured
+    without any additional pharmacological interventions. In the other three groups,
+    cells were cultured with verteporfin (VTP) alone, TGF-β1 alone, and both VTP and
+    TGF-β1 together. Specifically, the control group serves to examine the antifibrotic
+    effect of VTP, and the TGF-β1 alone serves to control for the effect of VTP 
+    in the presence of the potent fibrotic stimulus TGF-β1. [@garoffolo2022reduction]
+
+    See [study summary](#summary) for more details.
 
 
-- Why is the dataset of interest to you?
+- **Why is the dataset of interest to you?**
+
+    The dataset is interesting because it uses an in vitro model on a specific pro-fibrotic
+    cell type, cSt-Cs, to examine the mechanism of the fibrosis process that models
+    a particular process in the heart. [@Ahmed2023] As shown in various studies, cardiac fribrosis is
+    the most prevalent and lethal phenotype of heart failure. Therefore, understanding
+    how blocking the YAP-TAZ complex using pharmacological agents provides a promising
+    therapeutic strategy for the treatment of heart failure.
+
+    See [background](#background) for more details.
 
 
-- Were there expression values that were not unique for specific genes? How did you handle these?
+- **Were there expression values that were not unique for specific genes? How did you handle these?**
+
+    In the original raw counts dataset, we did not observe any duplicated gene names given the 
+    mix of HGNC symbols and ENA identifiers. However, we did observe duplicated ENA accession
+    numbers assocaited with different version numbers treated as different genes in the dataset.
+    Since by the nomenclature of [ENA](https://www.ebi.ac.uk/ena/browser/home), the accession
+    numbers are unique identifiers for a specific gene, whereas version numbers are a result
+    of information updates from the orginally submitting author, we decided to treat genes with
+    the same accession number but different version numbers as the same gene. We mapped the accession
+    numbers to the HGNC symbols and sum the raw counts of the duplicated genes (as they are the same gene).
+    In this way, we obtained a dataset of genes with unique HGNC symbols.
+
+    See [mapped genes](#mapped-genes) and [duplicated ENA IDs](#dup-id) for more details.
 
 
-- Were there expression values that could not be mapped to current HUGO symbols?
+- **Were there expression values that could not be mapped to current HUGO symbols?**
+
+    Yes. Some expression values could not be mapped to the HUGO symbols. The original
+    dataset provides both HGNC symbols and ENA accession numbers. We tried to map the
+    ENA accession numbers to the HGNC symbols using the [biomaRt](https://bioconductor.org/packages/release/bioc/html/biomaRt.html)
+    package. However, some of the genes are still unable to be mapped, and upon further
+    searching of the genes directly on the ENA website, we found that some of the genes
+    are non-coding RNA and pseudogenes. These may be a result of unspecific mapping 
+    or carry over during the poly-A enrichment process. Eiter way, these genes do not
+    appear to be highly expressed, so we keep the ENA accession numbers for downstream
+    analysis.
+
+    See [pre-normalization statistics](#pre-norm) and [post-normalization statistics](#post-norm) for more details.
 
 
-- How many outliers were removed?
+- **How many outliers were removed?**
+
+    We did not observe significant outliers before and after normalization, despite a slight
+    increase in the lowly expressed genes after normalization. Hence, we did not remove any
+    outliers from the dataset. The distribution of the normalized data is sufficient
+    for downstream differential gene expression analysis.
+
+    See [outliers](#outliers) for more details.
+
+- **How did you handle replicates?**
+
+    All cSt-Cs samples were obtained and derived from cardiospheres of several explant tissues,
+    which are cultured independently as technical replicates. The MDS plot do not show clustering
+    based on source of the cells, suggesting that biological variations is not a major factor
+    in the dataset. For replicate handling, we extracted the biological group of the replicates
+    from the samples, and applied distribution statistics as well as normalization on them 
+    to observe any variations between biological replicates. Additionally, since we have 6
+    replicates for each treatment condition, we remove genes with low expression (`cpm < 1`) in 
+    more than 6 of the samples.
+
+    See [sample matrix](#sample) and [data filtering](#filter) for more details.
 
 
-- How did you handle replicates?
+- **What is the final coverage of your dataset?**
 
+    The final dataset comprises:
+    - `r nrow(expr_norm_matrix)` genes
+    - 24 samples
+    - 6 biological replicates per treatment condition
 
-- What is the final coverage of your dataset?
-
-
-
-
-
-
-
-
-
-
+    These genes are primarily labelled with HGNC symbols, with a small number of genes
+    labelled with ENA accession numbers.
 
 
 # Journal Link
