@@ -198,6 +198,11 @@ if (! requireNamespace("ggplot2", quietly = TRUE)) {
   install.packages("ggplot2")
 }
 
+# reshape2 package for data manipulation
+if (! requireNamespace("reshape2", quietly = TRUE)) {
+  install.packages("reshape2")
+}
+
 # here package for file path management
 if (! requireNamespace("here", quietly = TRUE)) {
   install.packages("here")
