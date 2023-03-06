@@ -1,0 +1,57 @@
+---
+title: "Title"
+subtitle: "Subtitle"
+author: Jielin Yang
+date: March 14, 2023
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    highlight: pygments
+bibliography: Assignment2.bib
+csl: "american-medical-association.csl"
+---
+
+<style type="text/css">
+    body {
+    max-width: 100%;
+    overflow-x: auto;
+    font-family: Helvetica;
+    font-size: 12pt;
+    }
+    h1 {
+    font-size: 20pt;
+    font-weight: bold;
+    }
+    h2 {
+        font-size: 18pt;
+        font-weight: bold;
+    }
+    h3 {
+        font-size: 16pt;
+        font-weight: bold;
+    }
+    h4 {
+        font-size: 14pt;
+        font-weight: bold;
+    }
+    code {
+        font-family: monospace;
+        font-size: 11pt;
+    }
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_knit$set(root.dir = here::here())  # Must be the project directory
+```
+    
+
+
+# Journal Link
+The link to the concurrent journal entry can be found [here](https://github.com/bcb420-2023/Jielin_Yang/wiki/Differential-Gene-Expression-Analysis-and-Preliminary-ORA).
+
+# References
