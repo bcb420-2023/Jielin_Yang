@@ -334,7 +334,8 @@ names(treatment_col) <- treatments
 cultures <- unique(sample_matrix$culture)
 
 # Define 6 colours for the 6 culture replicates
-culture_col <- hcl.colors(6, palette = "harmonic")
+culture_col <- hcl.colors(6, palette = "cork")
+names(culture_col) <- cultures
 
 # Create an annotation dataframe
 anno_df <- data.frame(treatment = sample_matrix$treatment,
@@ -348,18 +349,13 @@ hmap_anno <- ComplexHeatmap::HeatmapAnnotation(
 
 ```
 
-
-
-
-
-
 To better visualize the heatmap, we cluster the genes into 4 groups using the
 k-means clustering algorithm. This allows the genes that have similar expression
 profiles to be grouped together. Additionally, since our dataset consists of 4
 treatment conditions, it is expected that a clustering of 4 groups will reveal
 some interesting patterns in the expression profiles.
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=10, fig.height=10}
 # Generate the heatmap
 # Set the seed for reproducibility due to he inherent randomness of the
 # k-means clustering algorithm
@@ -370,6 +366,7 @@ hmap_all <- ComplexHeatmap::Heatmap(heatmap_matrix,
                                     show_column_names = TRUE,
                                     show_row_names = FALSE,
                                     col = hmap_col,
+                                    top_annotation = hmap_anno,
                                     km = 4)
 set.seed(NULL)
 
