@@ -136,10 +136,19 @@ as replicates within each group) using multidimensional scaling (MDS). The MDS p
 clustering of samples based on the treatment conditions, and in particular, the control samples
 under mechanical strain alone are clustered separately with any other groups. The other treatment
 groups show less separation along the first dimension, but clustering is still observed. Interestingly,
-although most of the samples 
+although most of the samples are clustered based on the treatment conditions and that we did not
+observe any clustering based on the cell culture replicates, we notice that certain samples that
+do not cluster tightly with the rest in the same treatment group seem to be consistent across the 
+conditions. For example, comparing to other replicates, in cells from culture `M89` and `M99`,
+different conditions seem to have a smaller effect on the gene expression profile.
 
 <a name="fig2"></a>
 ![](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/mds.png)
+
+**Figure 2.** Multidimensional scaling plot of cSt-Cs gene expression across samples. All samples
+are coloured by treatment condition. The first two dimensions are shown. Moderate clustering
+by treatment and low clustering by replicate for a small number of cultures is observed. Figure
+adapted from [Assignment 1](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html).
 
 # Preparations
 
@@ -148,11 +157,89 @@ although most of the samples
 The current R Notebook assumes that it is being run on the BCB420-2023 base image. 
 Additional packages required are noted below.
 
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# edgeR package for manupulating and analyzing RNAseq data
+if (! requireNamespace("edgeR", quietly = TRUE)) {
+  BiocManager::install("edgeR")
+}
+
+# KableExtra package for creating tables and formatting
+if (! requireNamespace("kableExtra", quietly = TRUE)) {
+  install.packages("kableExtra")
+}
+
+# dplyr package for data manipulation
+if (! requireNamespace("dplyr", quietly = TRUE)) {
+  install.packages("dplyr")
+}
+
+# DT package for creating interactive tables
+if (! requireNamespace("DT", quietly = TRUE)) {
+  install.packages("DT")
+}
+
+# Load the dplyr package
+library("dplyr")
+
+# We will consistently use package::function() to avoid confusion
+# However, the dplyr package has to be loaded first to allow
+# definitions of various operators such as %>%
+```
 
 ## Data Import
 
+In the previous analysis, we have saved the processed data output to a file. 
+Hence, we can simply load the data from the file and perform the analysis.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Load the processed data
+counts <- read.csv(file = "./Data/expr_norm_counts.csv", header = TRUE, row.names = 1)
+
+# View the first few rows of the data
+head(counts)
+```
+
+**Table 1.** Processed count data used for the present analysis. The data is composed of
+14814 genes and 24 samples, where each gene is identified by a unique HUGO symbol.
+The first few rows are shown.
+
+Since the header of the data contains the sample information, we will extract the sample
+information from the header to reconstruct the experimental design.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Extract the sample information from the header
+sample_matrix <- colnames(counts) %>%
+  lapply(function(x){unlist(strsplit(x, split = "\\."))}) %>%
+  as.data.frame()
+
+# Rename the data frame
+colnames(sample_matrix) <- colnames(counts)[2:25]
+rownames(sample_matrix) <- c("culture","treatment")
+
+# Transpose the data frame so that each row represents a unique sample
+# and each column represents a unique sample attribute
+sample_matrix <- data.frame(t(sample_matrix))
+
+# Order the samples by their treatment conditions
+sample_matrix <- sample_matrix[order(sample_matrix$treatment), ]
+
+# View the sample information
+DT::datatable(sample_matrix, rownames = TRUE, filter = "top",
+              options = list(pageLength = 6)) %>%
+              # Changing the font size of content
+              DT::formatStyle(names(sample_matrix), fontSize = "11px") %>%
+              # Changing the font size of row names (sample names)
+              DT::formatStyle(0, fontSize = "11px")
+```
+
+**Table 2.** Sample information used for the present analysis. A total of 24 samples
+are included in the analysis, where each sample is identified by a unique culture ID
+and treatment condition. Cells are retrieved from 6 independent cultures, and each
+is used for 4 different treatment conditions.
 
 # Differential Gene Expression Analysis
+
+
 
 ## Global Gene Expression Profiling
 
