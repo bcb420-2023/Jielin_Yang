@@ -132,12 +132,14 @@ that the distribution of gene expressions are comparable across samples.
 ### Multidimensional Scaling
 
 We evaluated the similarity between the samples by accessing the clustering of the samples (as well 
-as replicates within each group) using multidimensional scaling (MDS). The MDS plot reveals a moderate
+as replicates within each group) using multidimensional scaling (MDS). The MDS plot shown in [Figure 2.](fig2) reveals a moderate
 clustering of samples based on the treatment conditions, and in particular, the control samples
 under mechanical strain alone are clustered separately with any other groups. The other treatment
 groups show less separation along the first dimension, but clustering is still observed. Interestingly,
 although most of the samples 
 
+<a name="fig2"></a>
+![](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/mds.png)
 
 # Preparations
 
