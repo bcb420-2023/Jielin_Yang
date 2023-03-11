@@ -53,23 +53,99 @@ knitr::opts_knit$set(root.dir = here::here())  # Must be the project directory
 
 ## Background
 
+Heart failure (HF) is a chronic cardiac disease that has progressively severe implications
+on the patient's quality of life, and it has been a leading cause of death and a significant
+contributor to the global burden of disease. [@heidenreich20222022] The pathophysiology of HF 
+is complex and involves multiple factors, but a major hallmark of HF is the progressive
+degeneration of the myocardium that is accompanied by cardiac fibrosis. [@garoffolo2022reduction] 
+[@porter2009cardiac] [@tallquist2017redefining] During the progression of HF, a process known
+as cardiac remodelling progressively replaces the myocardium with fibrous tissues, which in turn
+leads to the gradual stiffening of the heart ventricular wall. Thus, the identification of
+profibrotic pathways are essential to the development of therapeutic strategies to delay or
+even to prevent the profibrotic remodelling of the heart.
+
+Previous studies have shown that the straining condition has played a significant role in
+potently altering the Hippo pathways. [@brusatin2018biomaterials] It was found that mechanical
+stress on the cell cytoskeleton induces the nuclear entry of the YAP/TAZ complex, which 
+subsequently activates the proliferative pathways. [@elosegui2017force] [@panciera2017mechanobiology]
+Although such a mechanism may seem to be beneficial for the restoration of the damaged cardiomyocytes,
+this pathway has been shown to be more active in cardiac stromal cells, which can subsequently
+differentiate into myofibroblasts that eventually leads to the profibrotic remodelling of the heart. 
+[@garoffolo2022reduction] Therefore, directly suppressing the YAP/TAZ complex in cardiac stromal
+cells may be an effective strategy. Recently, a study by [Garoffolo et al.](https://www.ahajournals.org/doi/10.1161/CIRCRESAHA.121.319373) 
+investigated the use of a small molecular inhibitor, verteporfin (VTP), to suppress the YAP/TAZ complex 
+with or without the presence of TGF-β1, a profibrotic cytokine under the maximal strain condition.
+
 ## Objectives
+
+The study by [Garoffolo et al.](https://www.ahajournals.org/doi/10.1161/CIRCRESAHA.121.319373) aimed
+to examine the antifibrotic effect of VTP in cardiac stromal cells under profibrotic signals that 
+simulates the straining conditions under heart failure as part of their larger objective. [@garoffolo2022reduction]
+
+Here, we focus on this particular aspect of the research discussed above. In particular, we aim to 
+use RNA-seq data to identify the changes in the transcriptional profile of cardiac stromal cells
+after the use of VTP. [Figure 1.](#fig1) shows the experimental design of the study. Here, we perform 
+differential gene expression analysis comparing the transcriptome of the cells treated with VTP
+with control under the known profibrotic straining condition. Additionally, we test the efficacy
+of the drug (VTP) under the presence of TGF-β1, a potent profibrotic cytokine. [@saadat2021pivotal] To investigate whether
+direct inhibition of the YAP/TAZ complex with VTP, we perform threshold over-representation analysis
+to identify enriched pathways in the differentially expressed genes, which would allow us to identify
+whether VTP can effectively reverse a profibrotic phenotype.
+
+<a name="fig1"></a>
+![](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/schematics.png)
+
+**Figure 1.** Schematics of RNAseq experiment design. Samples were cultured under maximal mechanical strains. 
+Six independent cell cultures were used for each treatment condition. cSt-Cs: cardiospheres-derived primitive 
+cardiac stromal cells; VTP: verteporfin; TGF-β1: transforming growth factor beta-1. Figure adapted from 
+[Assignment 1](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html) 
+and created with BioRender.com.
 
 ## Dataset
 
+The data used in the present analysis is retrieved from the GEO database under the accession number
+[GSE203358](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE203358). The dataset contains
+RNA-seq data from 24 samples, which are evenly split into 4 groups:
+- Control (maximal strain condition)
+- Verteporfin (VTP) treatment (maximal strain condition)
+- TGF-β1 treatment (maximal strain condition)
+- Verteporfin (VTP) treatment with TGF-β1 (maximal strain condition)
+
 ## Previous Analysis
+
+Since we have previously performed initial data cleaning and normalization, here we provide a brief
+summary of the previous analysis. The entire process can be found [here](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html).
 
 ### Data QC and Filtering
 
+The original dataset is composed of `24` samples and `60583 `genes. After removing genes with low counts, the dataset
+we use in the present analysis is composed of `14814` genes. The reference genome used is the human [GRCh38](https://useast.ensembl.org/Homo_sapiens/Info/Index?db=core) genome.
+
 ### Identifier Mapping and Normalization
+
+The original dataset contains a mix of HUGO gene symbols and GenBank identifiers. We used the [biomaRt](https://bioconductor.org/packages/release/bioc/html/biomaRt.html) 
+package to map the rest of the identifiers to HUGO gene symbols. [@durinck2009mapping] The dataset is normalized using the Trimmed
+Mean of M-values (TMM) method implemented by the [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) package. [@robinson2010edger]
+After applying normalization, the library size for each sample has been effectively adjusted such
+that the distribution of gene expressions are comparable across samples.
 
 ### Multidimensional Scaling
 
+We evaluated the similarity between the samples by accessing the clustering of the samples (as well 
+as replicates within each group) using multidimensional scaling (MDS). The MDS plot reveals a moderate
+clustering of samples based on the treatment conditions, and in particular, the control samples
+under mechanical strain alone are clustered separately with any other groups. The other treatment
+groups show less separation along the first dimension, but clustering is still observed. Interestingly,
+although most of the samples 
 
 
 # Preparations
 
 ## Package Dependencies
+
+The current R Notebook assumes that it is being run on the BCB420-2023 base image. 
+Additional packages required are noted below.
+
 
 ## Data Import
 
