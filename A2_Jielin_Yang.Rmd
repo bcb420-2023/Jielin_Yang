@@ -132,7 +132,7 @@ that the distribution of gene expressions are comparable across samples.
 ### Multidimensional Scaling
 
 We evaluated the similarity between the samples by accessing the clustering of the samples (as well 
-as replicates within each group) using multidimensional scaling (MDS). The MDS plot shown in [Figure 2.](fig2) reveals a moderate
+as replicates within each group) using multidimensional scaling (MDS). The MDS plot shown in [Figure 2.](#fig2) reveals a moderate
 clustering of samples based on the treatment conditions, and in particular, the control samples
 under mechanical strain alone are clustered separately with any other groups. The other treatment
 groups show less separation along the first dimension, but clustering is still observed. Interestingly,
@@ -161,6 +161,16 @@ Additional packages required are noted below.
 # edgeR package for manupulating and analyzing RNAseq data
 if (! requireNamespace("edgeR", quietly = TRUE)) {
   BiocManager::install("edgeR")
+}
+
+# ComplexHeatmap package for creating heatmaps
+if (! requireNamespace("ComplexHeatmap", quietly = TRUE)) {
+  BiocManager::install("ComplexHeatmap")
+}
+
+# circlize package for circular visualization
+if (! requireNamespace("circlize", quietly = TRUE)) {
+  BiocManager::install("circlize")
 }
 
 # KableExtra package for creating tables and formatting
@@ -213,7 +223,7 @@ sample_matrix <- colnames(counts) %>%
   as.data.frame()
 
 # Rename the data frame
-colnames(sample_matrix) <- colnames(counts)[2:25]
+colnames(sample_matrix) <- colnames(counts)
 rownames(sample_matrix) <- c("culture","treatment")
 
 # Transpose the data frame so that each row represents a unique sample
@@ -227,9 +237,9 @@ sample_matrix <- sample_matrix[order(sample_matrix$treatment), ]
 DT::datatable(sample_matrix, rownames = TRUE, filter = "top",
               options = list(pageLength = 6)) %>%
               # Changing the font size of content
-              DT::formatStyle(names(sample_matrix), fontSize = "11px") %>%
+              DT::formatStyle(names(sample_matrix), fontSize = "12px") %>%
               # Changing the font size of row names (sample names)
-              DT::formatStyle(0, fontSize = "11px")
+              DT::formatStyle(0, fontSize = "12px")
 ```
 
 **Table 2.** Sample information used for the present analysis. A total of 24 samples
@@ -239,10 +249,133 @@ is used for 4 different treatment conditions.
 
 # Differential Gene Expression Analysis
 
+Understanding the antifibrotic effect of VTP requires a comprehensive analysis of the
+gene expression profile of the cSt-Cs by identifying the transcriptional changes with
+or without the treatment of VTP. To this end, we will perform two separate differential
+gene expression analysis with or without the presence of TGF-β1, in which we can isolate
+the effect of VTP as the only independent variable.
 
+However, although our data is composed of a total of 4 treatment condition, which allows
+for the comparison between control (strain alone) and TGF-β1, we will not perform such
+analysis. It has been well documented that TGF-β1 is a potent profibrotic cytokine that
+will induce a series of transcriptional activation on profibrotic pathways. [@walker2019transcriptomic]
+The authors of the original publication has also verified the profibrotic effect of TGF-β1. [@saadat2021pivotal]
+We have also shown that TGF-β1 significantly upregaltes the expression of profibrotic
+genes (see associated [journal entry](https://github.com/bcb420-2023/Jielin_Yang/wiki/Differential-Gene-Expression-Analysis-and-Preliminary-ORA#differential-gene-expression-analysis-comparing-tgf%CE%B21-and-control) 
+for details). Therefore, based on our objective, we believe that it is more valuable to 
+investigate the effect of VTP under maximal strain, both with and without the presence of
+TGF-β1 separately.
 
 ## Global Gene Expression Profiling
 
+Before we perform the differential gene expression analysis, we first want to
+observe the global expression change at the gene level. Here, we plot a heatmap
+for all the genes in the dataset to visualize the expression change across all
+samples under various conditions.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Creating a DGEList object
+counts_dge <- edgeR::DGEList(counts = counts, group = sample_matrix$treatment)
+
+# As discussed in the associated journal entry, the data we use are the
+# counts, rather than the counts per million (CPM) values. Therefore, we
+# will need to convert the count to CPM values for normalization on
+# library size.
+counts_dge <- edgeR::calcNormFactors(counts_dge)
+counts_cpm_all <- edgeR::cpm(counts_dge)
+```
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Create a heatmap matrix for all the genes by scaling the CPM values
+# This allows the heatmap colour to be on a consistent and continuous scale
+# across all the samples
+heatmap_matrix <- counts_cpm_all %>% t() %>% scale()
+
+# Convert it back to the original format
+heatmap_matrix <- t(heatmap_matrix)
+```
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Checking the range of the heatmap matrix
+hmap_range <- range(heatmap_matrix)
+hmap_range
+```
+
+The range of the heatmap matrix is between `r hmap_range[1]` and `r hmap_range[2]`.
+Since the scaled expression value ranges from negative to positive, we will define
+a three colour palette for the heatmap, where we will use `blue` to represent
+the downregulated genes and `red` for upregulated genes. In the middle of the scale
+is `white`.
+
+Here, heatmap creation and visual representation are implemented using the
+`ComplexHeatmap` and `circlize` packages, respectively. [@gu2016complex] [@gu2014circlize]
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Set the 3 color palette based on the scaled heatmap matrix
+hmap_col <- circlize::colorRamp2(c(hmap_range[1], 0, hmap_range[2]), 
+                                 c("blue", "white", "red"))
+```
+
+Due to the relatively large number of samples, we will also apply annotations to
+the heatmap to better visualize the clustering of the samples. In particular,
+we will annotate the heatmap by the treatment condition and culture replicate.
+This would better allows us to identify whether any of the variables have a
+significant effect on the clustering of the samples.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Treatment Conditions
+treatments <- unique(sample_matrix$treatment)
+
+# Define 4 colours for the 4 treatment conditions
+treatment_col <- hcl.colors(4, palette = "viridis")
+names(treatment_col) <- treatments
+
+# Culture Replicates
+cultures <- unique(sample_matrix$culture)
+
+# Define 6 colours for the 6 culture replicates
+culture_col <- hcl.colors(6, palette = "harmonic")
+
+# Create an annotation dataframe
+anno_df <- data.frame(treatment = sample_matrix$treatment,
+                      culture = sample_matrix$culture)
+anno_col <- list(treatment = treatment_col, culture = culture_col)
+
+# Create the heatmap annotation
+hmap_anno <- ComplexHeatmap::HeatmapAnnotation(
+                    df = anno_df,
+                    col = anno_col)
+
+```
+
+
+
+
+
+
+To better visualize the heatmap, we cluster the genes into 4 groups using the
+k-means clustering algorithm. This allows the genes that have similar expression
+profiles to be grouped together. Additionally, since our dataset consists of 4
+treatment conditions, it is expected that a clustering of 4 groups will reveal
+some interesting patterns in the expression profiles.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Generate the heatmap
+# Set the seed for reproducibility due to he inherent randomness of the
+# k-means clustering algorithm
+set.seed(91711)
+hmap_all <- ComplexHeatmap::Heatmap(heatmap_matrix,
+                                    show_row_dend = TRUE,
+                                    show_column_dend = TRUE,
+                                    show_column_names = TRUE,
+                                    show_row_names = FALSE,
+                                    col = hmap_col,
+                                    km = 4)
+set.seed(NULL)
+
+# Plot the heatmap
+hmap_all
+```
 ## Dispersion Estimation
 
 ## Differential expression
