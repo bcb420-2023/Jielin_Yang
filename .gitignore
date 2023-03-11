@@ -45,3 +45,4 @@ Data/cpm_filtered_translated.csv
 Data/raw_counts_filtered_translated.csv
 Data/expr_norm_counts.csv
 R Notebook Template.Rmd
+.vscode/settings.json

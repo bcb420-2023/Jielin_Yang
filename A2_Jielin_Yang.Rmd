@@ -1,6 +1,6 @@
 ---
-title: "Title"
-subtitle: "Subtitle"
+title: "Differential Gene Expression Analysis and Preliminary ORA"
+subtitle: "BCB420 Assignment 2"
 author: Jielin Yang
 date: March 14, 2023
 output: 
@@ -48,8 +48,102 @@ csl: "american-medical-association.csl"
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 knitr::opts_knit$set(root.dir = here::here())  # Must be the project directory
 ```
-    
 
+# Introduction
+
+## Background
+
+## Objectives
+
+## Dataset
+
+## Previous Analysis
+
+### Data QC and Filtering
+
+### Identifier Mapping and Normalization
+
+### Multidimensional Scaling
+
+
+
+# Preparations
+
+## Package Dependencies
+
+## Data Import
+
+
+# Differential Gene Expression Analysis
+
+## Global Gene Expression Profiling
+
+## Dispersion Estimation
+
+## Differential expression
+
+### Effect of VTP under Maximal Strain
+
+### Effect of VTP under Maximal Strain with Profibrotic TGF-β1
+
+
+
+
+# Threshold Over-representation Analysis
+
+## Effect of VTP under Maximal Strain
+
+### All Differentially Expressed Genes
+
+### Up-regulated Genes in VTP
+
+### Down-regulated Genes in VTP
+
+
+## Effect of VTP under Maximal Strain with Profibrotic TGF-β1
+
+### All Differentially Expressed Genes
+
+### Up-regulated Genes in VTP
+
+### Down-regulated Genes in VTP
+
+
+
+
+# Interpretation and Analysis
+
+## Differential Gene Expression Analysis
+
+- **How many genes were significantly differentially expressed? What thresholds did you use and why?**
+
+
+
+
+
+- **Multiple hypothesis testing - correct your p-values using a multiple hypothesis correction method. Which method did you use? And Why? How many genes passed correction?**
+
+- **Show the amount of differentially expressed genes using an MA Plot or a Volcano plot. Highlight genes of interest.**
+
+- **Visualize your top hits using a heatmap. Do you conditions cluster together? Explain why or why not.**
+
+
+## Threshold Over-representation Analysis
+
+- **Which method did you choose and why?**
+
+- **What annotation data did you use and why? What version of the annotation are you using?**
+
+- **How many genesets were returned with what thresholds?**
+
+- **Run the analysis using the up-regulated set of genes, and the down-regulated set of genes separately. How do these results compare to using the whole list (i.e all differentially expressed genes together vs. the up-regulated and down regulated differentially expressed genes separately)?**
+
+
+## Result Interpretation
+
+- **Do the over-representation results support conclusions or mechanism discussed in the original paper?**
+
+- **Can you find evidence, i.e. publications, to support some of the results that you see. How does this evidence support your results.**
 
 # Journal Link
 The link to the concurrent journal entry can be found [here](https://github.com/bcb420-2023/Jielin_Yang/wiki/Differential-Gene-Expression-Analysis-and-Preliminary-ORA).
