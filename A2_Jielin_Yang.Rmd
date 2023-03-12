@@ -198,6 +198,11 @@ if (! requireNamespace("circlize", quietly = TRUE)) {
   BiocManager::install("circlize")
 }
 
+# ggplot2 package for creating plots
+if (! requireNamespace("ggplot2", quietly = TRUE)) {
+  install.packages("ggplot2")
+}
+
 # KableExtra package for creating tables and formatting
 if (! requireNamespace("kableExtra", quietly = TRUE)) {
   install.packages("kableExtra")
@@ -215,6 +220,9 @@ if (! requireNamespace("DT", quietly = TRUE)) {
 
 # Load the dplyr package
 library("dplyr")
+
+# Load the ggplot2 package
+library("ggplot2")
 
 # We will consistently use package::function() to avoid confusion
 # However, the dplyr package has to be loaded first to allow
@@ -549,6 +557,9 @@ qlf_vtp_ctrl <- edgeR::glmQLFTest(glmfit = glm_fit_treat_cul,
 # Extract the results
 results_vtp_ctrl <- edgeR::topTags(qlf_vtp_ctrl, sort.by = "PValue", 
                                    n = nrow(counts_dge))$table
+
+# Save the differential expression results
+write.csv(results_vtp_ctrl, file = "./Data/dge_vtp_ctrl.csv", row.names = TRUE)
 ```
 
 We will now examine the genes that are differentially expressed.
@@ -596,9 +607,13 @@ dge_vtp_ctrl <- results_vtp_ctrl[results_vtp_ctrl$FDR < 0.05, ]
 # Up-regulated genes
 vtp_ctrl_up <- dge_vtp_ctrl[dge_vtp_ctrl$logFC > 0, ]
 
+# We add gene symbol as a column so that it is searchable
+vtp_ctrl_up$Gene = rownames(vtp_ctrl_up)
+vtp_ctrl_up <- vtp_ctrl_up[, c(ncol(vtp_ctrl_up), 1:ncol(vtp_ctrl_up)-1)]
+
 # Sort by fold change and visualize with a table
 vtp_ctrl_up <- vtp_ctrl_up[order(vtp_ctrl_up$logFC, decreasing = TRUE), ]
-DT::datatable(vtp_ctrl_up, rownames = TRUE, filter = "top",
+DT::datatable(vtp_ctrl_up, rownames = FALSE, filter = "top",
               options = list(pageLength = 5, scrollX = TRUE)) %>%
               # Changing the font size of content
               DT::formatStyle(colnames(vtp_ctrl_up), fontSize = "12px") %>%
@@ -606,6 +621,7 @@ DT::datatable(vtp_ctrl_up, rownames = TRUE, filter = "top",
               DT::formatStyle(0, fontSize = "12px")
 ```
 
+**Table 4.** Up-regulated genes under VTP treatment comparing to control without TGF-β1.
 
 #### Down-regulated Genes under VTP Treatment
 
@@ -613,9 +629,13 @@ DT::datatable(vtp_ctrl_up, rownames = TRUE, filter = "top",
 # Down-regulated genes
 vtp_ctrl_down <- dge_vtp_ctrl[dge_vtp_ctrl$logFC < 0, ]
 
+# We add gene symbol as a column so that it is searchable
+vtp_ctrl_down$Gene = rownames(vtp_ctrl_down)
+vtp_ctrl_down <- vtp_ctrl_down[, c(ncol(vtp_ctrl_down), 1:ncol(vtp_ctrl_down)-1)]
+
 # Sort by fold change and visualize with a table
 vtp_ctrl_down <- vtp_ctrl_down[order(vtp_ctrl_down$logFC, decreasing = FALSE), ]
-DT::datatable(vtp_ctrl_down, rownames = TRUE, filter = "top",
+DT::datatable(vtp_ctrl_down, rownames = FALSE, filter = "top",
               options = list(pageLength = 5, scrollX = TRUE)) %>%
               # Changing the font size of content
               DT::formatStyle(colnames(vtp_ctrl_down), fontSize = "12px") %>%
@@ -623,11 +643,92 @@ DT::datatable(vtp_ctrl_down, rownames = TRUE, filter = "top",
               DT::formatStyle(0, fontSize = "12px")
 ```
 
+**Table 5.** Down-regulated genes under VTP treatment comparing to control without TGF-β1.
+
 #### Differentially Expressed Genes
 
 Interestingly, there we found `r nrow(vtp_ctrl_up)` up-regulated genes, which is
 more than the number of down-regulated genes, `r nrow(vtp_ctrl_down)`. The top
-upregulated genes are ``r paste(rownames(vtp_ctrl_up[1:5]), collapse = ", ")``, and th
+upregulated genes are ``r paste(rownames(vtp_ctrl_up[1:5, ]), collapse = ", ")``, 
+which are not associated with fibrosis or cell proliferation. Rather, the top
+downregulated gene is ``r rownames(vtp_ctrl_down[1, ])``, with a fold change of
+`r round(2^(-vtp_ctrl_down[1, "logFC"]), 2)`. This gene encodes [collagen type XI 
+alpha 1 chain](https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000060718;r=1:102876467-103108872).
+which directly involves in the formation of collagen fibrils. [@moore2014resident]
+We can see that a total of `r sum(grepl("$COL", rownames(vtp_ctrl_down)))` collagen
+genes are downregualed, with none of them upregulated. This suggests that VTP
+reduces the expression of collagen genes, which are the main components of
+fibrotic tissues. We also found that `P4HA1` gene is among the most significantly
+downregualted genes. The gene enxcodes a key subunit of the prolyl 4-hydroxylase
+complex, which is involved in a key step of collagen synthesis. [@nwogu2001inhibition]
+Among the upregulated genes, we found multiple `SLC` family genes, which are involved
+in membrane transport and are likely to contribute to cellular respirations, which
+are known to be reduced in fibrotic tissues. [@pizzagalli2021guide]
+
+Here we visualize the differentially expressed genes using a Volcano plot, which
+allows for easy visualization of the genes accoding to their fold change and
+significance.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Label genes as up/down-regulated
+results_vtp_ctrl <- results_vtp_ctrl %>%
+    dplyr::mutate(Expression = dplyr::case_when(
+                        logFC > 0 & FDR < 0.05 ~ "Up-regulated",
+                        logFC < 0 & FDR < 0.05 ~ "Down-regulated",
+                        TRUE ~ "Not DE"))
+
+# Extract a sublist of inportant genes to label in the plot
+# Subset differentially expressed genes
+results_deg <- results_vtp_ctrl[results_vtp_ctrl$FDR < 0.05, ]
+
+# 1. Collagen genes
+genes_to_label <- results_deg[grepl("COL", rownames(results_deg)), ]
+# 2. Prolyl 4-hydroxylase subunit
+genes_to_label <- rbind(genes_to_label, 
+                        results_deg[grepl("P4HA1", rownames(results_deg)), ])
+# 3. Top 3 up and down-regulated genes based on fold change
+results_sort_by_FC <- results_deg[order(results_deg$logFC), ]
+genes_to_label <- rbind(genes_to_label, 
+                results_sort_by_FC[1:3, ], 
+                results_sort_by_FC[(nrow(results_sort_by_FC)-2):nrow(results_sort_by_FC), ])
+
+# Remove any duplicated genes in the subset
+genes_to_label <- genes_to_label[!duplicated(rownames(genes_to_label)), ]
+```
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=8, fig.height=6}
+# We will plot all genes, with highlighted genes representing the differentially
+# expressed genes
+ggplot2::ggplot(results_vtp_ctrl, aes(logFC, -log(FDR, 10))) +
+    # Add dots to reprent each gene
+    ggplot2::geom_point(aes(color = Expression), size = 2/5) +
+    xlab(expression("log"[2]*"FC")) + 
+    ylab(expression("-log"[10]*"FDR")) + 
+    # Color genes based on whether it is significantly up/down-regulated
+    ggplot2::scale_color_manual(values = c("Up-regulated" = "firebrick3", 
+                                           "Down-regulated" = "dodgerblue3", 
+                                           "Not DE" = "gray50")) +
+    ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size=1.5))) +
+    # Label the genes of interest
+    ggplot2::geom_label(data = genes_to_label, 
+                        mapping = aes(logFC, -log(FDR, 10), label = rownames(genes_to_label)),
+                        size = 2, color = "black", nudge_x = 0.1, nudge_y = 0.1)
+```
+
+**Figure 5.** Volcano plot of differentially expressed genes comparing VTP treatment
+to control without TGF-β1. Differentially expressed genes are coloured based on
+direction of change. Genes of interest are labelled.
+
+
+
+
+To better visualize the differentially expressed genes between the two test
+condition, a heatmap is plotted to support the visualization of gene expression,
+and particularly the clustering of samples.
+
+
+
+
 
 
 ### Effect of VTP under Maximal Strain with Profibrotic TGF-β1
@@ -641,7 +742,68 @@ conditions are also subjected to the same TGF-β1 treatment.
 # Create a contrast for VTP vs. control with TGF-β1
 contrast_vtp_tgf <- limma::makeContrasts("treatmentsTGFb_VTP - treatmentsTGFb", 
                                             levels = model_treat_cul)
+
+# Perform differential expression analysis
+results_vtp_tgf <- edgeR::glmQLFTest(glmfit = glm_fit_treat_cul, 
+                                     contrast = contrast_vtp_tgf)
 ```
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Extract the results
+results_vtp_tgf <- edgeR::topTags(results_vtp_tgf, sort.by = "PValue", 
+                                   n = nrow(counts_dge))$table
+# Save the differential expression results
+write.csv(results_vtp_ctrl, file = "./Data/dge_vtp_tgf.csv", row.names = TRUE)
+```
+
+There are ``r sum(results_vtp_tgf$FDR < 0.05)`` differentially expressed genes
+comparing VTP treatment to control in the presence of TGF-β1. Similar to the
+previous analysis, we used an threshold of `0.05` for the false discovery rate
+(FDR), as corrected by the Benjamini-Hochberg method, to determine whether a 
+gene is considered differentially expressed. Among these differentially expressed
+genes, there are ``r sum(results_vtp_tgf$logFC > 0 & results_vtp_tgf$FDR < 0.05)``
+genes that are up-regulated and ``r sum(results_vtp_tgf$logFC < 0 & results_vtp_tgf$FDR < 0.05)``
+genes that are down-regulated, as shown below.
+
+#### Up-regulated Genes under VTP Treatment
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Retrieve the set of differentially expressed genes
+dge_vtp_tgf <- results_vtp_tgf[results_vtp_ctrl$FDR < 0.05, ]
+
+# Up-regulated genes
+vtp_tgf_up <- dge_vtp_tgf[dge_vtp_tgf$logFC > 0, ]
+
+# We add gene symbol as a column so that it is searchable
+vtp_tgf_up$Gene <- rownames(vtp_tgf_up)
+vtp_tgf_up <- vtp_tgf_up[, c(ncol(vtp_tgf_up), 1:(ncol(vtp_tgf_up)-1))]
+
+# Sort the genes by fold change and visualize using a table
+vtp_tgf_up <- vtp_tgf_up[order(vtp_tgf_up$logFC, decreasing = TRUE),]
+DT::datatable(vtp_tgf_up, rownames = FALSE, filter = "top",
+              options = list(pageLength = 5, scrollX = TRUE)) %>%
+              DT::formatStyle(colnames(vtp_ctrl_up), fontSize = "12px") %>%
+              DT::formatStyle(0, fontSize = "12px")
+```
+
+#### Down-regulated Genes under VTP Treatment
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Down-regulated genes
+vtp_tgf_down <- dge_vtp_tgf[dge_vtp_tgf$logFC < 0, ]
+
+# We add gene symbol as a column so that it is searchable
+vtp_tgf_down$Gene <- rownames(vtp_tgf_down)
+vtp_tgf_down <- vtp_tgf_down[, c(ncol(vtp_tgf_down), 1:(ncol(vtp_tgf_down)-1))]
+
+# Sort the genes by fold change and visualize using a table
+vtp_tgf_down <- vtp_tgf_down[order(vtp_tgf_down$logFC), ]
+DT::datatable(vtp_tgf_down, rownames = FALSE, filter = "top",
+              options = list(pageLength = 5, scrollX = TRUE)) %>%
+              DT::formatStyle(colnames(vtp_ctrl_down), fontSize = "12px") %>%
+              DT::formatStyle(0, fontSize = "12px")
+```
+
 
 
 
