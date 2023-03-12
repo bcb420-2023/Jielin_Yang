@@ -360,7 +360,7 @@ names(treatment_col) <- treatments
 cultures <- unique(sample_matrix_sorted$culture)
 
 # Define 6 colours for the 6 culture replicates
-culture_col <- hcl.colors(6, palette = "cork")
+culture_col <- hcl.colors(6, palette = "set3")
 names(culture_col) <- cultures
 
 # Create an annotation dataframe
@@ -377,9 +377,12 @@ hmap_anno <- ComplexHeatmap::HeatmapAnnotation(
 
 To better visualize the heatmap, we cluster the genes into 4 groups using the
 k-means clustering algorithm. This allows the genes that have similar expression
-profiles to be grouped together. Additionally, since our dataset consists of 4
-treatment conditions, it is expected that a clustering of 4 groups will reveal
-some interesting patterns in the expression profiles.
+profiles to be grouped together. [@sharko2007heat] [@gu2016complex] Additionally, 
+since our dataset consists of 4 treatment conditions, it is expected that a 
+clustering of 4 groups will reveal some interesting patterns in the expression 
+profiles.
+
+<a name="fig3"></a>
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=10, fig.height=10}
 # Generate the heatmap
@@ -428,9 +431,47 @@ is consistent with the distribution of the samples from the MDS plot in
 [Figure 2](#fig2). Therefore, we will take this into account when we perform
 build the model for differential expression analysis.
 
-## Dispersion Estimation
+## Model Selection
 
-## Differential expression
+For differential gene expression analysis, we use the `edgeR` package,
+which implements a generailized linear model (GLM) to test for differential
+expression. [@robinson2010edger] Based on the objective of our analysis,
+we will build the model based on the treatment conditions. Additionally,
+since we have observed a subset of cultures replicates that shows a lower
+variance within cells from the same culture ([Figure 2.](#fig2)) and a 
+moderate degree of clustering in the heatmap ([Figure 3.](#fig3)), it is
+expected that the culture replicate will also contribute to the variance
+in gene expression. Therefore, we choose the model to include both factors,
+treatment and culture replicate.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+model_treat_cul <- model.matrix(~0 + sample_matrix$treatment + sample_matrix$culture)
+rownames(model_treat_cul) <- rownames(sample_matrix)
+
+# View the model matrix
+DT::datatable(model_treat_cul, rownames = TRUE,
+              options = list(pageLength = 6, scrollX = TRUE)) %>%
+              # Changing the font size of content
+              DT::formatStyle(names(model_treat_cul), fontSize = "12px")
+```
+
+**Table 3.** Model design for differential expression analysis. The model includes
+both treatment and culture replicate as factors for fitting the generalized
+linear model.
+
+Furthermore, `edgeR` implements dispersion estimation with the negative binomial model,
+which estimates the global variation across the samples in a biological 
+group. [@lun2016s] Correct estimation of dispersion not only allows
+accurate assessment of the quality of the data, but it is also a 
+prerequisite for the differential expression analysis. [@lun2016s] [@robinson2010edger]
+Here we estimate and assess the dispersion using the `estimateDisp` function.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Estimate the dispersion
+counts_dge <- edgeR::estimateDisp(counts_dge, model_treat_cul)
+```
+
+## Differential Expression
 
 ### Effect of VTP under Maximal Strain
 
