@@ -183,6 +183,11 @@ if (! requireNamespace("edgeR", quietly = TRUE)) {
   BiocManager::install("edgeR")
 }
 
+# limma package for differential expression analysis
+if (! requireNamespace("limma", quietly = TRUE)) {
+  BiocManager::install("limma")
+}
+
 # ComplexHeatmap package for creating heatmaps
 if (! requireNamespace("ComplexHeatmap", quietly = TRUE)) {
   BiocManager::install("ComplexHeatmap")
@@ -250,11 +255,9 @@ rownames(sample_matrix) <- c("culture","treatment")
 # and each column represents a unique sample attribute
 sample_matrix <- data.frame(t(sample_matrix))
 
-# Order the samples by their treatment conditions
-sample_matrix <- sample_matrix[order(sample_matrix$treatment), ]
-
 # View the sample information
-DT::datatable(sample_matrix, rownames = TRUE, filter = "top",
+DT::datatable(sample_matrix[order(sample_matrix$treatment), ], 
+              rownames = TRUE, filter = "top",
               options = list(pageLength = 6)) %>%
               # Changing the font size of content
               DT::formatStyle(names(sample_matrix), fontSize = "12px") %>%
@@ -344,9 +347,7 @@ This would better allows us to identify whether any of the variables have a
 significant effect on the clustering of the samples.
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
-# Interestingly, taking the transpose of the heatmap matrix sorts the sample 
-# names. Therefore, to correctly apply the annotation, we need to sort the 
-# sample matrix in the same order as the heatmap matrix
+# Sort the sample matrix in the same order as the heatmap matrix
 sample_matrix_sorted <- sample_matrix[colnames(heatmap_matrix),]
 
 # Treatment Conditions
@@ -444,12 +445,20 @@ expected that the culture replicate will also contribute to the variance
 in gene expression. Therefore, we choose the model to include both factors,
 treatment and culture replicate.
 
+<a name="tab3"></a>
+
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
-model_treat_cul <- model.matrix(~0 + sample_matrix$treatment + sample_matrix$culture)
+# Extract the factors for the model
+treatments <- sample_matrix$treatment
+cultures <- sample_matrix$culture
+
+# Create the model
+model_treat_cul <- model.matrix(~0 + treatments + cultures)
 rownames(model_treat_cul) <- rownames(sample_matrix)
 
 # View the model matrix
-DT::datatable(model_treat_cul, rownames = TRUE,
+DT::datatable(model_treat_cul[order(gsub("M[0-9]{2}\\.", "", rownames(model_treat_cul))), ], 
+              rownames = TRUE,
               options = list(pageLength = 6, scrollX = TRUE)) %>%
               # Changing the font size of content
               DT::formatStyle(names(model_treat_cul), fontSize = "12px")
@@ -489,6 +498,8 @@ dispersion shown in gray and light blue, respectively. A black line with a slope
 represents the expected variance of a Poisson distribution, which assumes that the
 variance is equal to the mean.
 
+<br />
+
 [Figure 4.](#fig4) illustrates the mean-variance relationship of the genes in
 the dataset across all genes and samples. [@mccarthy2012differential] A trended line 
 based on the negative binomial model shows an increasing variance correlating to higher 
@@ -498,10 +509,139 @@ relatively closely with the trend line.
 
 ## Differential Expression
 
+Based on the model design and the estimated dispersion above, two differential gene
+expression analysis are performed separately, comparing the transcriptomic changes
+involved after the addition of VTP to the cells under maximal strain with and
+without the presence of TGF-β1. Here, we employ the gene-wise Quasi-likelihood
+F test with the negative binomial generalized linear model to test for differential
+expression. We choose the method because it has been suggested to account for 
+gene-specific variations due to biological and technical factors and that it also
+reflects the uncertainty in dispersion estimation. [@lun2016s] This is recommended
+for bulk RNA-seq dataset with a complex design (i.e., the two-factor model we 
+employed in this analysis, as shown in [Table 3](#tab3)). [@lun2016s] [@robinson2010edger]
+
 ### Effect of VTP under Maximal Strain
+
+First, we examine the effect of VTP in comparison to control without the presence
+of TGF-β1. Based on the model, we establish a contrast comparing the treatment of
+VTP alone to the control. This is implemented in the `limma` package. [@ritchie2015limma]
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Create a contrast for VTP vs. control
+contrast_vtp <- limma::makeContrasts("treatmentsVTP - treatmentsCTRL", 
+                                        levels = model_treat_cul)
+```
+
+We then perform the differential expression analysis by fitting the generalized
+linear model with the factors we designed and performing the Quasi-likelihood
+F test as described above.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Fit the model
+glm_fit_treat_cul <- edgeR::glmQLFit(counts_dge, model_treat_cul)
+
+# Perform the differential expression analysis
+qlf_vtp_ctrl <- edgeR::glmQLFTest(glmfit = glm_fit_treat_cul, 
+                                  contrast = contrast_vtp)
+```
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Extract the results
+results_vtp_ctrl <- edgeR::topTags(qlf_vtp_ctrl, sort.by = "PValue", 
+                                   n = nrow(counts_dge))$table
+```
+
+We will now examine the genes that are differentially expressed.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Differentially expressed genes based on unadjusted p-value
+sum(results_vtp_ctrl$PValue < 0.05)
+```
+
+Among the `r nrow(counts)` genes in the dataset, `r sum(results_vtp_ctrl$PValue < 0.05)`
+are considered to be differentially expressed based on the unadjusted p-value with a
+threshold of 0.05. This is consistent with other RNA-seq studies that have a focus
+on heart gene expression. [@ahmed2023kdm8] Additionally, a threshold of 0.05 is
+also a common choice, since it is a conservative threshold that does not post
+a high risk of false positives and is not too stringent that may mask other
+biologically relevant genes.
+
+Since paring RNA-seq expression data involves multiple hypothesis testing, we
+also adjust the p-values using the Benjamini-Hochberg method. This method assumes
+that the power to detect differential expression is equally likely among all the 
+tests, which is suitable in the case of RNA-seq data, where the assumption is 
+that most genes are not differentially expressed. [@korthauer2019practical]
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Differentially expressed genes based on adjusted p-value
+sum(results_vtp_ctrl$FDR < 0.05)
+```
+
+Ater adjusting for multiple hypothesis testing, a total of 
+`r sum(results_vtp_ctrl$FDR < 0.05)` genes are considered to be truly
+differentially expressed. Since it is known that VTP is a direct
+inhibitor of the TAP/TAZ complex, which is involved in multiple
+pathways such as cell proliferation and migration, we expect that
+a certain amount of genes should be differentially expressed.
+[@garoffolo2022reduction] [@panciera2017mechanobiology]
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Retrieve the set of differentially expressed genes
+dge_vtp_ctrl <- results_vtp_ctrl[results_vtp_ctrl$FDR < 0.05, ]
+```
+
+#### Up-regulated Genes under VTP Treatment
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Up-regulated genes
+vtp_ctrl_up <- dge_vtp_ctrl[dge_vtp_ctrl$logFC > 0, ]
+
+# Sort by fold change and visualize with a table
+vtp_ctrl_up <- vtp_ctrl_up[order(vtp_ctrl_up$logFC, decreasing = TRUE), ]
+DT::datatable(vtp_ctrl_up, rownames = TRUE, filter = "top",
+              options = list(pageLength = 5, scrollX = TRUE)) %>%
+              # Changing the font size of content
+              DT::formatStyle(colnames(vtp_ctrl_up), fontSize = "12px") %>%
+              # Changing the font size of row names (sample names)
+              DT::formatStyle(0, fontSize = "12px")
+```
+
+
+#### Down-regulated Genes under VTP Treatment
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Down-regulated genes
+vtp_ctrl_down <- dge_vtp_ctrl[dge_vtp_ctrl$logFC < 0, ]
+
+# Sort by fold change and visualize with a table
+vtp_ctrl_down <- vtp_ctrl_down[order(vtp_ctrl_down$logFC, decreasing = FALSE), ]
+DT::datatable(vtp_ctrl_down, rownames = TRUE, filter = "top",
+              options = list(pageLength = 5, scrollX = TRUE)) %>%
+              # Changing the font size of content
+              DT::formatStyle(colnames(vtp_ctrl_down), fontSize = "12px") %>%
+              # Changing the font size of row names (sample names)
+              DT::formatStyle(0, fontSize = "12px")
+```
+
+#### Differentially Expressed Genes
+
+Interestingly, there we found `r nrow(vtp_ctrl_up)` up-regulated genes, which is
+more than the number of down-regulated genes, `r nrow(vtp_ctrl_down)`. The top
+upregulated genes are ``r paste(rownames(vtp_ctrl_up[1:5]), collapse = ", ")``, and th
+
 
 ### Effect of VTP under Maximal Strain with Profibrotic TGF-β1
 
+Additionally, we want to investigate whether VTP can still negates the fibrotic
+effect under the potent profibrotic stimulus of TGF-β1. Therefore, we also
+establish a contrast comparing the treatment of VTP to control where both
+conditions are also subjected to the same TGF-β1 treatment.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Create a contrast for VTP vs. control with TGF-β1
+contrast_vtp_tgf <- limma::makeContrasts("treatmentsTGFb_VTP - treatmentsTGFb", 
+                                            levels = model_treat_cul)
+```
 
 
 
