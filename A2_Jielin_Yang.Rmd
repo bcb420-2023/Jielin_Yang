@@ -645,7 +645,7 @@ DT::datatable(vtp_ctrl_down, rownames = FALSE, filter = "top",
 
 **Table 5.** Down-regulated genes under VTP treatment comparing to control without TGF-β1.
 
-#### Differentially Expressed Genes
+#### Analysis and Visualization
 
 Interestingly, there we found `r nrow(vtp_ctrl_up)` up-regulated genes, which is
 more than the number of down-regulated genes, `r nrow(vtp_ctrl_down)`. The top
@@ -726,6 +726,51 @@ To better visualize the differentially expressed genes between the two test
 condition, a heatmap is plotted to support the visualization of gene expression,
 and particularly the clustering of samples.
 
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=8, fig.height=8}
+# Extract the differentially expressed genes from the heatmap matrix
+heatmap_matrix_vtp_ctrl <- heatmap_matrix[rownames(dge_vtp_ctrl), 
+                            grepl("\\.VTP|\\.CTRL", colnames(heatmap_matrix))]
+
+# Checking the range of the heatmap matrix
+hmap_range <- range(heatmap_matrix_vtp_ctrl)
+
+# Set the 3 color palette based on the scaled heatmap matrix
+hmap_col <- circlize::colorRamp2(c(hmap_range[1], 0, hmap_range[2]), 
+                                 c("blue", "white", "red"))
+
+# Redefine 2 colours for the 4 treatment conditions
+treatment_col <- hcl.colors(2, palette = "viridis")
+names(treatment_col) <- c("VTP", "CTRL")
+
+# Create an annotation dataframe
+anno_df <- data.frame(treatment = sample_matrix_sorted[grepl("\\.VTP|\\.CTRL", 
+                                  rownames(sample_matrix_sorted)), "treatment"],
+                      culture = sample_matrix_sorted[grepl("\\.VTP|\\.CTRL", 
+                                  rownames(sample_matrix_sorted)), "culture"])
+anno_col <- list(treatment = treatment_col, culture = culture_col)
+
+# Create the heatmap annotation
+hmap_anno <- ComplexHeatmap::HeatmapAnnotation(
+                    df = anno_df,
+                    col = anno_col)
+
+# Plot the heatmap
+hmap_vtp_ctrl <- ComplexHeatmap::Heatmap(heatmap_matrix_vtp_ctrl,
+                                    show_row_dend = TRUE,
+                                    show_column_dend = TRUE,
+                                    show_column_names = TRUE,
+                                    show_row_names = FALSE,
+                                    col = hmap_col,
+                                    top_annotation = hmap_anno)
+hmap_vtp_ctrl
+```
+
+**Figure 6.** Heatmap of differentially expressed genes comparing VTP treatment to
+control without TGF-β1. Samples are annotated based on treatment conditions and 
+culture replicates.
+
+
+
 
 
 
@@ -769,7 +814,7 @@ genes that are down-regulated, as shown below.
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Retrieve the set of differentially expressed genes
-dge_vtp_tgf <- results_vtp_tgf[results_vtp_ctrl$FDR < 0.05, ]
+dge_vtp_tgf <- results_vtp_tgf[results_vtp_tgf$FDR < 0.05, ]
 
 # Up-regulated genes
 vtp_tgf_up <- dge_vtp_tgf[dge_vtp_tgf$logFC > 0, ]
@@ -785,6 +830,8 @@ DT::datatable(vtp_tgf_up, rownames = FALSE, filter = "top",
               DT::formatStyle(colnames(vtp_ctrl_up), fontSize = "12px") %>%
               DT::formatStyle(0, fontSize = "12px")
 ```
+
+**Table 6.** Up-regulated genes under VTP treatment in the presence of TGF-β1.
 
 #### Down-regulated Genes under VTP Treatment
 
@@ -804,8 +851,90 @@ DT::datatable(vtp_tgf_down, rownames = FALSE, filter = "top",
               DT::formatStyle(0, fontSize = "12px")
 ```
 
+**Table 7.** Down-regulated genes under VTP treatment in the presence of TGF-β1.
+
+#### Analysis and Visualization
+
+Since there are only ``r sum(results_vtp_tgf$FDR < 0.05)`` differentially expressed
+genes based on the corrected FDR threshold, the Volcano plot is will likely
+show mostly noise. However, we will only annotate the top 3 genes for both
+the up-regulated and down-regulated genes based on the fold change.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Label genes as up-regulated or down-regulated
+results_vtp_tgf <- results_vtp_tgf %>%
+    dplyr::mutate(Expression = dplyr::case_when(
+                        logFC > 0 & FDR < 0.05 ~ "Up-regulated",
+                        logFC < 0 & FDR < 0.05 ~ "Down-regulated",
+                        TRUE ~ "Not DE"))
+
+# Label differentially expressed genes
+genes_to_label <- results_vtp_tgf[results_vtp_tgf$Expression != "Not DE", ]
+
+# Plot the volcano plot
+ggplot2::ggplot(results_vtp_tgf, aes(logFC, -log(FDR, 10))) +
+    # Add dots to reprent each gene
+    ggplot2::geom_point(aes(color = Expression), size = 2/5) +
+    xlab(expression("log"[2]*"FC")) + 
+    ylab(expression("-log"[10]*"FDR")) + 
+    # Color genes based on whether it is significantly up/down-regulated
+    ggplot2::scale_color_manual(values = c("Up-regulated" = "firebrick3", 
+                                           "Down-regulated" = "dodgerblue3", 
+                                           "Not DE" = "gray50")) +
+    ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size=1.5))) +
+    # Label the genes of interest
+    ggplot2::geom_label(data = genes_to_label, 
+                        mapping = aes(logFC, -log(FDR, 10), label = rownames(genes_to_label)),
+                        size = 2, color = "black", nudge_x = 0.1, nudge_y = 0.1)
+```
+
+**Figure 7.** Volcano plot of differentially expressed genes under VTP treatment 
+in the presence of TGF-β1. Red and blue dots represent up-regulated and down-regulated
+genes, respectively. All differentially expressed genes are labeled.
 
 
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.height=5, fig.width=8}
+# Extract the differentially expressed genes from the heatmap matrix
+heatmap_matrix_vtp_tgf <- heatmap_matrix[rownames(dge_vtp_tgf), 
+                            grepl("\\.TGFb_VTP|\\.TGFb", colnames(heatmap_matrix))]
+
+# Check the range of the heatmap matrix
+hmap_range <- range(heatmap_matrix_vtp_tgf)
+
+# Set the 3 color palette based on the scaled heatmap matrix
+hmap_col <- circlize::colorRamp2(c(hmap_range[1], 0, hmap_range[2]), 
+                                 c("blue", "white", "red"))
+
+# Redefine 2 colours for the 4 treatment conditions
+treatment_col <- hcl.colors(2, palette = "viridis")
+names(treatment_col) <- c("TGFb_VTP", "TGFb")
+
+# Create an annotation dataframe
+anno_df <- data.frame(treatment = sample_matrix_sorted[grepl("\\.TGFb_VTP|\\.TGFb", 
+                                  rownames(sample_matrix_sorted)), "treatment"],
+                      culture = sample_matrix_sorted[grepl("\\.TGFb_VTP|\\.TGFb", 
+                                  rownames(sample_matrix_sorted)), "culture"])
+anno_col <- list(treatment = treatment_col, culture = culture_col)
+
+# Create the heatmap annotation
+hmap_anno <- ComplexHeatmap::HeatmapAnnotation(
+                    df = anno_df,
+                    col = anno_col)
+
+# Plot the heatmap
+hmap_vtp_tgf <- ComplexHeatmap::Heatmap(heatmap_matrix_vtp_tgf,
+                                    show_row_dend = TRUE,
+                                    show_column_dend = TRUE,
+                                    show_column_names = TRUE,
+                                    show_row_names = TRUE,
+                                    col = hmap_col,
+                                    top_annotation = hmap_anno)
+hmap_vtp_tgf
+```
+
+**Figure 8.** Heatmap of differentially expressed genes under VTP treatment in the
+presence of TGF-β1.
 
 # Threshold Over-representation Analysis
 
