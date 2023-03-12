@@ -53,59 +53,70 @@ knitr::opts_knit$set(root.dir = here::here())  # Must be the project directory
 
 ## Background
 
-Heart failure (HF) is a chronic cardiac disease that has progressively severe implications
-on the patient's quality of life, and it has been a leading cause of death and a significant
-contributor to the global burden of disease. [@heidenreich20222022] The pathophysiology of HF 
-is complex and involves multiple factors, but a major hallmark of HF is the progressive
-degeneration of the myocardium that is accompanied by cardiac fibrosis. [@garoffolo2022reduction] 
-[@porter2009cardiac] [@tallquist2017redefining] During the progression of HF, a process known
-as cardiac remodelling progressively replaces the myocardium with fibrous tissues, which in turn
-leads to the gradual stiffening of the heart ventricular wall. Thus, the identification of
-profibrotic pathways are essential to the development of therapeutic strategies to delay or
-even to prevent the profibrotic remodelling of the heart.
+Heart failure (HF) is a chronic cardiac disease that has progressively severe 
+implications on the patient's quality of life, and it has been a leading cause 
+of death and a significant contributor to the global burden of disease. [@heidenreich20222022] 
+The pathophysiology of HF is complex and involves multiple factors, but a major 
+hallmark of HF is the progressive degeneration of the myocardium that is 
+accompanied by cardiac fibrosis. [@garoffolo2022reduction] [@porter2009cardiac] [@tallquist2017redefining] 
+During the progression of HF, a process known as cardiac remodelling 
+progressively replaces the myocardium with fibrous tissues, which in turn
+leads to the gradual stiffening of the heart ventricular wall. Thus, the 
+identification of profibrotic pathways are essential to the development of 
+therapeutic strategies to delay or even to prevent the profibrotic remodelling 
+of the heart.
 
-Previous studies have shown that the straining condition has played a significant role in
-potently altering the Hippo pathways. [@brusatin2018biomaterials] It was found that mechanical
-stress on the cell cytoskeleton induces the nuclear entry of the YAP/TAZ complex, which 
-subsequently activates the proliferative pathways. [@elosegui2017force] [@panciera2017mechanobiology]
-Although such a mechanism may seem to be beneficial for the restoration of the damaged cardiomyocytes,
-this pathway has been shown to be more active in cardiac stromal cells, which can subsequently
-differentiate into myofibroblasts that eventually leads to the profibrotic remodelling of the heart. 
-[@garoffolo2022reduction] Therefore, directly suppressing the YAP/TAZ complex in cardiac stromal
+Previous studies have shown that the straining condition has played a 
+significant role in potently altering the Hippo pathways. [@brusatin2018biomaterials] 
+It was found that mechanical stress on the cell cytoskeleton induces the nuclear 
+entry of the YAP/TAZ complex, which  subsequently activates the proliferative 
+pathways. [@elosegui2017force] [@panciera2017mechanobiology] Although such a 
+mechanism may seem to be beneficial for the restoration of the damaged 
+cardiomyocytes, this pathway has been shown to be more active in cardiac stromal 
+cells, which can subsequently differentiate into myofibroblasts that eventually 
+leads to the profibrotic remodelling of the heart. [@garoffolo2022reduction] 
+Therefore, directly suppressing the YAP/TAZ complex in cardiac stromal
 cells may be an effective strategy. Recently, a study by [Garoffolo et al.](https://www.ahajournals.org/doi/10.1161/CIRCRESAHA.121.319373) 
-investigated the use of a small molecular inhibitor, verteporfin (VTP), to suppress the YAP/TAZ complex 
-with or without the presence of TGF-β1, a profibrotic cytokine under the maximal strain condition.
+investigated the use of a small molecular inhibitor, verteporfin (VTP), to 
+suppress the YAP/TAZ complex with or without the presence of TGF-β1, a 
+profibrotic cytokine under the maximal strain condition.
 
 ## Objectives
 
-The study by [Garoffolo et al.](https://www.ahajournals.org/doi/10.1161/CIRCRESAHA.121.319373) aimed
-to examine the antifibrotic effect of VTP in cardiac stromal cells under profibrotic signals that 
-simulates the straining conditions under heart failure as part of their larger objective. [@garoffolo2022reduction]
+The study by [Garoffolo et al.](https://www.ahajournals.org/doi/10.1161/CIRCRESAHA.121.319373) 
+aimed to examine the antifibrotic effect of VTP in cardiac stromal cells under 
+profibrotic signals that simulates the straining conditions under heart failure 
+as part of their larger objective. [@garoffolo2022reduction]
 
-Here, we focus on this particular aspect of the research discussed above. In particular, we aim to 
-use RNA-seq data to identify the changes in the transcriptional profile of cardiac stromal cells
-after the use of VTP. [Figure 1.](#fig1) shows the experimental design of the study. Here, we perform 
-differential gene expression analysis comparing the transcriptome of the cells treated with VTP
-with control under the known profibrotic straining condition. Additionally, we test the efficacy
-of the drug (VTP) under the presence of TGF-β1, a potent profibrotic cytokine. [@saadat2021pivotal] To investigate whether
-direct inhibition of the YAP/TAZ complex with VTP, we perform threshold over-representation analysis
-to identify enriched pathways in the differentially expressed genes, which would allow us to identify
-whether VTP can effectively reverse a profibrotic phenotype.
+Here, we focus on this particular aspect of the research discussed above. In 
+particular, we aim to use RNA-seq data to identify the changes in the 
+transcriptional profile of cardiac stromal cells after the use of VTP. 
+[Figure 1.](#fig1) shows the experimental design of the study. Here, we perform 
+differential gene expression analysis comparing the transcriptome of the cells 
+treated with VTP with control under the known profibrotic straining condition. 
+Additionally, we test the efficacy of the drug (VTP) under the presence of 
+TGF-β1, a potent profibrotic cytokine. [@saadat2021pivotal] To investigate 
+whether direct inhibition of the YAP/TAZ complex with VTP, we perform threshold 
+over-representation analysis to identify enriched pathways in the differentially 
+expressed genes, which would allow us to identify whether VTP can effectively 
+reverse a profibrotic phenotype.
 
 <a name="fig1"></a>
 ![](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/schematics.png)
 
-**Figure 1.** Schematics of RNAseq experiment design. Samples were cultured under maximal mechanical strains. 
-Six independent cell cultures were used for each treatment condition. cSt-Cs: cardiospheres-derived primitive 
-cardiac stromal cells; VTP: verteporfin; TGF-β1: transforming growth factor beta-1. Figure adapted from 
-[Assignment 1](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html) 
+**Figure 1.** Schematics of RNAseq experiment design. Samples were cultured under 
+maximal mechanical strains. Six independent cell cultures were used for each 
+treatment condition. cSt-Cs: cardiospheres-derived primitive cardiac stromal 
+cells; VTP: verteporfin; TGF-β1: transforming growth factor beta-1. Figure 
+adapted from [Assignment 1](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html) 
 and created with BioRender.com.
 
 ## Dataset
 
-The data used in the present analysis is retrieved from the GEO database under the accession number
-[GSE203358](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE203358). The dataset contains
-RNA-seq data from 24 samples, which are evenly split into 4 groups:
+The data used in the present analysis is retrieved from the GEO database under 
+the accession number [GSE203358](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE203358). 
+The dataset contains RNA-seq data from 24 samples, which are evenly split into 4 
+groups:
 - Control (maximal strain condition)
 - Verteporfin (VTP) treatment (maximal strain condition)
 - TGF-β1 treatment (maximal strain condition)
@@ -113,42 +124,51 @@ RNA-seq data from 24 samples, which are evenly split into 4 groups:
 
 ## Previous Analysis
 
-Since we have previously performed initial data cleaning and normalization, here we provide a brief
-summary of the previous analysis. The entire process can be found [here](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html).
+Since we have previously performed initial data cleaning and normalization, here 
+we provide a brief summary of the previous analysis. The entire process can be 
+found [here](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html).
 
 ### Data QC and Filtering
 
-The original dataset is composed of `24` samples and `60583 `genes. After removing genes with low counts, the dataset
-we use in the present analysis is composed of `14814` genes. The reference genome used is the human [GRCh38](https://useast.ensembl.org/Homo_sapiens/Info/Index?db=core) genome.
+The original dataset is composed of `24` samples and `60583 `genes. After 
+removing genes with low counts, the dataset we use in the present analysis is 
+composed of `14814` genes. The reference genome used is the human [GRCh38](https://useast.ensembl.org/Homo_sapiens/Info/Index?db=core) genome.
 
 ### Identifier Mapping and Normalization
 
-The original dataset contains a mix of HUGO gene symbols and GenBank identifiers. We used the [biomaRt](https://bioconductor.org/packages/release/bioc/html/biomaRt.html) 
-package to map the rest of the identifiers to HUGO gene symbols. [@durinck2009mapping] The dataset is normalized using the Trimmed
-Mean of M-values (TMM) method implemented by the [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) package. [@robinson2010edger]
-After applying normalization, the library size for each sample has been effectively adjusted such
-that the distribution of gene expressions are comparable across samples.
+The original dataset contains a mix of HUGO gene symbols and GenBank identifiers. 
+We used the [biomaRt](https://bioconductor.org/packages/release/bioc/html/biomaRt.html) 
+package to map the rest of the identifiers to HUGO gene symbols. [@durinck2009mapping] 
+The dataset is normalized using the Trimmed Mean of M-values (TMM) method 
+implemented by the [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) 
+package. [@robinson2010edger] After applying normalization, the library size for 
+each sample has been effectively adjusted such that the distribution of gene 
+expressions are comparable across samples.
 
 ### Multidimensional Scaling
 
-We evaluated the similarity between the samples by accessing the clustering of the samples (as well 
-as replicates within each group) using multidimensional scaling (MDS). The MDS plot shown in [Figure 2.](#fig2) reveals a moderate
-clustering of samples based on the treatment conditions, and in particular, the control samples
-under mechanical strain alone are clustered separately with any other groups. The other treatment
-groups show less separation along the first dimension, but clustering is still observed. Interestingly,
-although most of the samples are clustered based on the treatment conditions and that we did not
-observe any clustering based on the cell culture replicates, we notice that certain samples that
-do not cluster tightly with the rest in the same treatment group seem to be consistent across the 
-conditions. For example, comparing to other replicates, in cells from culture `M89` and `M99`,
+We evaluated the similarity between the samples by accessing the clustering of 
+the samples (as well as replicates within each group) using multidimensional 
+scaling (MDS). The MDS plot shown in [Figure 2.](#fig2) reveals a moderate
+clustering of samples based on the treatment conditions, and in particular, the 
+control samples under mechanical strain alone are clustered separately with any 
+other groups. The other treatment groups show less separation along the first 
+dimension, but clustering is still observed. Interestingly, although most of the 
+samples are clustered based on the treatment conditions and that we did not
+observe any clustering based on the cell culture replicates, we notice that 
+certain samples that do not cluster tightly with the rest in the same treatment 
+group seem to be consistent across the conditions. For example, comparing to 
+other replicates, in cells from culture `M89` and `M99`,
 different conditions seem to have a smaller effect on the gene expression profile.
 
 <a name="fig2"></a>
 ![](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/mds.png)
 
-**Figure 2.** Multidimensional scaling plot of cSt-Cs gene expression across samples. All samples
-are coloured by treatment condition. The first two dimensions are shown. Moderate clustering
-by treatment and low clustering by replicate for a small number of cultures is observed. Figure
-adapted from [Assignment 1](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html).
+**Figure 2.** Multidimensional scaling plot of cSt-Cs gene expression across 
+samples. All samples are coloured by treatment condition. The first two 
+dimensions are shown. Moderate clustering by treatment and low clustering by 
+replicate for a small number of cultures is observed. Figure adapted from 
+[Assignment 1](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html).
 
 # Preparations
 
@@ -249,22 +269,23 @@ is used for 4 different treatment conditions.
 
 # Differential Gene Expression Analysis
 
-Understanding the antifibrotic effect of VTP requires a comprehensive analysis of the
-gene expression profile of the cSt-Cs by identifying the transcriptional changes with
-or without the treatment of VTP. To this end, we will perform two separate differential
-gene expression analysis with or without the presence of TGF-β1, in which we can isolate
-the effect of VTP as the only independent variable.
+Understanding the antifibrotic effect of VTP requires a comprehensive analysis 
+of the gene expression profile of the cSt-Cs by identifying the transcriptional 
+changes with or without the treatment of VTP. To this end, we will perform two 
+separate differential gene expression analysis with or without the presence of 
+TGF-β1, in which we can isolate the effect of VTP as the only independent variable.
 
-However, although our data is composed of a total of 4 treatment condition, which allows
-for the comparison between control (strain alone) and TGF-β1, we will not perform such
-analysis. It has been well documented that TGF-β1 is a potent profibrotic cytokine that
-will induce a series of transcriptional activation on profibrotic pathways. [@walker2019transcriptomic]
-The authors of the original publication has also verified the profibrotic effect of TGF-β1. [@saadat2021pivotal]
-We have also shown that TGF-β1 significantly upregaltes the expression of profibrotic
-genes (see associated [journal entry](https://github.com/bcb420-2023/Jielin_Yang/wiki/Differential-Gene-Expression-Analysis-and-Preliminary-ORA#differential-gene-expression-analysis-comparing-tgf%CE%B21-and-control) 
-for details). Therefore, based on our objective, we believe that it is more valuable to 
-investigate the effect of VTP under maximal strain, both with and without the presence of
-TGF-β1 separately.
+However, although our data is composed of a total of 4 treatment condition, which 
+allows for the comparison between control (strain alone) and TGF-β1, we will not 
+perform such analysis. It has been well documented that TGF-β1 is a potent 
+profibrotic cytokine that will induce a series of transcriptional activation on 
+profibrotic pathways. [@walker2019transcriptomic] The authors of the original 
+publication has also verified the profibrotic effect of TGF-β1. [@saadat2021pivotal]
+We have also shown that TGF-β1 significantly upregaltes the expression of 
+profibrotic genes (see associated [journal entry](https://github.com/bcb420-2023/Jielin_Yang/wiki/Differential-Gene-Expression-Analysis-and-Preliminary-ORA#differential-gene-expression-analysis-comparing-tgf%CE%B21-and-control) 
+for details). Therefore, based on our objective, we believe that it is more 
+valuable to investigate the effect of VTP under maximal strain, both with and 
+without the presence of TGF-β1 separately.
 
 ## Global Gene Expression Profiling
 
@@ -304,8 +325,8 @@ hmap_range
 The range of the heatmap matrix is between `r hmap_range[1]` and `r hmap_range[2]`.
 Since the scaled expression value ranges from negative to positive, we will define
 a three colour palette for the heatmap, where we will use `blue` to represent
-the downregulated genes and `red` for upregulated genes. In the middle of the scale
-is `white`.
+the downregulated genes and `red` for upregulated genes. In the middle of the 
+scale is `white`.
 
 Here, heatmap creation and visual representation are implemented using the
 `ComplexHeatmap` and `circlize` packages, respectively. [@gu2016complex] [@gu2014circlize]
@@ -323,23 +344,28 @@ This would better allows us to identify whether any of the variables have a
 significant effect on the clustering of the samples.
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Interestingly, taking the transpose of the heatmap matrix sorts the sample 
+# names. Therefore, to correctly apply the annotation, we need to sort the 
+# sample matrix in the same order as the heatmap matrix
+sample_matrix_sorted <- sample_matrix[colnames(heatmap_matrix),]
+
 # Treatment Conditions
-treatments <- unique(sample_matrix$treatment)
+treatments <- unique(sample_matrix_sorted$treatment)
 
 # Define 4 colours for the 4 treatment conditions
 treatment_col <- hcl.colors(4, palette = "viridis")
 names(treatment_col) <- treatments
 
 # Culture Replicates
-cultures <- unique(sample_matrix$culture)
+cultures <- unique(sample_matrix_sorted$culture)
 
 # Define 6 colours for the 6 culture replicates
 culture_col <- hcl.colors(6, palette = "cork")
 names(culture_col) <- cultures
 
 # Create an annotation dataframe
-anno_df <- data.frame(treatment = sample_matrix$treatment,
-                      culture = sample_matrix$culture)
+anno_df <- data.frame(treatment = sample_matrix_sorted$treatment,
+                      culture = sample_matrix_sorted$culture)
 anno_col <- list(treatment = treatment_col, culture = culture_col)
 
 # Create the heatmap annotation
@@ -373,6 +399,35 @@ set.seed(NULL)
 # Plot the heatmap
 hmap_all
 ```
+
+**Figure 3.** Heatmap of global gene expression across all samples of different 
+treatments. A k-mean clustering of 4 groups was applied to the heatmap for 
+clusterization of gene with similar expression profiles. Samples are 
+hierarchically clustered by their expression profiles. The top bar annotate the 
+samples by treatment conditions and culture in which the cells were extracted.
+<br />
+
+The 4 groups of genes generated by the k-means clustering algorithm show
+comparatively distinct expression profiles that define 4 subset (cluster) of
+samples. However, each of the 4 groups of samples (as indicated by the 
+dendrogram) consists of a mix of samples from different treatment conditions.
+Based on the observation, we would not expect a very high number of differentially
+expressed gene between the conditions. However, despite the mix of treatment
+conditions within each cluster, it is still observable that samples under certain
+conditions tend to cluster together. For example, the left most cluster consists
+of samples that are treated with VTP. We can also observe a clustering of 
+a subset of control cells and those that are treated with TGF-β1 alone. Since
+these two conditions are expected to show a profibrotic transcriptional programme,
+it is expected that these cells share similar expression patterns. 
+
+In addition, the annotation based on the culture replicate also shows a
+moderate clustering of the samples taken from the same cSt-Cs culture. This
+means that the culture in which the cells were extract likely contributes to
+the variance in the gene expression. The observation here using the heatmap
+is consistent with the distribution of the samples from the MDS plot in
+[Figure 2](#fig2). Therefore, we will take this into account when we perform
+build the model for differential expression analysis.
+
 ## Dispersion Estimation
 
 ## Differential expression
