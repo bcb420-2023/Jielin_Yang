@@ -699,17 +699,16 @@ genes_to_label <- genes_to_label[!duplicated(rownames(genes_to_label)), ]
 ```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=8, fig.height=6}
 # We will plot all genes, with highlighted genes representing the differentially
 # expressed genes
+# Color genes based on whether it is significantly up/down-regulated
+# Label the genes of interest
 ggplot2::ggplot(results_vtp_ctrl, aes(logFC, -log(FDR, 10))) +
-    # Add dots to reprent each gene
     ggplot2::geom_point(aes(color = Expression), size = 2/5) +
     xlab(expression("log"[2]*"FC")) + 
     ylab(expression("-log"[10]*"FDR")) + 
-    # Color genes based on whether it is significantly up/down-regulated
     ggplot2::scale_color_manual(values = c("Up-regulated" = "firebrick3", 
                                            "Down-regulated" = "dodgerblue3", 
                                            "Not DE" = "gray50")) +
     ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size=1.5))) +
-    # Label the genes of interest
     ggplot2::geom_label(data = genes_to_label, 
                         mapping = aes(logFC, -log(FDR, 10), label = rownames(genes_to_label)),
                         size = 2, color = "black", nudge_x = 0.1, nudge_y = 0.1)
@@ -872,17 +871,15 @@ results_vtp_tgf <- results_vtp_tgf %>%
 genes_to_label <- results_vtp_tgf[results_vtp_tgf$Expression != "Not DE", ]
 
 # Plot the volcano plot
+# Color genes based on whether it is significantly up/down-regulated
 ggplot2::ggplot(results_vtp_tgf, aes(logFC, -log(FDR, 10))) +
-    # Add dots to reprent each gene
     ggplot2::geom_point(aes(color = Expression), size = 2/5) +
     xlab(expression("log"[2]*"FC")) + 
-    ylab(expression("-log"[10]*"FDR")) + 
-    # Color genes based on whether it is significantly up/down-regulated
+    ylab(expression("-log"[10]*"FDR")) +
     ggplot2::scale_color_manual(values = c("Up-regulated" = "firebrick3", 
                                            "Down-regulated" = "dodgerblue3", 
                                            "Not DE" = "gray50")) +
     ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size=1.5))) +
-    # Label the genes of interest
     ggplot2::geom_label(data = genes_to_label, 
                         mapping = aes(logFC, -log(FDR, 10), label = rownames(genes_to_label)),
                         size = 2, color = "black", nudge_x = 0.1, nudge_y = 0.1)
