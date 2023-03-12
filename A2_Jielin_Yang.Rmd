@@ -471,6 +471,31 @@ Here we estimate and assess the dispersion using the `estimateDisp` function.
 counts_dge <- edgeR::estimateDisp(counts_dge, model_treat_cul)
 ```
 
+<a name="fig4"></a>
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=7, fig.height=6}
+# Plot the dispersion against the mean
+edgeR::plotMeanVar(counts_dge, 
+                    show.raw.vars = TRUE, 
+                    show.tagwise.vars=TRUE, 
+                    NBline=TRUE,
+                    show.binned.common.disp.vars = TRUE)
+```
+
+**Figure 4.** Mean-variance relationship of all genes across various treatment conditions.
+The dispersion is estimated using the negative binomial model. A blue line indicates
+a trended line based on the negative binomial model, with pooled and estimated gene-wise
+dispersion shown in gray and light blue, respectively. A black line with a slope of 1
+represents the expected variance of a Poisson distribution, which assumes that the
+variance is equal to the mean.
+
+[Figure 4.](#fig4) illustrates the mean-variance relationship of the genes in
+the dataset across all genes and samples. [@mccarthy2012differential] A trended line 
+based on the negative binomial model shows an increasing variance correlating to higher 
+mean expression, suggesting the existence of biological variation. The pooled gene-wise 
+dispersion is similar to that of the estimated dispersion, and both of which align
+relatively closely with the trend line.
+
 ## Differential Expression
 
 ### Effect of VTP under Maximal Strain
