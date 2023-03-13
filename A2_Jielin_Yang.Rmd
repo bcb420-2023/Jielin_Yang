@@ -149,7 +149,8 @@ expressions are comparable across samples.
 
 We evaluated the similarity between the samples by accessing the clustering of 
 the samples (as well as replicates within each group) using multidimensional 
-scaling (MDS). The MDS plot shown in [Figure 2.](#fig2) reveals a moderate
+scaling (MDS). The MDS plot shown in [Assignment 1](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html) 
+reveals a moderate
 clustering of samples based on the treatment conditions, and in particular, the 
 control samples under mechanical strain alone are clustered separately with any 
 other groups. The other treatment groups show less separation along the first 
@@ -160,15 +161,6 @@ certain samples that do not cluster tightly with the rest in the same treatment
 group seem to be consistent across the conditions. For example, comparing to 
 other replicates, in cells from culture `M89` and `M99`,
 different conditions seem to have a smaller effect on the gene expression profile.
-
-<a name="fig2"></a>
-![](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/mds.png)
-
-**Figure 2.** Multidimensional scaling plot of cSt-Cs gene expression across 
-samples. All samples are coloured by treatment condition. The first two 
-dimensions are shown. Moderate clustering by treatment and low clustering by 
-replicate for a small number of cultures is observed. Figure adapted from 
-[Assignment 1](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html).
 
 # Preparations
 
@@ -391,7 +383,7 @@ since our dataset consists of 4 treatment conditions, it is expected that a
 clustering of 4 groups will reveal some interesting patterns in the expression 
 profiles.
 
-<a name="fig3"></a>
+<a name="fig2"></a>
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=10, fig.height=10}
 # Generate the heatmap
@@ -412,7 +404,7 @@ set.seed(NULL)
 hmap_all
 ```
 
-**Figure 3.** Heatmap of global gene expression across all samples of different 
+**Figure 2.** Heatmap of global gene expression across all samples of different 
 treatments. A k-mean clustering of 4 groups was applied to the heatmap for 
 clusterization of gene with similar expression profiles. Samples are 
 hierarchically clustered by their expression profiles. The top bar annotate the 
@@ -436,8 +428,8 @@ In addition, the annotation based on the culture replicate also shows a
 moderate clustering of the samples taken from the same cSt-Cs culture. This
 means that the culture in which the cells were extract likely contributes to
 the variance in the gene expression. The observation here using the heatmap
-is consistent with the distribution of the samples from the MDS plot in
-[Figure 2](#fig2). Therefore, we will take this into account when we perform
+is consistent with the distribution of the samples from the MDS plot. 
+Therefore, we will take this into account when we perform
 build the model for differential expression analysis.
 
 ## Model Selection
@@ -447,8 +439,8 @@ which implements a generailized linear model (GLM) to test for differential
 expression. [@robinson2010edger] Based on the objective of our analysis,
 we will build the model based on the treatment conditions. Additionally,
 since we have observed a subset of cultures replicates that shows a lower
-variance within cells from the same culture ([Figure 2.](#fig2)) and a 
-moderate degree of clustering in the heatmap ([Figure 3.](#fig3)), it is
+variance within cells from the same culture and a 
+moderate degree of clustering in the heatmap ([Figure 2.](#fig2)), it is
 expected that the culture replicate will also contribute to the variance
 in gene expression. Therefore, we choose the model to include both factors,
 treatment and culture replicate.
@@ -488,7 +480,7 @@ Here we estimate and assess the dispersion using the `estimateDisp` function.
 counts_dge <- edgeR::estimateDisp(counts_dge, model_treat_cul)
 ```
 
-<a name="fig4"></a>
+<a name="fig3"></a>
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=7, fig.height=6}
 # Plot the dispersion against the mean
@@ -499,7 +491,7 @@ edgeR::plotMeanVar(counts_dge,
                     show.binned.common.disp.vars = TRUE)
 ```
 
-**Figure 4.** Mean-variance relationship of all genes across various treatment conditions.
+**Figure 3.** Mean-variance relationship of all genes across various treatment conditions.
 The dispersion is estimated using the negative binomial model. A blue line indicates
 a trended line based on the negative binomial model, with pooled and estimated gene-wise
 dispersion shown in gray and light blue, respectively. A black line with a slope of 1
@@ -508,7 +500,7 @@ variance is equal to the mean.
 
 <br />
 
-[Figure 4.](#fig4) illustrates the mean-variance relationship of the genes in
+[Figure 3.](#fig3) illustrates the mean-variance relationship of the genes in
 the dataset across all genes and samples. [@mccarthy2012differential] A trended line 
 based on the negative binomial model shows an increasing variance correlating to higher 
 mean expression, suggesting the existence of biological variation. The pooled gene-wise 
@@ -714,7 +706,7 @@ ggplot2::ggplot(results_vtp_ctrl, aes(logFC, -log(FDR, 10))) +
                         size = 2, color = "black", nudge_x = 0.1, nudge_y = 0.1)
 ```
 
-**Figure 5.** Volcano plot of differentially expressed genes comparing VTP treatment
+**Figure 4.** Volcano plot of differentially expressed genes comparing VTP treatment
 to control without TGF-β1. Differentially expressed genes are coloured based on
 direction of change. Genes of interest are labelled.
 
@@ -764,7 +756,7 @@ hmap_vtp_ctrl <- ComplexHeatmap::Heatmap(heatmap_matrix_vtp_ctrl,
 hmap_vtp_ctrl
 ```
 
-**Figure 6.** Heatmap of differentially expressed genes comparing VTP treatment to
+**Figure 5.** Heatmap of differentially expressed genes comparing VTP treatment to
 control without TGF-β1. Samples are annotated based on treatment conditions and 
 culture replicates.
 
@@ -885,7 +877,7 @@ ggplot2::ggplot(results_vtp_tgf, aes(logFC, -log(FDR, 10))) +
                         size = 2, color = "black", nudge_x = 0.1, nudge_y = 0.1)
 ```
 
-**Figure 7.** Volcano plot of differentially expressed genes under VTP treatment 
+**Figure 6.** Volcano plot of differentially expressed genes under VTP treatment 
 in the presence of TGF-β1. Red and blue dots represent up-regulated and down-regulated
 genes, respectively. All differentially expressed genes are labeled.
 
@@ -930,7 +922,7 @@ hmap_vtp_tgf <- ComplexHeatmap::Heatmap(heatmap_matrix_vtp_tgf,
 hmap_vtp_tgf
 ```
 
-**Figure 8.** Heatmap of differentially expressed genes under VTP treatment in the
+**Figure 7.** Heatmap of differentially expressed genes under VTP treatment in the
 presence of TGF-β1.
 
 # Threshold Over-representation Analysis
