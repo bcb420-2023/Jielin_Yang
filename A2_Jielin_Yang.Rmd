@@ -590,14 +590,14 @@ a certain amount of genes should be differentially expressed.
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Retrieve the set of differentially expressed genes
-dge_vtp_ctrl <- results_vtp_ctrl[results_vtp_ctrl$FDR < 0.05, ]
+deg_vtp_ctrl <- results_vtp_ctrl[results_vtp_ctrl$FDR < 0.05, ]
 ```
 
 #### Up-regulated Genes under VTP Treatment
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Up-regulated genes
-vtp_ctrl_up <- dge_vtp_ctrl[dge_vtp_ctrl$logFC > 0, ]
+vtp_ctrl_up <- deg_vtp_ctrl[deg_vtp_ctrl$logFC > 0, ]
 
 # We add gene symbol as a column so that it is searchable
 vtp_ctrl_up$Gene = rownames(vtp_ctrl_up)
@@ -619,7 +619,7 @@ DT::datatable(vtp_ctrl_up, rownames = FALSE, filter = "top",
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Down-regulated genes
-vtp_ctrl_down <- dge_vtp_ctrl[dge_vtp_ctrl$logFC < 0, ]
+vtp_ctrl_down <- deg_vtp_ctrl[deg_vtp_ctrl$logFC < 0, ]
 
 # We add gene symbol as a column so that it is searchable
 vtp_ctrl_down$Gene = rownames(vtp_ctrl_down)
@@ -719,7 +719,7 @@ and particularly the clustering of samples.
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=8, fig.height=8}
 # Extract the differentially expressed genes from the heatmap matrix
-heatmap_matrix_vtp_ctrl <- heatmap_matrix[rownames(dge_vtp_ctrl), 
+heatmap_matrix_vtp_ctrl <- heatmap_matrix[rownames(deg_vtp_ctrl), 
                             grepl("\\.VTP|\\.CTRL", colnames(heatmap_matrix))]
 
 # Checking the range of the heatmap matrix
@@ -805,10 +805,10 @@ genes that are down-regulated, as shown below.
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Retrieve the set of differentially expressed genes
-dge_vtp_tgf <- results_vtp_tgf[results_vtp_tgf$FDR < 0.05, ]
+deg_vtp_tgf <- results_vtp_tgf[results_vtp_tgf$FDR < 0.05, ]
 
 # Up-regulated genes
-vtp_tgf_up <- dge_vtp_tgf[dge_vtp_tgf$logFC > 0, ]
+vtp_tgf_up <- deg_vtp_tgf[deg_vtp_tgf$logFC > 0, ]
 
 # We add gene symbol as a column so that it is searchable
 vtp_tgf_up$Gene <- rownames(vtp_tgf_up)
@@ -828,7 +828,7 @@ DT::datatable(vtp_tgf_up, rownames = FALSE, filter = "top",
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Down-regulated genes
-vtp_tgf_down <- dge_vtp_tgf[dge_vtp_tgf$logFC < 0, ]
+vtp_tgf_down <- deg_vtp_tgf[deg_vtp_tgf$logFC < 0, ]
 
 # We add gene symbol as a column so that it is searchable
 vtp_tgf_down$Gene <- rownames(vtp_tgf_down)
@@ -885,7 +885,7 @@ genes, respectively. All differentially expressed genes are labeled.
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.height=5, fig.width=8}
 # Extract the differentially expressed genes from the heatmap matrix
-heatmap_matrix_vtp_tgf <- heatmap_matrix[rownames(dge_vtp_tgf), 
+heatmap_matrix_vtp_tgf <- heatmap_matrix[rownames(deg_vtp_tgf), 
                             grepl("\\.TGFb_VTP|\\.TGFb", colnames(heatmap_matrix))]
 
 # Check the range of the heatmap matrix
@@ -931,6 +931,44 @@ presence of TGF-β1.
 
 ### All Differentially Expressed Genes
 
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Extract a gene list with thresholded FDR < 0.05
+write.table(rownames(deg_vtp_ctrl),
+            file = "./Data/deg_vtp_ctrl_FDR.txt", quote = FALSE, 
+            row.names = FALSE, col.names = FALSE)
+
+# Extract a gene list with thresholded FDR < 0.05 for up-regulated genes
+write.table(rownames(deg_vtp_ctrl[deg_vtp_ctrl$logFC > 0, ]),
+            file = "./Data/deg_vtp_ctrl_FDR_upreg.txt", quote = FALSE, 
+            row.names = FALSE, col.names = FALSE)
+
+# Extract a gene list with thresholded FDR < 0.05 for down-regulated genes
+write.table(rownames(deg_vtp_ctrl[deg_vtp_ctrl$logFC < 0, ]),
+            file = "./Data/deg_vtp_ctrl_FDR_downreg.txt", quote = FALSE, 
+            row.names = FALSE, col.names = FALSE)
+```
+
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Extract a gene list with thresholded FDR < 0.05 and fold change > 2
+write.table(rownames(deg_vtp_ctrl[deg_vtp_ctrl$logFC > 1 | deg_vtp_ctrl$logFC < -1, ]),
+            file = "./Data/deg_vtp_ctrl_FDR_FC2.txt", quote = FALSE, 
+            row.names = FALSE, col.names = FALSE)
+
+# Extract a gene list with thresholded FDR < 0.05 and fold change > 2 for up-regulated genes
+write.table(rownames(deg_vtp_ctrl[deg_vtp_ctrl$logFC > 1, ]),
+            file = "./Data/deg_vtp_ctrl_FDR_FC2_upreg.txt", quote = FALSE, 
+            row.names = FALSE, col.names = FALSE)
+
+# Extract a gene list with thresholded FDR < 0.05 and fold change > 2 for down-regulated genes
+write.table(rownames(deg_vtp_ctrl[deg_vtp_ctrl$logFC < -1, ]),
+            file = "./Data/deg_vtp_ctrl_FDR_FC2_downreg.txt", quote = FALSE, 
+            row.names = FALSE, col.names = FALSE)
+```
+
+
+
+
 ### Up-regulated Genes in VTP
 
 ### Down-regulated Genes in VTP
@@ -939,6 +977,24 @@ presence of TGF-β1.
 ## Effect of VTP under Maximal Strain with Profibrotic TGF-β1
 
 ### All Differentially Expressed Genes
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Extract a gene list with thresholded FDR < 0.05
+write.table(rownames(deg_vtp_tgf),
+            file = "./Data/deg_vtp_tgf_FDR.txt", quote = FALSE, 
+            row.names = FALSE, col.names = FALSE)
+
+# Extract a gene list with thresholded FDR < 0.05 for up-regulated genes
+write.table(rownames(deg_vtp_tgf[deg_vtp_tgf$logFC > 0, ]),
+            file = "./Data/deg_vtp_tgf_FDR_upreg.txt", quote = FALSE, 
+            row.names = FALSE, col.names = FALSE)
+
+# Extract a gene list with thresholded FDR < 0.05 for down-regulated genes
+write.table(rownames(deg_vtp_tgf[deg_vtp_tgf$logFC < 0, ]),
+            file = "./Data/deg_vtp_tgf_FDR_downreg.txt", quote = FALSE, 
+            row.names = FALSE, col.names = FALSE)
+```
+
 
 ### Up-regulated Genes in VTP
 
