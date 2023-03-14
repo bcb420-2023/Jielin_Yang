@@ -53,43 +53,32 @@ knitr::opts_knit$set(root.dir = here::here())  # Must be the project directory
 
 ## Background
 
-Heart failure (HF) is a chronic cardiac disease that has progressively severe 
-implications on the patient's quality of life, and it has been a leading cause 
-of death and a significant contributor to the global burden of disease. [@heidenreich20222022] 
-The pathophysiology of HF is complex and involves multiple factors, but a major 
+Heart failure (HF) is a chronic cardiac disease with complex pathophysiology 
+involving multiple factors. A major 
 hallmark of HF is the progressive degeneration of the myocardium that is 
 accompanied by cardiac fibrosis. [@garoffolo2022reduction] [@porter2009cardiac] [@tallquist2017redefining] 
-During the progression of HF, a process known as cardiac remodelling 
-progressively replaces the myocardium with fibrous tissues, which in turn
-leads to the gradual stiffening of the heart ventricular wall. Thus, the 
-identification of profibrotic pathways are essential to the development of 
+The identification of profibrotic pathways are essential to the development of 
 therapeutic strategies to delay or even to prevent the profibrotic remodelling 
 of the heart.
 
-Previous studies have shown that the straining condition has played a 
-significant role in potently altering the Hippo pathways. [@brusatin2018biomaterials] 
-It was found that mechanical stress on the cell cytoskeleton induces the nuclear 
-entry of the YAP/TAZ complex, which  subsequently activates the proliferative 
-pathways. [@elosegui2017force] [@panciera2017mechanobiology] Although such a 
+Previous studies have found that mechanical stress on the cell cytoskeleton 
+can induce the nuclear entry of the YAP/TAZ complex, which subsequently 
+activates the proliferative pathways. 
+[@elosegui2017force] [@panciera2017mechanobiology] [@brusatin2018biomaterials] 
+Although such a 
 mechanism may seem to be beneficial for the restoration of the damaged 
 cardiomyocytes, this pathway has been shown to be more active in cardiac stromal 
 cells, which can subsequently differentiate into myofibroblasts that eventually 
 leads to the profibrotic remodelling of the heart. [@garoffolo2022reduction] 
 Therefore, directly suppressing the YAP/TAZ complex in cardiac stromal
-cells may be an effective strategy. Recently, a study by [Garoffolo et al.](https://www.ahajournals.org/doi/10.1161/CIRCRESAHA.121.319373) 
+cells may be an effective strategy. Recently, [Garoffolo et al.](https://www.ahajournals.org/doi/10.1161/CIRCRESAHA.121.319373) 
 investigated the use of a small molecular inhibitor, verteporfin (VTP), to 
 suppress the YAP/TAZ complex with or without the presence of TGF-β1, a 
 profibrotic cytokine under the maximal strain condition.
 
 ## Objectives
 
-The study by [Garoffolo et al.](https://www.ahajournals.org/doi/10.1161/CIRCRESAHA.121.319373) 
-aimed to examine the antifibrotic effect of VTP in cardiac stromal cells under 
-profibrotic signals that simulates the straining conditions under heart failure 
-as part of their larger objective. [@garoffolo2022reduction]
-
-Here, we focus on this particular aspect of the research discussed above. In 
-particular, we aim to use RNA-seq data to identify the changes in the 
+We aim to use RNA-seq data to identify the changes in the 
 transcriptional profile of cardiac stromal cells after the use of VTP. 
 [Figure 1.](#fig1) shows the experimental design of the study. Here, we perform 
 differential gene expression analysis comparing the transcriptome of the cells 
@@ -98,7 +87,7 @@ Additionally, we test the efficacy of the drug (VTP) under the presence of
 TGF-β1, a potent profibrotic cytokine. [@saadat2021pivotal] To investigate 
 whether direct inhibition of the YAP/TAZ complex with VTP, we perform threshold 
 over-representation analysis to identify enriched pathways in the differentially 
-expressed genes, which would allow us to identify whether VTP can effectively 
+expressed genes, which would allow us to identify whether VTP can effectively
 reverse a profibrotic phenotype.
 
 <a name="fig1"></a>
@@ -132,14 +121,14 @@ found [here](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20sele
 
 The original dataset is composed of `24` samples and `60583 `genes. After 
 removing genes with low counts, the dataset we use in the present analysis is 
-composed of `14814` genes. The reference genome used is the human [GRCh38](https://useast.ensembl.org/Homo_sapiens/Info/Index?db=core) genome.
+composed of `14814` genes. The reference genome used is the human [GRCh38](https://useast.ensembl.org/Homo_sapiens/Info/Index?db=core).
 
 ### Identifier Mapping and Normalization
 
 The original dataset contains a mix of HUGO gene symbols and GenBank identifiers. 
 We used the [biomaRt](https://bioconductor.org/packages/release/bioc/html/biomaRt.html) 
 package to map the rest of the identifiers to HUGO gene symbols. [@durinck2009mapping] 
-The dataset is normalized using the Trimmed Mean of M-values (TMM) method 
+The dataset was normalized using the Trimmed Mean of M-values (TMM) method 
 implemented by the [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) 
 package. [@robinson2010edger] After applying normalization, the library size for 
 each sample has been effectively adjusted such that the distribution of gene 
@@ -147,16 +136,16 @@ expressions are comparable across samples.
 
 ### Multidimensional Scaling
 
-We evaluated the similarity between the samples by accessing the clustering of 
-the samples (as well as replicates within each group) using multidimensional 
+We evaluated the variance between the samples by accessing the clustering of 
+the samples using multidimensional 
 scaling (MDS). The MDS plot shown in [Assignment 1](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html) 
 reveals a moderate
 clustering of samples based on the treatment conditions, and in particular, the 
 control samples under mechanical strain alone are clustered separately with any 
-other groups. The other treatment groups show less separation along the first 
+other groups. The other treatment groups show less separation along either the
 dimension, but clustering is still observed. Interestingly, although most of the 
 samples are clustered based on the treatment conditions and that we did not
-observe any clustering based on the cell culture replicates, we notice that 
+observe obvious clustering based on the cell culture replicates, we notice that 
 certain samples that do not cluster tightly with the rest in the same treatment 
 group seem to be consistent across the conditions. For example, comparing to 
 other replicates, in cells from culture `M89` and `M99`,
@@ -167,53 +156,53 @@ different conditions seem to have a smaller effect on the gene expression profil
 ## Package Dependencies
 
 The current R Notebook assumes that it is being run on the BCB420-2023 base image. 
-Additional packages required are noted below.
+Additional packages required are noted below. For reproducibility we list all packages
+we used in the analysis, including utility packages.
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # edgeR package for manupulating and analyzing RNAseq data
 if (! requireNamespace("edgeR", quietly = TRUE)) {
   BiocManager::install("edgeR")
 }
-
 # limma package for differential expression analysis
 if (! requireNamespace("limma", quietly = TRUE)) {
   BiocManager::install("limma")
 }
-
 # ComplexHeatmap package for creating heatmaps
 if (! requireNamespace("ComplexHeatmap", quietly = TRUE)) {
   BiocManager::install("ComplexHeatmap")
 }
-
 # circlize package for circular visualization
 if (! requireNamespace("circlize", quietly = TRUE)) {
   BiocManager::install("circlize")
 }
-
 # ggplot2 package for creating plots
 if (! requireNamespace("ggplot2", quietly = TRUE)) {
   install.packages("ggplot2")
 }
-
+# cowplot package for arranging plots
+if (! requireNamespace("cowplot", quietly = TRUE)) {
+  install.packages("cowplot")
+}
+# ggrepel package for plotting text with minimal overlap
+if (! requireNamespace("ggrepel", quietly = TRUE)) {
+  install.packages("ggrepel")
+}
 # KableExtra package for creating tables and formatting
 if (! requireNamespace("kableExtra", quietly = TRUE)) {
   install.packages("kableExtra")
 }
-
 # dplyr package for data manipulation
 if (! requireNamespace("dplyr", quietly = TRUE)) {
   install.packages("dplyr")
 }
-
 # DT package for creating interactive tables
 if (! requireNamespace("DT", quietly = TRUE)) {
   install.packages("DT")
 }
 
-# Load the dplyr package
+# Load the packages
 library("dplyr")
-
-# Load the ggplot2 package
 library("ggplot2")
 
 # We will consistently use package::function() to avoid confusion
@@ -235,8 +224,8 @@ head(counts)
 ```
 
 **Table 1.** Processed count data used for the present analysis. The data is composed of
-14814 genes and 24 samples, where each gene is identified by a unique HUGO symbol.
-The first few rows are shown.
+`r nrow(counts)` genes and `r ncol(counts)` samples, where each gene is identified by a 
+unique HUGO symbol. The first few rows are shown.
 
 Since the header of the data contains the sample information, we will extract the sample
 information from the header to reconstruct the experimental design.
@@ -244,8 +233,8 @@ information from the header to reconstruct the experimental design.
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Extract the sample information from the header
 sample_matrix <- colnames(counts) %>%
-  lapply(function(x){unlist(strsplit(x, split = "\\."))}) %>%
-  as.data.frame()
+    lapply(function(x){unlist(strsplit(x, split = "\\."))}) %>%
+    as.data.frame()
 
 # Rename the data frame
 colnames(sample_matrix) <- colnames(counts)
@@ -275,7 +264,7 @@ is used for 4 different treatment conditions.
 Understanding the antifibrotic effect of VTP requires a comprehensive analysis 
 of the gene expression profile of the cSt-Cs by identifying the transcriptional 
 changes with or without the treatment of VTP. To this end, we will perform two 
-separate differential gene expression analysis with or without the presence of 
+separate differential gene expression analysis with and without the presence of 
 TGF-β1, in which we can isolate the effect of VTP as the only independent variable.
 
 However, although our data is composed of a total of 4 treatment condition, which 
@@ -284,15 +273,13 @@ perform such analysis. It has been well documented that TGF-β1 is a potent
 profibrotic cytokine that will induce a series of transcriptional activation on 
 profibrotic pathways. [@walker2019transcriptomic] The authors of the original 
 publication has also verified the profibrotic effect of TGF-β1. [@saadat2021pivotal]
-We have also shown that TGF-β1 significantly upregaltes the expression of 
-profibrotic genes (see associated [journal entry](https://github.com/bcb420-2023/Jielin_Yang/wiki/Differential-Gene-Expression-Analysis-and-Preliminary-ORA#differential-gene-expression-analysis-comparing-tgf%CE%B21-and-control) 
-for details). Therefore, based on our objective, we believe that it is more 
-valuable to investigate the effect of VTP under maximal strain, both with and 
+Therefore, based on our objective, we believe that it is more 
+valuable to investigate solely on the effect of VTP under maximal strain, both with and 
 without the presence of TGF-β1 separately.
 
 ## Global Gene Expression Profiling
 
-Before we perform the differential gene expression analysis, we first want to
+Before performing differential gene expression analysis, we first want to
 observe the global expression change at the gene level. Here, we plot a heatmap
 for all the genes in the dataset to visualize the expression change across all
 samples under various conditions.
@@ -304,7 +291,7 @@ counts_dge <- edgeR::DGEList(counts = counts, group = sample_matrix$treatment)
 # As discussed in the associated journal entry, the data we use are the
 # counts, rather than the counts per million (CPM) values. Therefore, we
 # will need to convert the count to CPM values for normalization on
-# library size.
+# library size before plotting the heatmap.
 counts_dge <- edgeR::calcNormFactors(counts_dge)
 counts_cpm_all <- edgeR::cpm(counts_dge)
 ```
@@ -313,22 +300,18 @@ counts_cpm_all <- edgeR::cpm(counts_dge)
 # Create a heatmap matrix for all the genes by scaling the CPM values
 # This allows the heatmap colour to be on a consistent and continuous scale
 # across all the samples
-heatmap_matrix <- counts_cpm_all %>% t() %>% scale()
-
-# Convert it back to the original format
-heatmap_matrix <- t(heatmap_matrix)
+heatmap_matrix <- counts_cpm_all %>% t() %>% scale() %>% t()
 ```
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Checking the range of the heatmap matrix
 hmap_range <- range(heatmap_matrix)
-hmap_range
 ```
 
-The range of the heatmap matrix is between `r hmap_range[1]` and `r hmap_range[2]`.
+The range of the heatmap matrix is between ``r hmap_range[1]`` and ``r hmap_range[2]``.
 Since the scaled expression value ranges from negative to positive, we will define
 a three colour palette for the heatmap, where we will use `blue` to represent
-the downregulated genes and `red` for upregulated genes. In the middle of the 
+the lowly expressed genes and `red` for highly expressed genes. In the middle of the 
 scale is `white`.
 
 Here, heatmap creation and visual representation are implemented using the
@@ -352,14 +335,12 @@ sample_matrix_sorted <- sample_matrix[colnames(heatmap_matrix),]
 
 # Treatment Conditions
 treatments <- unique(sample_matrix_sorted$treatment)
-
 # Define 4 colours for the 4 treatment conditions
 treatment_col <- hcl.colors(4, palette = "viridis")
 names(treatment_col) <- treatments
 
 # Culture Replicates
 cultures <- unique(sample_matrix_sorted$culture)
-
 # Define 6 colours for the 6 culture replicates
 culture_col <- hcl.colors(6, palette = "set3")
 names(culture_col) <- cultures
@@ -368,12 +349,10 @@ names(culture_col) <- cultures
 anno_df <- data.frame(treatment = sample_matrix_sorted$treatment,
                       culture = sample_matrix_sorted$culture)
 anno_col <- list(treatment = treatment_col, culture = culture_col)
-
 # Create the heatmap annotation
 hmap_anno <- ComplexHeatmap::HeatmapAnnotation(
                     df = anno_df,
                     col = anno_col)
-
 ```
 
 To better visualize the heatmap, we cluster the genes into 4 groups using the
@@ -385,7 +364,7 @@ profiles.
 
 <a name="fig2"></a>
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=10, fig.height=10}
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=10, fig.height=7}
 # Generate the heatmap
 # Set the seed for reproducibility due to he inherent randomness of the
 # k-means clustering algorithm
@@ -399,7 +378,6 @@ hmap_all <- ComplexHeatmap::Heatmap(heatmap_matrix,
                                     top_annotation = hmap_anno,
                                     km = 4)
 set.seed(NULL)
-
 # Plot the heatmap
 hmap_all
 ```
@@ -408,7 +386,7 @@ hmap_all
 treatments. A k-mean clustering of 4 groups was applied to the heatmap for 
 clusterization of gene with similar expression profiles. Samples are 
 hierarchically clustered by their expression profiles. The top bar annotate the 
-samples by treatment conditions and culture in which the cells were extracted.
+samples by treatment conditions and the culture in which the cells were extracted.
 <br />
 
 The 4 groups of genes generated by the k-means clustering algorithm show
@@ -435,12 +413,11 @@ build the model for differential expression analysis.
 ## Model Selection
 
 For differential gene expression analysis, we use the `edgeR` package,
-which implements a generailized linear model (GLM) to test for differential
+which implements a generalized linear model (GLM) to test for differential
 expression. [@robinson2010edger] Based on the objective of our analysis,
 we will build the model based on the treatment conditions. Additionally,
-since we have observed a subset of cultures replicates that shows a lower
-variance within cells from the same culture and a 
-moderate degree of clustering in the heatmap ([Figure 2.](#fig2)), it is
+since we have observed a subset of cultures replicates that tend to show
+similar expression pattern based on culture number ([Figure 2.](#fig2)), it is
 expected that the culture replicate will also contribute to the variance
 in gene expression. Therefore, we choose the model to include both factors,
 treatment and culture replicate.
@@ -456,11 +433,10 @@ cultures <- sample_matrix$culture
 model_treat_cul <- model.matrix(~0 + treatments + cultures)
 rownames(model_treat_cul) <- rownames(sample_matrix)
 
-# View the model matrix
+# View the model matrix, ordered by treatment condition
 DT::datatable(model_treat_cul[order(gsub("M[0-9]{2}\\.", "", rownames(model_treat_cul))), ], 
               rownames = TRUE,
               options = list(pageLength = 6, scrollX = TRUE)) %>%
-              # Changing the font size of content
               DT::formatStyle(names(model_treat_cul), fontSize = "12px")
 ```
 
@@ -481,8 +457,7 @@ counts_dge <- edgeR::estimateDisp(counts_dge, model_treat_cul)
 ```
 
 <a name="fig3"></a>
-
-```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=7, fig.height=6}
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=5, fig.height=4}
 # Plot the dispersion against the mean
 edgeR::plotMeanVar(counts_dge, 
                     show.raw.vars = TRUE, 
@@ -539,7 +514,6 @@ F test as described above.
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Fit the model
 glm_fit_treat_cul <- edgeR::glmQLFit(counts_dge, model_treat_cul)
-
 # Perform the differential expression analysis
 qlf_vtp_ctrl <- edgeR::glmQLFTest(glmfit = glm_fit_treat_cul, 
                                   contrast = contrast_vtp)
@@ -549,7 +523,6 @@ qlf_vtp_ctrl <- edgeR::glmQLFTest(glmfit = glm_fit_treat_cul,
 # Extract the results
 results_vtp_ctrl <- edgeR::topTags(qlf_vtp_ctrl, sort.by = "PValue", 
                                    n = nrow(counts_dge))$table
-
 # Save the differential expression results
 write.csv(results_vtp_ctrl, file = "./Data/dge_vtp_ctrl.csv", row.names = TRUE)
 ```
@@ -561,7 +534,7 @@ We will now examine the genes that are differentially expressed.
 sum(results_vtp_ctrl$PValue < 0.05)
 ```
 
-Among the `r nrow(counts)` genes in the dataset, `r sum(results_vtp_ctrl$PValue < 0.05)`
+Among the ``r nrow(counts)`` genes in the dataset,``r sum(results_vtp_ctrl$PValue < 0.05)``
 are considered to be differentially expressed based on the unadjusted p-value with a
 threshold of 0.05. This is consistent with other RNA-seq studies that have a focus
 on heart gene expression. [@ahmed2023kdm8] Additionally, a threshold of 0.05 is
@@ -598,7 +571,6 @@ deg_vtp_ctrl <- results_vtp_ctrl[results_vtp_ctrl$FDR < 0.05, ]
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Up-regulated genes
 vtp_ctrl_up <- deg_vtp_ctrl[deg_vtp_ctrl$logFC > 0, ]
-
 # We add gene symbol as a column so that it is searchable
 vtp_ctrl_up$Gene = rownames(vtp_ctrl_up)
 vtp_ctrl_up <- vtp_ctrl_up[, c(ncol(vtp_ctrl_up), 1:ncol(vtp_ctrl_up)-1)]
@@ -614,13 +586,13 @@ DT::datatable(vtp_ctrl_up, rownames = FALSE, filter = "top",
 ```
 
 **Table 4.** Up-regulated genes under VTP treatment comparing to control without TGF-β1.
+<br />
 
 #### Down-regulated Genes under VTP Treatment
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Down-regulated genes
 vtp_ctrl_down <- deg_vtp_ctrl[deg_vtp_ctrl$logFC < 0, ]
-
 # We add gene symbol as a column so that it is searchable
 vtp_ctrl_down$Gene = rownames(vtp_ctrl_down)
 vtp_ctrl_down <- vtp_ctrl_down[, c(ncol(vtp_ctrl_down), 1:ncol(vtp_ctrl_down)-1)]
@@ -636,18 +608,19 @@ DT::datatable(vtp_ctrl_down, rownames = FALSE, filter = "top",
 ```
 
 **Table 5.** Down-regulated genes under VTP treatment comparing to control without TGF-β1.
+<br />
 
 #### Analysis and Visualization
 
-Interestingly, there we found `r nrow(vtp_ctrl_up)` up-regulated genes, which is
-more than the number of down-regulated genes, `r nrow(vtp_ctrl_down)`. The top
+Interestingly, we found ``r nrow(vtp_ctrl_up)`` up-regulated genes, which is
+more than the number of down-regulated genes, ``r nrow(vtp_ctrl_down)``. The top
 upregulated genes are ``r paste(rownames(vtp_ctrl_up[1:5, ]), collapse = ", ")``, 
 which are not associated with fibrosis or cell proliferation. Rather, the top
 downregulated gene is ``r rownames(vtp_ctrl_down[1, ])``, with a fold change of
-`r round(2^(-vtp_ctrl_down[1, "logFC"]), 2)`. This gene encodes [collagen type XI 
-alpha 1 chain](https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000060718;r=1:102876467-103108872).
+``r round(2^(-vtp_ctrl_down[1, "logFC"]), 2)``. This gene encodes [collagen type XI 
+alpha 1 chain](https://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000060718;r=1:102876467-103108872),
 which directly involves in the formation of collagen fibrils. [@moore2014resident]
-We can see that a total of `r sum(grepl("$COL", rownames(vtp_ctrl_down)))` collagen
+We can see that a total of ``r sum(grepl("COL", rownames(vtp_ctrl_down)))`` collagen
 genes are downregualed, with none of them upregulated. This suggests that VTP
 reduces the expression of collagen genes, which are the main components of
 fibrotic tissues. We also found that `P4HA1` gene is among the most significantly
@@ -661,7 +634,7 @@ Here we visualize the differentially expressed genes using a Volcano plot, which
 allows for easy visualization of the genes accoding to their fold change and
 significance.
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
+```{r message = FALSE, tidy=FALSE, warning=FALSE}
 # Label genes as up/down-regulated
 results_vtp_ctrl <- results_vtp_ctrl %>%
     dplyr::mutate(Expression = dplyr::case_when(
@@ -688,9 +661,10 @@ genes_to_label <- rbind(genes_to_label,
 genes_to_label <- genes_to_label[!duplicated(rownames(genes_to_label)), ]
 ```
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=8, fig.height=6}
-# We will plot all genes, with highlighted genes representing the differentially
-# expressed genes
+<a name="fig4"></a>
+
+```{r message = FALSE, tidy=FALSE, warning=FALSE, fig.align="center", fig.width=6, fig.height=4}
+# We will plot all genes, with highlighted genes representing the differentially expressed genes
 # Color genes based on whether it is significantly up/down-regulated
 # Label the genes of interest
 ggplot2::ggplot(results_vtp_ctrl, aes(logFC, -log(FDR, 10))) +
@@ -701,30 +675,36 @@ ggplot2::ggplot(results_vtp_ctrl, aes(logFC, -log(FDR, 10))) +
                                            "Down-regulated" = "dodgerblue3", 
                                            "Not DE" = "gray50")) +
     ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size=1.5))) +
-    ggplot2::geom_label(data = genes_to_label, 
+    ggrepel::geom_label_repel(data = genes_to_label, 
                         mapping = aes(logFC, -log(FDR, 10), label = rownames(genes_to_label)),
-                        size = 2, color = "black", nudge_x = 0.1, nudge_y = 0.1)
+                        size = 2.5, color = "black", nudge_x = 0.1, nudge_y = 0.1)
 ```
 
 **Figure 4.** Volcano plot of differentially expressed genes comparing VTP treatment
 to control without TGF-β1. Differentially expressed genes are coloured based on
 direction of change. Genes of interest are labelled.
+<br />
 
-
-
+[Figure 4.](#fig4) shows that the majority of the genes are not differentially
+expressed, with a few genes showing comparatively large fold change and significance.
+We can observe that the up and down-regulated genes are distributed evenly, except
+a few down-regualted genes showing very high significance. This is likely due to
+the fact that VTP is a drug the inhibits the YAP/TAZ complex, the downregulation
+of which likely leads to a reduction in multiple cellular processes related to
+fibrosis and extracellular matrix formation. [@totaro2018yap]
 
 To better visualize the differentially expressed genes between the two test
 condition, a heatmap is plotted to support the visualization of gene expression,
 and particularly the clustering of samples.
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=8, fig.height=8}
+<a name="fig5"></a>
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=6, fig.height=4.5}
 # Extract the differentially expressed genes from the heatmap matrix
 heatmap_matrix_vtp_ctrl <- heatmap_matrix[rownames(deg_vtp_ctrl), 
                             grepl("\\.VTP|\\.CTRL", colnames(heatmap_matrix))]
-
 # Checking the range of the heatmap matrix
 hmap_range <- range(heatmap_matrix_vtp_ctrl)
-
 # Set the 3 color palette based on the scaled heatmap matrix
 hmap_col <- circlize::colorRamp2(c(hmap_range[1], 0, hmap_range[2]), 
                                  c("blue", "white", "red"))
@@ -732,14 +712,12 @@ hmap_col <- circlize::colorRamp2(c(hmap_range[1], 0, hmap_range[2]),
 # Redefine 2 colours for the 4 treatment conditions
 treatment_col <- hcl.colors(2, palette = "viridis")
 names(treatment_col) <- c("VTP", "CTRL")
-
 # Create an annotation dataframe
 anno_df <- data.frame(treatment = sample_matrix_sorted[grepl("\\.VTP|\\.CTRL", 
                                   rownames(sample_matrix_sorted)), "treatment"],
                       culture = sample_matrix_sorted[grepl("\\.VTP|\\.CTRL", 
                                   rownames(sample_matrix_sorted)), "culture"])
 anno_col <- list(treatment = treatment_col, culture = culture_col)
-
 # Create the heatmap annotation
 hmap_anno <- ComplexHeatmap::HeatmapAnnotation(
                     df = anno_df,
@@ -759,13 +737,26 @@ hmap_vtp_ctrl
 **Figure 5.** Heatmap of differentially expressed genes comparing VTP treatment to
 control without TGF-β1. Samples are annotated based on treatment conditions and 
 culture replicates.
+<br />
 
+[Figure 5.](#fig5) reveals a clear clustering of samples based on the treatment
+conditions, in which all control samples display very similar set of up and down-
+regulated genes. This is consistant with the MDS plot we have generated previously.
+However interestingly, the dendrogram shows two distinct clusters of samples treated
+with VTP, located on the edge of the dendrogram. Comparing to the control samples,
+it is clear that the two clusters show consistant changes in up and down regulation
+of a defined set of genes, but the dergree to which the change is observed is
+different. This is likely due to the fact that these are biological variations
+between the samples, or, possibly due to the effect of adding chemical compounds
+to the culture medium. As observed in the MDS plot from prior analysis and [Figure 2](#fig2),
+we observe a higher intra-condition variation once chemical compounds are added,
+in both cases of VTP and TGF-β1.
 
-
-
-
-
-
+However, dipite the clustering of samples, a clear pattern of up and down-regulated
+genes can be observed. In conjunction with the manual inspection of the top
+differentially expressed genes, VTP treatment alone under the profibrotic environment
+of mechanical strains has demonstrated anti-fibrotic effects
+by down-regulating collagen and ECM genes.
 
 ### Effect of VTP under Maximal Strain with Profibrotic TGF-β1
 
@@ -778,7 +769,6 @@ conditions are also subjected to the same TGF-β1 treatment.
 # Create a contrast for VTP vs. control with TGF-β1
 contrast_vtp_tgf <- limma::makeContrasts("treatmentsTGFb_VTP - treatmentsTGFb", 
                                             levels = model_treat_cul)
-
 # Perform differential expression analysis
 results_vtp_tgf <- edgeR::glmQLFTest(glmfit = glm_fit_treat_cul, 
                                      contrast = contrast_vtp_tgf)
@@ -806,10 +796,8 @@ genes that are down-regulated, as shown below.
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Retrieve the set of differentially expressed genes
 deg_vtp_tgf <- results_vtp_tgf[results_vtp_tgf$FDR < 0.05, ]
-
 # Up-regulated genes
 vtp_tgf_up <- deg_vtp_tgf[deg_vtp_tgf$logFC > 0, ]
-
 # We add gene symbol as a column so that it is searchable
 vtp_tgf_up$Gene <- rownames(vtp_tgf_up)
 vtp_tgf_up <- vtp_tgf_up[, c(ncol(vtp_tgf_up), 1:(ncol(vtp_tgf_up)-1))]
@@ -829,7 +817,6 @@ DT::datatable(vtp_tgf_up, rownames = FALSE, filter = "top",
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Down-regulated genes
 vtp_tgf_down <- deg_vtp_tgf[deg_vtp_tgf$logFC < 0, ]
-
 # We add gene symbol as a column so that it is searchable
 vtp_tgf_down$Gene <- rownames(vtp_tgf_down)
 vtp_tgf_down <- vtp_tgf_down[, c(ncol(vtp_tgf_down), 1:(ncol(vtp_tgf_down)-1))]
@@ -848,49 +835,16 @@ DT::datatable(vtp_tgf_down, rownames = FALSE, filter = "top",
 
 Since there are only ``r sum(results_vtp_tgf$FDR < 0.05)`` differentially expressed
 genes based on the corrected FDR threshold, the Volcano plot is will likely
-show mostly noise. However, we will only annotate the top 3 genes for both
-the up-regulated and down-regulated genes based on the fold change.
+show mostly noise. Therefore, we will only visualize these genes with a heatmap.
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
-# Label genes as up-regulated or down-regulated
-results_vtp_tgf <- results_vtp_tgf %>%
-    dplyr::mutate(Expression = dplyr::case_when(
-                        logFC > 0 & FDR < 0.05 ~ "Up-regulated",
-                        logFC < 0 & FDR < 0.05 ~ "Down-regulated",
-                        TRUE ~ "Not DE"))
+<a name="fig6"></a>
 
-# Label differentially expressed genes
-genes_to_label <- results_vtp_tgf[results_vtp_tgf$Expression != "Not DE", ]
-
-# Plot the volcano plot
-# Color genes based on whether it is significantly up/down-regulated
-ggplot2::ggplot(results_vtp_tgf, aes(logFC, -log(FDR, 10))) +
-    ggplot2::geom_point(aes(color = Expression), size = 2/5) +
-    xlab(expression("log"[2]*"FC")) + 
-    ylab(expression("-log"[10]*"FDR")) +
-    ggplot2::scale_color_manual(values = c("Up-regulated" = "firebrick3", 
-                                           "Down-regulated" = "dodgerblue3", 
-                                           "Not DE" = "gray50")) +
-    ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size=1.5))) +
-    ggplot2::geom_label(data = genes_to_label, 
-                        mapping = aes(logFC, -log(FDR, 10), label = rownames(genes_to_label)),
-                        size = 2, color = "black", nudge_x = 0.1, nudge_y = 0.1)
-```
-
-**Figure 6.** Volcano plot of differentially expressed genes under VTP treatment 
-in the presence of TGF-β1. Red and blue dots represent up-regulated and down-regulated
-genes, respectively. All differentially expressed genes are labeled.
-
-
-
-```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.height=5, fig.width=8}
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.height=3, fig.width=6}
 # Extract the differentially expressed genes from the heatmap matrix
 heatmap_matrix_vtp_tgf <- heatmap_matrix[rownames(deg_vtp_tgf), 
                             grepl("\\.TGFb_VTP|\\.TGFb", colnames(heatmap_matrix))]
-
 # Check the range of the heatmap matrix
 hmap_range <- range(heatmap_matrix_vtp_tgf)
-
 # Set the 3 color palette based on the scaled heatmap matrix
 hmap_col <- circlize::colorRamp2(c(hmap_range[1], 0, hmap_range[2]), 
                                  c("blue", "white", "red"))
@@ -898,14 +852,12 @@ hmap_col <- circlize::colorRamp2(c(hmap_range[1], 0, hmap_range[2]),
 # Redefine 2 colours for the 4 treatment conditions
 treatment_col <- hcl.colors(2, palette = "viridis")
 names(treatment_col) <- c("TGFb_VTP", "TGFb")
-
 # Create an annotation dataframe
 anno_df <- data.frame(treatment = sample_matrix_sorted[grepl("\\.TGFb_VTP|\\.TGFb", 
                                   rownames(sample_matrix_sorted)), "treatment"],
                       culture = sample_matrix_sorted[grepl("\\.TGFb_VTP|\\.TGFb", 
                                   rownames(sample_matrix_sorted)), "culture"])
 anno_col <- list(treatment = treatment_col, culture = culture_col)
-
 # Create the heatmap annotation
 hmap_anno <- ComplexHeatmap::HeatmapAnnotation(
                     df = anno_df,
@@ -922,14 +874,56 @@ hmap_vtp_tgf <- ComplexHeatmap::Heatmap(heatmap_matrix_vtp_tgf,
 hmap_vtp_tgf
 ```
 
-**Figure 7.** Heatmap of differentially expressed genes under VTP treatment in the
+**Figure 6.** Heatmap of differentially expressed genes under VTP treatment in the
 presence of TGF-β1.
+<br />
+
+In this comparason, culture `M04` does not show highly consistant expression profiles
+with the rest of the samples. Rather, the expression seems to be more consistant
+within the `M04` culture, shown as a single cluster in [Figure 6](#fig6). Among the
+differentially expressed genes, we can only see a single collagen gene, `COL11A1`,
+which has a fold change of ``r round(2^(deg_vtp_tgf[deg_vtp_tgf$Gene == "COL11A1", "logFC"]), 2)``.
+Other genes are also observed in the previous analysis, but these few genes do not
+seem to confer a group of related biological processes/functions. Therefore, it means
+that the VTP treatment may have antifibrotic effects, but the effect is not
+very significant when a potent fibrotic stimulus, TGF-β1, is present.
 
 # Threshold Over-representation Analysis
+
+To further investigate the changes in the biological processes due to the use of 
+VTP, we will perform a threshold over-representation analysis (t-ORA) on the
+differentially expressed genes. Gene lists are defined by a thresholded FDR
+< 0.05 and fold change > 2. We chose this threshold since we want to focus on
+the major biological pathways that are affected by VTP treatment, rather than
+mildly affected pathways. Additionally, this threshold is recommended by earlier
+studies and have been shown to have a stronger emphasis on fibrosis-related 
+pathways (t-ORA using only FDR < 0.05 was performed and shows a more complex
+but less focused enrichment results, details shown [here](https://github.com/bcb420-2023/Jielin_Yang/wiki/Differential-Gene-Expression-Analysis-and-Preliminary-ORA)). [@reimand2019pathway]
+
+To perform t-ORA, we employed the web-based [DAVID](https://david.ncifcrf.gov/) tool,
+which employed Fisher's Exact test  to determine whether the genes of interest
+in a certain pathway/geneset is higher in comparison to the genes that are not
+in the geneset. [@huang2009systematic] [@reimand2019pathway] This method allows
+use to perform a simple enrichment analysis on the gene lists, which we obtained
+by setting a strict threshold inside differentially expressed genes. The results
+are also valid for preliminary understanding of the differentially regulated
+biological processes due to the addition of VTP. To this end, we use the 
+Biological Processes (BP) ontology in GO and the Reactome pathways as the 
+annotation data source. [@ashburner2000gene] [@vastrik2007reactome] These two
+annotation data both supports the most up-to-date functional annotation of
+human genes, and since we are interested in learning about the changes regarding
+to fibrosis, the use of these two annotation data sources appropriately and
+sufficiently support the identification of major processes and pathways that
+are affected by VTP treatment. The [DAVID](https://david.ncifcrf.gov/) knowledgebase
+was last updated in December 2022, which incorporates `Version 83` of Reactome and
+the latest release of Gene Ontology (GO).
 
 ## Effect of VTP under Maximal Strain
 
 ### All Differentially Expressed Genes
+
+We first examine the genesets enriched in the differentially expressed genes comparing
+VTP treatment to control, in the absense of TGF-β1.
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Extract a gene list with thresholded FDR < 0.05 and fold change > 2
@@ -948,7 +942,15 @@ write.table(rownames(deg_vtp_ctrl[deg_vtp_ctrl$logFC < -1, ]),
             row.names = FALSE, col.names = FALSE)
 ```
 
+We have exported the gene list to a text file and uploaded it to [DAVID](https://david.ncifcrf.gov/),
+where we identified the genes by official gene symbols. A multiple test correction
+was performed using the Benjamini-Hochberg method. The results are exported and analyzed
+in the following section.
 
+We first examine the enrichment result using all differentially expressed genes with 
+thresholded FDR < 0.05 and fold change > 2. The results are shown in [Table 8](#tab8).
+
+<a name="tab8"></a>
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Import enriched genesets returned by DAVID
@@ -972,8 +974,24 @@ DT::datatable(genesets_vtp_ctrl[genesets_vtp_ctrl$FDR < 0.05, 1:6],
             DT::formatStyle(0, fontSize = "12px")
 ```
 
+**Table 8.** Enriched genesets in differentially expressed genes comparing VTP treatment 
+to control, in the absense of TGF-β1. The threshold used for gene list definition is
+FDR < 0.05 and fold change > 2.
+<br />
+
+A total of ``r nrow(genesets_vtp_ctrl)`` genesets are enriched in this analysis, which
+includes ``r nrow(genesets_vtp_ctrl[genesets_vtp_ctrl$FDR < 0.05, ])`` genesets determined
+to be significant after multiple test correction. The top 5 enriched genesets are
+related to extracellular matrix organization and cell adhesion processes.
 
 ### Up-regulated Genes in VTP
+
+We further perform threshold over-representation analysis on the up-regulated genes
+and down-regulated genes under VTP treatment separately, with results shown in 
+[Table 9](#tab9) and [Table 10](#tab10), respectively. The same threshold was used
+for gene list definition as in the previous section.
+
+<a name="tab9"></a>
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Import enriched genesets returned by DAVID
@@ -997,22 +1015,29 @@ DT::datatable(genesets_vtp_ctrl_upreg[genesets_vtp_ctrl_upreg$FDR < 0.05,1:6],
             DT::formatStyle(0, fontSize = "12px")
 ```
 
+**Table 9.** Enriched genesets in up-regulated genes comparing VTP treatment to control.
+<br />
+
+In upregulated genes alone, we observed ``r nrow(genesets_vtp_ctrl_upreg)`` genesets
+enriched, including ``r nrow(genesets_vtp_ctrl_upreg[genesets_vtp_ctrl_upreg$FDR < 0.05, ])``
+genesets significantly enriched after multiple test correction. As espected, we observed
+enriched pathways pertaining to cellular response to exogenous stimulus, which is 
+consistant with the fact these are upregulated genes for samples treated with VTP.
+
 ### Down-regulated Genes in VTP
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
+<a name="tab10"></a>
+
+```{r message = FALSE, tidy=FALSE, warning=FALSE}
 # Import enriched genesets returned by DAVID
 genesets_vtp_ctrl_downreg <- read.table("./Data/DAVID_deg_vtp_ctrl_FDR_downreg_genesets.txt",
-                                     header = TRUE, sep = "\t",
-                                     stringsAsFactors = FALSE)  
+                                     header = TRUE, sep = "\t", stringsAsFactors = FALSE)  
 # Split terms into ID and description
-genesets_vtp_ctrl_downreg$ID <- stringr::str_split_fixed(
-                                genesets_vtp_ctrl_downreg$Term, "~", 2)[, 1]
-genesets_vtp_ctrl_downreg$Term <- stringr::str_split_fixed(
-                                genesets_vtp_ctrl_downreg$Term, "~", 2)[, 2]    
+genesets_vtp_ctrl_downreg$ID <- stringr::str_split_fixed(genesets_vtp_ctrl_downreg$Term, "~", 2)[, 1]
+genesets_vtp_ctrl_downreg$Term <- stringr::str_split_fixed(genesets_vtp_ctrl_downreg$Term, "~", 2)[, 2]    
 # Reorder the Columns and remove unnecessary statistics
 genesets_vtp_ctrl_downreg <- genesets_vtp_ctrl_downreg[, 
-              c("Category", "ID", "Term", "Fold.Enrichment", "PValue", "FDR", 
-                "Genes", "Count", "X.")]
+              c("Category", "ID", "Term", "Fold.Enrichment", "PValue", "FDR", "Genes", "Count")]
 # Visualize the table
 DT::datatable(genesets_vtp_ctrl_downreg[genesets_vtp_ctrl_downreg$FDR < 0.05,1:6], 
         rownames = FALSE, filter = "top",
@@ -1021,17 +1046,28 @@ DT::datatable(genesets_vtp_ctrl_downreg[genesets_vtp_ctrl_downreg$FDR < 0.05,1:6
         DT::formatStyle(0, fontSize = "12px")
 ```
 
+**Table 10.** Enriched genesets in down-regulated genes comparing VTP treatment to control.
+<br />
 
+In down-regulated genes alone, we observed ``r nrow(genesets_vtp_ctrl_downreg)`` genesets
+enriched, with ``r nrow(genesets_vtp_ctrl_downreg[genesets_vtp_ctrl_downreg$FDR < 0.05, ])``
+being significant by FDR. Interestingly, using downregulated genes only, we observed 
+even more enriched genesets compared to using the whole list of differentially expressed
+genes. Since the down-regulated and up-regulated genes are likely to be involved in
+very different processes, using the whole list for enrichment analysis likely reduces
+the fraction of the set of genes involved in a common pathway. Therefore, using 
+Fisher's Exact Test may not be able to detect many other less significant pathways.
+This observation is supported by a lower p-value observed in the separately performed ORA.
+
+### Analysis
 
 We will now draw a dotplot to visualize the top 10 genesets enriched in the up and
 diown-regualted genes.
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
+```{r message = FALSE, tidy=FALSE, warning=FALSE}
 # Subset the top 10 genesets enricheds
-gs_upreg_10 <- genesets_vtp_ctrl_upreg[order(
-    genesets_vtp_ctrl_upreg$FDR), ] %>% head(10)
-gs_downreg_10 <- genesets_vtp_ctrl_downreg[order(
-    genesets_vtp_ctrl_downreg$FDR), ] %>% head(10)
+gs_upreg_10 <- genesets_vtp_ctrl_upreg[order(genesets_vtp_ctrl_upreg$FDR), ] %>% head(10)
+gs_downreg_10 <- genesets_vtp_ctrl_downreg[order(genesets_vtp_ctrl_downreg$FDR), ] %>% head(10)
 
 # Calculate gene ratio
 gs_upreg_10$gene_ratio <- gs_upreg_10$Count / nrow(deg_vtp_ctrl[deg_vtp_ctrl$logFC > 1, ])
@@ -1040,7 +1076,7 @@ gs_downreg_10$gene_ratio <- gs_downreg_10$Count / nrow(deg_vtp_ctrl[deg_vtp_ctrl
 gs_downreg_10 <- gs_downreg_10[order(gs_downreg_10$gene_ratio, decreasing = TRUE), ]
 ```
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
+```{r message = FALSE, tidy=FALSE, warning=FALSE}
 # Dotplot of the top genesets enriched in the up-regulated genes
 # We plot it with ggplot2, with each term against the gene ratio
 # The size of the dot is proportional to the fold enrichment
@@ -1073,7 +1109,6 @@ plot_downreg <- ggplot2::ggplot(gs_downreg_10) +
                 ggplot2::scale_size(range = c(2, 10)) +
                 ggplot2::labs(x = "Gene Ratio", y = NULL,
                               color = "FDR", size = "Fold Enrichment")
-                
 
 # Draw the plots
 cowplot::plot_grid(plot_upreg, plot_downreg, ncol = 2, labels = "AUTO")
@@ -1104,35 +1139,9 @@ ggplot(genesets_vtp_ctrl_upreg[genesets_vtp_ctrl_upreg$FDR < 0.05, ],
   labs(x = "Term", y = "Fold Enrichment", title = "Top 10 Genesets Enriched in Up-Regulated Genes")
 ```
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
 
 
-### Down-regulated Genes in VTP
 
-
-## Effect of VTP under Maximal Strain with Profibrotic TGF-β1
-
-
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
-# Extract a gene list with thresholded FDR < 0.05
-write.table(rownames(deg_vtp_tgf),
-            file = "./Data/deg_vtp_tgf_FDR.txt", quote = FALSE, 
-            row.names = FALSE, col.names = FALSE)
-
-# Extract a gene list with thresholded FDR < 0.05 for up-regulated genes
-write.table(rownames(deg_vtp_tgf[deg_vtp_tgf$logFC > 0, ]),
-            file = "./Data/deg_vtp_tgf_FDR_upreg.txt", quote = FALSE, 
-            row.names = FALSE, col.names = FALSE)
-
-# Extract a gene list with thresholded FDR < 0.05 for down-regulated genes
-write.table(rownames(deg_vtp_tgf[deg_vtp_tgf$logFC < 0, ]),
-            file = "./Data/deg_vtp_tgf_FDR_downreg.txt", quote = FALSE, 
-            row.names = FALSE, col.names = FALSE)
-```
-
-
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
-```
 
 
 # Interpretation and Analysis
