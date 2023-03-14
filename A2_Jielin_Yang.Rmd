@@ -457,7 +457,7 @@ counts_dge <- edgeR::estimateDisp(counts_dge, model_treat_cul)
 ```
 
 <a name="fig3"></a>
-```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=5, fig.height=4}
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=8, fig.height=6}
 # Plot the dispersion against the mean
 edgeR::plotMeanVar(counts_dge, 
                     show.raw.vars = TRUE, 
@@ -667,7 +667,7 @@ genes_to_label <- genes_to_label[!duplicated(rownames(genes_to_label)), ]
 
 <a name="fig4"></a>
 
-```{r message = FALSE, tidy=FALSE, warning=FALSE, fig.align="center", fig.width=6, fig.height=4}
+```{r message = FALSE, tidy=FALSE, warning=FALSE, fig.align="center", fig.width=8, fig.height=6}
 # We will plot all genes, with highlighted genes representing the differentially expressed genes
 # Color genes based on whether it is significantly up/down-regulated
 # Label the genes of interest
@@ -703,7 +703,7 @@ and particularly the clustering of samples.
 
 <a name="fig5"></a>
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=6, fig.height=4.5}
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=8, fig.height=6}
 # Extract the differentially expressed genes from the heatmap matrix
 heatmap_matrix_vtp_ctrl <- heatmap_matrix[rownames(deg_vtp_ctrl), 
                             grepl("\\.VTP|\\.CTRL", colnames(heatmap_matrix))]
@@ -846,7 +846,7 @@ show mostly noise. Therefore, we will only visualize these genes with a heatmap.
 
 <a name="fig6"></a>
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.height=3, fig.width=6}
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.height=6, fig.width=8}
 # Extract the differentially expressed genes from the heatmap matrix
 heatmap_matrix_vtp_tgf <- heatmap_matrix[rownames(deg_vtp_tgf), 
                             grepl("\\.TGFb_VTP|\\.TGFb", colnames(heatmap_matrix))]
@@ -885,11 +885,11 @@ hmap_vtp_tgf
 presence of TGF-β1.
 <br />
 
-In this comparason, culture `M04` does not show highly consistant expression profiles
-with the rest of the samples. Rather, the expression seems to be more consistant
+In this comparison, culture `M04` does not show highly consistent expression profiles
+with the rest of the samples. Rather, the expression seems to be more consistent
 within the `M04` culture, shown as a single cluster in [Figure 6](#fig6). Among the
 differentially expressed genes, we can only see a single collagen gene, `COL11A1`,
-which has a fold change of ``r round(2^(deg_vtp_tgf[deg_vtp_tgf$Gene == "COL11A1", "logFC"]), 2)``.
+which has a fold change of ``r round(2^-(deg_vtp_tgf[rownames(deg_vtp_tgf) == "COL11A1", "logFC"]), 2)``.
 Other genes are also observed in the previous analysis, but these few genes do not
 seem to confer a group of related biological processes/functions. Therefore, it means
 that the VTP treatment may have antifibrotic effects, but the effect is not
@@ -1087,7 +1087,7 @@ gs_downreg_10 <- gs_downreg_10[order(gs_downreg_10$gene_ratio, decreasing = TRUE
 
 <a name="fig7"></a>
 
-```{r message = FALSE, tidy=FALSE, warning=FALSE}
+```{r message = FALSE, tidy=FALSE, warning=FALSE, fig.align="center", fig.width=10, fig.height=7}
 # Dotplot of the top genesets enriched in the up-regulated genes
 # We plot it with ggplot2, with each term against the gene ratio
 # The size of the dot is proportional to the fold enrichment
@@ -1097,8 +1097,8 @@ plot_upreg <- ggplot2::ggplot(gs_upreg_10) +
                             color = FDR,
                             size = Fold.Enrichment)) +
                 ggplot2::theme_bw() +
-                ggplot2::theme(axis.text.x = ggplot2::element_text(size = 8),
-                               axis.text.y = ggplot2::element_text(size = 8),
+                ggplot2::theme(axis.text.x = ggplot2::element_text(size = 10),
+                               axis.text.y = ggplot2::element_text(size = 10),
                                axis.title.x = ggplot2::element_text(size = 10),
                                axis.title.y = ggplot2::element_text(size = 10)) +
                 ggplot2::scale_color_gradient(low = "red", high = "blue") +
@@ -1112,8 +1112,8 @@ plot_downreg <- ggplot2::ggplot(gs_downreg_10) +
                                color = FDR,
                                size = Fold.Enrichment)) +
                 ggplot2::theme_bw() +
-                ggplot2::theme(axis.text.x = ggplot2::element_text(size = 8),
-                               axis.text.y = ggplot2::element_text(size = 8),
+                ggplot2::theme(axis.text.x = ggplot2::element_text(size = 10),
+                               axis.text.y = ggplot2::element_text(size = 10),
                                axis.title.x = ggplot2::element_text(size = 10),
                                axis.title.y = ggplot2::element_text(size = 10)) +
                 ggplot2::scale_color_gradient(low = "red", high = "blue") +
@@ -1129,9 +1129,10 @@ cowplot::plot_grid(plot_upreg, plot_downreg, ncol = 2, labels = "AUTO")
 treatment to control. Colour of the dots indicates significance level, and the size indicates
 the fold enrichment.
 <br />
+
 <a name="discussion"></a>
 
-Comparatively, a igher number of genesets were enriched in the down-regulated genes, with
+Comparatively, a higher number of genesets were enriched in the down-regulated genes, with
 higher fold change and stronger signficiance level. As expected, the use of VTP as 
 an inhibitory drug should result in a stronger down-regulation of genes rather than 
 up-regulation. [Figure 7B.](#fig7) shows that the most signifiantly enriched genesets
