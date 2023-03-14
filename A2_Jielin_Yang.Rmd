@@ -932,24 +932,6 @@ presence of TGF-β1.
 ### All Differentially Expressed Genes
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
-# Extract a gene list with thresholded FDR < 0.05
-write.table(rownames(deg_vtp_ctrl),
-            file = "./Data/deg_vtp_ctrl_FDR.txt", quote = FALSE, 
-            row.names = FALSE, col.names = FALSE)
-
-# Extract a gene list with thresholded FDR < 0.05 for up-regulated genes
-write.table(rownames(deg_vtp_ctrl[deg_vtp_ctrl$logFC > 0, ]),
-            file = "./Data/deg_vtp_ctrl_FDR_upreg.txt", quote = FALSE, 
-            row.names = FALSE, col.names = FALSE)
-
-# Extract a gene list with thresholded FDR < 0.05 for down-regulated genes
-write.table(rownames(deg_vtp_ctrl[deg_vtp_ctrl$logFC < 0, ]),
-            file = "./Data/deg_vtp_ctrl_FDR_downreg.txt", quote = FALSE, 
-            row.names = FALSE, col.names = FALSE)
-```
-
-
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Extract a gene list with thresholded FDR < 0.05 and fold change > 2
 write.table(rownames(deg_vtp_ctrl[deg_vtp_ctrl$logFC > 1 | deg_vtp_ctrl$logFC < -1, ]),
             file = "./Data/deg_vtp_ctrl_FDR_FC2.txt", quote = FALSE, 
@@ -968,15 +950,168 @@ write.table(rownames(deg_vtp_ctrl[deg_vtp_ctrl$logFC < -1, ]),
 
 
 
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Import enriched genesets returned by DAVID
+genesets_vtp_ctrl <- read.table("./Data/DAVID_deg_vtp_ctrl_FDR_genesets.txt",
+                                     header = TRUE, sep = "\t",
+                                     stringsAsFactors = FALSE)
+# Split terms into ID and description
+genesets_vtp_ctrl$ID <- stringr::str_split_fixed(
+                                        genesets_vtp_ctrl$Term, "~", 2)[, 1]
+genesets_vtp_ctrl$Term <- stringr::str_split_fixed(
+                                        genesets_vtp_ctrl$Term, "~", 2)[, 2]
+# Reorder the Columns and remove unnecessary statistics
+genesets_vtp_ctrl <- genesets_vtp_ctrl[, 
+              c("Category", "ID", "Term", "Fold.Enrichment", "PValue", "FDR", 
+                "Genes", "Count", "X.")]
+# Visualize the table
+DT::datatable(genesets_vtp_ctrl[genesets_vtp_ctrl$FDR < 0.05, 1:6], 
+            rownames = FALSE, filter = "top",
+            options = list(pageLength = 5, scrollX = TRUE)) %>%
+            DT::formatStyle(colnames(genesets_vtp_ctrl)[1:6], fontSize = "12px") %>%
+            DT::formatStyle(0, fontSize = "12px")
+```
+
 
 ### Up-regulated Genes in VTP
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Import enriched genesets returned by DAVID
+genesets_vtp_ctrl_upreg <- read.table("./Data/DAVID_deg_vtp_ctrl_FDR_upreg_genesets.txt",
+                                     header = TRUE, sep = "\t",
+                                     stringsAsFactors = FALSE)
+# Split terms into ID and description
+genesets_vtp_ctrl_upreg$ID <- stringr::str_split_fixed(
+                                genesets_vtp_ctrl_upreg$Term, "~", 2)[, 1]
+genesets_vtp_ctrl_upreg$Term <- stringr::str_split_fixed(
+                                genesets_vtp_ctrl_upreg$Term, "~", 2)[, 2]
+# Reorder the Columns and remove unnecessary statistics
+genesets_vtp_ctrl_upreg <- genesets_vtp_ctrl_upreg[, 
+              c("Category", "ID", "Term", "Fold.Enrichment", "PValue", "FDR", 
+                "Genes", "Count", "X.")]
+# Visualize the table
+DT::datatable(genesets_vtp_ctrl_upreg[genesets_vtp_ctrl_upreg$FDR < 0.05,1:6], 
+            rownames = FALSE, filter = "top",
+            options = list(pageLength = 5, scrollX = TRUE)) %>%
+            DT::formatStyle(colnames(genesets_vtp_ctrl_upreg)[1:6], fontSize = "12px") %>%
+            DT::formatStyle(0, fontSize = "12px")
+```
+
+### Down-regulated Genes in VTP
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Import enriched genesets returned by DAVID
+genesets_vtp_ctrl_downreg <- read.table("./Data/DAVID_deg_vtp_ctrl_FDR_downreg_genesets.txt",
+                                     header = TRUE, sep = "\t",
+                                     stringsAsFactors = FALSE)  
+# Split terms into ID and description
+genesets_vtp_ctrl_downreg$ID <- stringr::str_split_fixed(
+                                genesets_vtp_ctrl_downreg$Term, "~", 2)[, 1]
+genesets_vtp_ctrl_downreg$Term <- stringr::str_split_fixed(
+                                genesets_vtp_ctrl_downreg$Term, "~", 2)[, 2]    
+# Reorder the Columns and remove unnecessary statistics
+genesets_vtp_ctrl_downreg <- genesets_vtp_ctrl_downreg[, 
+              c("Category", "ID", "Term", "Fold.Enrichment", "PValue", "FDR", 
+                "Genes", "Count", "X.")]
+# Visualize the table
+DT::datatable(genesets_vtp_ctrl_downreg[genesets_vtp_ctrl_downreg$FDR < 0.05,1:6], 
+        rownames = FALSE, filter = "top",
+        options = list(pageLength = 5, scrollX = TRUE)) %>%
+        DT::formatStyle(colnames(genesets_vtp_ctrl_downreg)[1:6], fontSize = "12px") %>%
+        DT::formatStyle(0, fontSize = "12px")
+```
+
+
+
+We will now draw a dotplot to visualize the top 10 genesets enriched in the up and
+diown-regualted genes.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Subset the top 10 genesets enricheds
+gs_upreg_10 <- genesets_vtp_ctrl_upreg[order(
+    genesets_vtp_ctrl_upreg$FDR), ] %>% head(10)
+gs_downreg_10 <- genesets_vtp_ctrl_downreg[order(
+    genesets_vtp_ctrl_downreg$FDR), ] %>% head(10)
+
+# Calculate gene ratio
+gs_upreg_10$gene_ratio <- gs_upreg_10$Count / nrow(deg_vtp_ctrl[deg_vtp_ctrl$logFC > 1, ])
+gs_upreg_10 <- gs_upreg_10[order(gs_upreg_10$gene_ratio, decreasing = TRUE), ]
+gs_downreg_10$gene_ratio <- gs_downreg_10$Count / nrow(deg_vtp_ctrl[deg_vtp_ctrl$logFC < -1, ])
+gs_downreg_10 <- gs_downreg_10[order(gs_downreg_10$gene_ratio, decreasing = TRUE), ]
+```
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Dotplot of the top genesets enriched in the up-regulated genes
+# We plot it with ggplot2, with each term against the gene ratio
+# The size of the dot is proportional to the fold enrichment
+plot_upreg <- ggplot2::ggplot(gs_upreg_10) + 
+                ggplot2::geom_point(ggplot2::aes(x = gene_ratio, 
+                            y = reorder(stringr::str_wrap(Term, 20), gene_ratio),
+                            color = FDR,
+                            size = Fold.Enrichment)) +
+                ggplot2::theme_bw() +
+                ggplot2::theme(axis.text.x = ggplot2::element_text(size = 8),
+                               axis.text.y = ggplot2::element_text(size = 8),
+                               axis.title.x = ggplot2::element_text(size = 10),
+                               axis.title.y = ggplot2::element_text(size = 10)) +
+                ggplot2::scale_color_gradient(low = "red", high = "blue") +
+                ggplot2::labs(x = "Gene Ratio", y = NULL,
+                              color = "FDR", size = "Fold Enrichment")
+
+# Dotplot of the top genesets enriched in the down-regulated genes
+plot_downreg <- ggplot2::ggplot(gs_downreg_10) + 
+                ggplot2::geom_point(ggplot2::aes(x = gene_ratio, 
+                               y = reorder(stringr::str_wrap(Term, 20), gene_ratio),
+                               color = FDR,
+                               size = Fold.Enrichment)) +
+                ggplot2::theme_bw() +
+                ggplot2::theme(axis.text.x = ggplot2::element_text(size = 8),
+                               axis.text.y = ggplot2::element_text(size = 8),
+                               axis.title.x = ggplot2::element_text(size = 10),
+                               axis.title.y = ggplot2::element_text(size = 10)) +
+                ggplot2::scale_color_gradient(low = "red", high = "blue") +
+                ggplot2::scale_size(range = c(2, 10)) +
+                ggplot2::labs(x = "Gene Ratio", y = NULL,
+                              color = "FDR", size = "Fold Enrichment")
+                
+
+# Draw the plots
+cowplot::plot_grid(plot_upreg, plot_downreg, ncol = 2, labels = "AUTO")
+```
+
+
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Draw a dotplot for the top 10 genesets enriched in the up-regulated genes
+ggplot(genesets_vtp_ctrl_upreg[genesets_vtp_ctrl_upreg$FDR < 0.05, ], 
+       aes(x = reorder(Term, -Fold.Enrichment), y = Fold.Enrichment)) +
+  geom_point(size = 3, color = "red") +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "black") +
+  geom_text(aes(label = paste0("FDR = ", round(FDR, 2))), 
+            hjust = 0, vjust = 0.5, size = 3) +
+  coord_flip() +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.title.x = element_text(size = 12),
+        axis.title.y = element_text(size = 12),
+        legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        plot.title = element_text(size = 12, hjust = 0.5)) +
+  labs(x = "Term", y = "Fold Enrichment", title = "Top 10 Genesets Enriched in Up-Regulated Genes")
+```
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+
 
 ### Down-regulated Genes in VTP
 
 
 ## Effect of VTP under Maximal Strain with Profibrotic TGF-β1
 
-### All Differentially Expressed Genes
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Extract a gene list with thresholded FDR < 0.05
@@ -996,11 +1131,8 @@ write.table(rownames(deg_vtp_tgf[deg_vtp_tgf$logFC < 0, ]),
 ```
 
 
-### Up-regulated Genes in VTP
-
-### Down-regulated Genes in VTP
-
-
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+```
 
 
 # Interpretation and Analysis
