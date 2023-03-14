@@ -748,15 +748,15 @@ conditions, in which all control samples display very similar set of up and down
 regulated genes. This is consistant with the MDS plot we have generated previously.
 However interestingly, the dendrogram shows two distinct clusters of samples treated
 with VTP, located on the edge of the dendrogram. Comparing to the control samples,
-it is clear that the two clusters show consistant changes in up and down regulation
-of a defined set of genes, but the dergree to which the change is observed is
+it is clear that the two clusters show consistent changes in up and down regulation
+of a defined set of genes, but the degree to which the change is observed is
 different. This is likely due to the fact that these are biological variations
 between the samples, or, possibly due to the effect of adding chemical compounds
 to the culture medium. As observed in the MDS plot from prior analysis and [Figure 2](#fig2),
 we observe a higher intra-condition variation once chemical compounds are added,
 in both cases of VTP and TGF-β1.
 
-However, dipite the clustering of samples, a clear pattern of up and down-regulated
+However, despite the clustering of samples, a clear pattern of up and down-regulated
 genes can be observed. In conjunction with the manual inspection of the top
 differentially expressed genes, VTP treatment alone under the profibrotic environment
 of mechanical strains has demonstrated anti-fibrotic effects
