@@ -534,6 +534,8 @@ We will now examine the genes that are differentially expressed.
 sum(results_vtp_ctrl$PValue < 0.05)
 ```
 
+<a name=dge_vtp></a>
+
 Among the ``r nrow(counts)`` genes in the dataset,``r sum(results_vtp_ctrl$PValue < 0.05)``
 are considered to be differentially expressed based on the unadjusted p-value with a
 threshold of 0.05. This is consistent with other RNA-seq studies that have a focus
@@ -541,6 +543,8 @@ on heart gene expression. [@ahmed2023kdm8] Additionally, a threshold of 0.05 is
 also a common choice, since it is a conservative threshold that does not post
 a high risk of false positives and is not too stringent that may mask other
 biologically relevant genes.
+
+<a name=dge_vtp_m></a>
 
 Since paring RNA-seq expression data involves multiple hypothesis testing, we
 also adjust the p-values using the Benjamini-Hochberg method. This method assumes
@@ -782,6 +786,9 @@ results_vtp_tgf <- edgeR::topTags(results_vtp_tgf, sort.by = "PValue",
 write.csv(results_vtp_ctrl, file = "./Data/dge_vtp_tgf.csv", row.names = TRUE)
 ```
 
+<a name="dge_tgf"></a>
+Based on unadjusted p-values, there are ``r sum(results_vtp_tgf$PValue < 0.05)`` genes
+with unadjusted p-values less than `0.05`.
 There are ``r sum(results_vtp_tgf$FDR < 0.05)`` differentially expressed genes
 comparing VTP treatment to control in the presence of TGF-β1. Similar to the
 previous analysis, we used an threshold of `0.05` for the false discovery rate
@@ -899,6 +906,8 @@ mildly affected pathways. Additionally, this threshold is recommended by earlier
 studies and have been shown to have a stronger emphasis on fibrosis-related 
 pathways (t-ORA using only FDR < 0.05 was performed and shows a more complex
 but less focused enrichment results, details shown [here](https://github.com/bcb420-2023/Jielin_Yang/wiki/Differential-Gene-Expression-Analysis-and-Preliminary-ORA)). [@reimand2019pathway]
+
+<a name="fisher"></a>
 
 To perform t-ORA, we employed the web-based [DAVID](https://david.ncifcrf.gov/) tool,
 which employed Fisher's Exact test  to determine whether the genes of interest
@@ -1076,6 +1085,8 @@ gs_downreg_10$gene_ratio <- gs_downreg_10$Count / nrow(deg_vtp_ctrl[deg_vtp_ctrl
 gs_downreg_10 <- gs_downreg_10[order(gs_downreg_10$gene_ratio, decreasing = TRUE), ]
 ```
 
+<a name="fig7"></a>
+
 ```{r message = FALSE, tidy=FALSE, warning=FALSE}
 # Dotplot of the top genesets enriched in the up-regulated genes
 # We plot it with ggplot2, with each term against the gene ratio
@@ -1114,34 +1125,40 @@ plot_downreg <- ggplot2::ggplot(gs_downreg_10) +
 cowplot::plot_grid(plot_upreg, plot_downreg, ncol = 2, labels = "AUTO")
 ```
 
+**Figure 7.** Top 10 enriched genesets in A) up-regulated and B) down-regulated genes comparing VTP 
+treatment to control. Colour of the dots indicates significance level, and the size indicates
+the fold enrichment.
+<br />
+<a name="discussion"></a>
 
+Comparatively, a igher number of genesets were enriched in the down-regulated genes, with
+higher fold change and stronger signficiance level. As expected, the use of VTP as 
+an inhibitory drug should result in a stronger down-regulation of genes rather than 
+up-regulation. [Figure 7B.](#fig7) shows that the most signifiantly enriched genesets
+are involved in cell adhesion and extracellular matrix. While no previous studies, except
+the authors of the dataset, have established the connection between VTP and ECM
+remodeling, it has been well established that the formation of cardiac fibrosis with 
+elevated level of fibroblasts are associated with an increased level of collagen depostion,
+integrin mediated cell adhesion, and the cellular cross-talks via the ECM. [@bowers2022fibroblasts]
+Therefore, our result support the proposed mechanism that VTP inhibition of the YAP/TAZ
+complex of fribroblast precursors (i.e., cardiac stromoal cells) prevents the initiation of
+fibroblast differentiation and ECM remodeling. [@garoffolo2022reduction] Additional genesets
+that are downregulated includes insulin-like growth factor (IGF) transport and updake, which 
+may seem to be unrelated in terms of cardiac fibrosis. However, IGF is a potent mitogen
+that is involved in the proliferation of cardiac fibroblasts, and its roles as a downstream
+target of YAP/TAZ has been well established in cardiac development since the embryonic stage. [@xin2011regulation]
+Therefore, the result of our analysis supports the mechanism that VTP inhibition on YAP/TAZ
+complex is a potential strategy to prevent cardiac fibrosis under pathological straining conditions.
+The upregulated genesets are likely a response to the exogenous stress posed by the introduction
+of VTP into the culture media.
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
-# Draw a dotplot for the top 10 genesets enriched in the up-regulated genes
-ggplot(genesets_vtp_ctrl_upreg[genesets_vtp_ctrl_upreg$FDR < 0.05, ], 
-       aes(x = reorder(Term, -Fold.Enrichment), y = Fold.Enrichment)) +
-  geom_point(size = 3, color = "red") +
-  geom_hline(yintercept = 1, linetype = "dashed", color = "black") +
-  geom_text(aes(label = paste0("FDR = ", round(FDR, 2))), 
-            hjust = 0, vjust = 0.5, size = 3) +
-  coord_flip() +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 12),
-        axis.text.y = element_text(size = 12),
-        axis.title.x = element_text(size = 12),
-        axis.title.y = element_text(size = 12),
-        legend.position = "none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        plot.title = element_text(size = 12, hjust = 0.5)) +
-  labs(x = "Term", y = "Fold Enrichment", title = "Top 10 Genesets Enriched in Up-Regulated Genes")
-```
-
-
-
-
+However, based on the few differentially expressed genes in the presence of the potent profibrotic
+cytokine TGF-β1, no genesets were found enriched in any of the gene lists, regardless of threhold 
+used. This means that VTP treamtent alone may not be sufficient to revoke the profibrotic effects
+of TGF-β1. This is likely due to the fact that TGF-β1 acts through Smad-dependent and independent
+pathways, where Smad is also an interacting partner of YAP/TAZ. [@aashaq2022tgf] Therefore,
+the antifibrotic effect of VTP is dependent on the environment of what types of pro-fibrotic 
+signals are present.
 
 
 # Interpretation and Analysis
@@ -1150,33 +1167,74 @@ ggplot(genesets_vtp_ctrl_upreg[genesets_vtp_ctrl_upreg$FDR < 0.05, ],
 
 - **How many genes were significantly differentially expressed? What thresholds did you use and why?**
 
+    Based on unadjusted p-value, `r sum(results_vtp_ctrl$PValue < 0.05)` genes have unadjusted p-value < 0.05 when
+    comparing VTP treatment to control. When TGF-β1 is present, `r sum(results_vtp_tgf$PValue < 0.05)` genes have
+    unadjusted p-value < 0.05.
 
+    For details and reasons, see differential gene expression analysis without TGF-β1 [here](#dge_vtp) and with TGF-β1 [here](#dge_tgf).
 
 
 
 - **Multiple hypothesis testing - correct your p-values using a multiple hypothesis correction method. Which method did you use? And Why? How many genes passed correction?**
 
+    In the case of comparison between VTP and control without TGF-β1, `r nrow(deg_vtp_ctrl)` are differentially expressed.
+    A threshold of BH-adjusted p-value (FDR) < 0.05 was used to determine significance. This is a common threshold
+    used, which limits an acceptable false discovery rate and is not too stringent that may eliminate too many 
+    genes that may have a biological significance. When TGF-β1 is present, `r nrow(deg_vtp_tgf)` genes are differentially
+    expressed. The same threshold was used to determine significance.
+
+    For details and reasons, see how multiple tests are corrected [here](#dge_vtp_m) and [here](#dge_tgf).
+
 - **Show the amount of differentially expressed genes using an MA Plot or a Volcano plot. Highlight genes of interest.**
+
+    See [Figure 4](#fig4).
 
 - **Visualize your top hits using a heatmap. Do you conditions cluster together? Explain why or why not.**
 
+    See [Figure 5](#fig5) and [Figure 6](#fig6).
 
 ## Threshold Over-representation Analysis
 
 - **Which method did you choose and why?**
 
+    We employed Fisher's Exact Test to determine the significance of the enrichment of genesets in all cases memtioneed
+    previously. This is the method used by the DAVID tool and is a can commonly be used for threshold over-representation
+    analysis based on hypergeometric distribution.
+
+    For detials and reasons, see [here](#fisher).
+
 - **What annotation data did you use and why? What version of the annotation are you using?**
+
+    We used the GO Biological Process and Reactome as the source annotation data, which are accessed from the DAVID tool.
+
+    For details and reasons, see [here](#fisher).
 
 - **How many genesets were returned with what thresholds?**
 
+    We use a threshold of BH-adjusted p-value (FDR) < 0.05 and a fold change > 2 to extract the list of differentially 
+    expressed genes for functional enrichment analysis. Without separating the up-regulated and down-regulated genes,
+    we obtained `r nrow(genesets_vtp_ctrl)` genesets.
+
+    For more details, see [Table 8](#tab8).
+
 - **Run the analysis using the up-regulated set of genes, and the down-regulated set of genes separately. How do these results compare to using the whole list (i.e all differentially expressed genes together vs. the up-regulated and down regulated differentially expressed genes separately)?**
 
+    For more details, see [Table 8](#tab8), [Table 9](#tab9), [Table 10](#tab10), and [Figure 7](#fig7).
 
 ## Result Interpretation
 
 - **Do the over-representation results support conclusions or mechanism discussed in the original paper?**
 
+    Yes. Based on the result of the differential gene expression analysis, we found that VTP treatment
+    significantly down-regulates genes involved in cell adhesion and extracellular matrix remodeling, which are
+    consistent with the proposed mechanism that VTP inhibits the YAP/TAZ complex of fibroblast precursors (i.e.,
+    cardiac stromal cells) to prevent the initiation of fibroblast differentiation and ECM remodeling.
+
+    See discussion [here](#discussion).
+
 - **Can you find evidence, i.e. publications, to support some of the results that you see. How does this evidence support your results.**
+
+    See discussion [here](#discussion).
 
 # Journal Link
 The link to the concurrent journal entry can be found [here](https://github.com/bcb420-2023/Jielin_Yang/wiki/Differential-Gene-Expression-Analysis-and-Preliminary-ORA).
