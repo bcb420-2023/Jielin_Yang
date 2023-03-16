@@ -43,7 +43,6 @@ Data/GSE203358_Count_Matrix.txt
 Data/gb_hgnc_conversion.rds
 Data/cpm_filtered_translated.csv
 Data/raw_counts_filtered_translated.csv
-Data/expr_norm_counts.csv
 R Notebook Template.Rmd
 .vscode/settings.json
 Data/dge_vtp_ctrl.csv
