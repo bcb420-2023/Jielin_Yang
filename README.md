@@ -9,3 +9,8 @@ The following are links to the files for the assignments:
 - Associated Jounral Entries:
   - [Data selection](https://github.com/bcb420-2023/Jielin_Yang/wiki/Gene-Expression-Dataset-Selection)
   - [Data normalization and identifier mapping](https://github.com/bcb420-2023/Jielin_Yang/wiki/Dataset-Cleaning-and-Identifier-Mapping)
+  
+**Assignment 2:**
+- [Assignment 2 R Notebook](https://github.com/bcb420-2023/Jielin_Yang/blob/main/A2_Jielin_Yang.Rmd)
+- [Assignment 2 HTML Report](https://github.com/bcb420-2023/Jielin_Yang/blob/main/A2_Jielin_Yang.html)
+- [Assignment 2 Journal Entry](https://github.com/bcb420-2023/Jielin_Yang/wiki/Differential-Gene-Expression-Analysis-and-Preliminary-ORA)
