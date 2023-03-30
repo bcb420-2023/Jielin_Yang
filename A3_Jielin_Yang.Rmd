@@ -339,9 +339,24 @@ write.table(deg_vtp_tgf_ranked, file = "./Data/vtp_tgf.rnk", sep = "\t",
         col.name = TRUE, row.names = FALSE, quote = FALSE)
 ```
 
-## GSEA Analysis
+### GSEA Analysis
 
-The method
+Gene set enrichment analysis (GSEA) was performed using the GSEA software (version
+4.3.2) with the previously defined ranked gene list. We performed GSEA using the
+predefined `GSEAPreranked` mode, which employs a default gene set permutation to
+generate a null distribution of enrichment scores. [@subramanian2005gene] The
+p-value of the enrichment is calculated using the Kolmogorov–Smirnov statistic,
+with multiple hypothesis correction using FDR method. [@subramanian2005gene] [reimand2019pathway]
+We performed GSEA analysis with the following parameters:
+
+* Number of permutations: 1000
+* Max size: 200
+* Min size: 15
+
+where `max size` and `min size` represent upper and lower bounds on the size of
+the gene sets to be included in the analysis. Setting this threshold allowed
+us to identify the pathways that are sufficiently specific for the interpretation 
+of its biological function.
 
 Since we are interested in understanding the effect of VTP treatment of the 
 fibrotic phenotype/progression of the cardiac stromal cells, we are mainly
@@ -352,8 +367,35 @@ curated by the Bader Lab at the University of Toronto, available
 [here](http://download.baderlab.org/EM_Genesets/March_02_2023/Human/symbol/). 
 [@reimand2019pathway] We specifically selected the gene set that does not 
 contain annotations inferred from electronic annotations (IEA). This is to
-ensure a high confidence inference of the biological processes from GSEA.
+ensure a high confidence inference of the biological processes from GSEA. The 
+`gmt` file has been previously downloaded for [prior analysis](https://github.com/bcb420-2023/Jielin_Yang/wiki/GSEA). 
+In this annotation file isc curates all GO: Biological Process terms as well as
+pathways from multiple pathway databases, including Reactome, WikiPathways,
+MSigDB. [@gillespie2022reactome] [@slenter2018wikipathways] [@liberzon2011molecular]
+These annotation data should provide us an sufficient understanding of the enriched
+biological responses to VTP treatment.
 
+### GSEA Results
+
+Since we performed GSEA manually (details discussed in the [journal](https://github.com/bcb420-2023/Jielin_Yang/wiki/Gene-Set-Enrichment-and-Network-Analysis)), 
+we will import the results from the `GSEA` software.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Import GSEA results for VTP vs Control
+# Since R is having problem correctly parsing the tab in the tsv files, we have
+# manually converted the results into a csv file to change the delimiters
+vtp_ctrl_gsea_upreg <- read.csv(
+    "./Data/VTPControlPreranked/gsea_report_for_na_pos_1680148985575.csv", 
+    header = TRUE)
+vtp_ctrl_gsea_downreg <- read.table(
+    "./Data/VTPControlPreranked/gsea_report_for_na_neg_1680148985575.csv", 
+    header = TRUE)
+```
+
+
+Our GSEA analysis identified `2282` out of `5256` specified gene sets associated
+with the upregulated genes in the VTP treatment condition. Of these, `503` gene 
+sets were significantly enriched (FDR < 0.05) with an average enrichment score
 
 
 
