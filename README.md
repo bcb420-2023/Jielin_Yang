@@ -14,3 +14,8 @@ The following are links to the files for the assignments:
 - [Assignment 2 R Notebook](https://github.com/bcb420-2023/Jielin_Yang/blob/main/A2_Jielin_Yang.Rmd)
 - [Assignment 2 HTML Report](https://github.com/bcb420-2023/Jielin_Yang/blob/main/A2_Jielin_Yang.html)
 - [Assignment 2 Journal Entry](https://github.com/bcb420-2023/Jielin_Yang/wiki/Differential-Gene-Expression-Analysis-and-Preliminary-ORA)
+
+Assignment 3:
+- [Assignment 3 R Notebook](https://github.com/bcb420-2023/Jielin_Yang/blob/main/A3_Jielin_Yang.Rmd)
+- [Assignment 3 HTML Report](https://github.com/bcb420-2023/Jielin_Yang/blob/main/A3_Jielin_Yang.html)
+- [Assignment 3 Journal Entry](https://github.com/bcb420-2023/Jielin_Yang/wiki/Gene-Set-Enrichment-and-Network-Analysis)
