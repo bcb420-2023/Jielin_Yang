@@ -11,7 +11,7 @@ output:
     number_sections: true
     df_print: paged
     highlight: pygments
-bibliography: Assignment2.bib
+bibliography: Assignment3.bib
 csl: "american-medical-association.csl"
 ---
 
@@ -44,9 +44,13 @@ csl: "american-medical-association.csl"
     }
 </style>
 
-```{r setup, include=FALSE}
+```{r include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 knitr::opts_knit$set(root.dir = here::here())  # Must be the project directory
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+rmarkdown::render("./A2_Jielin_Yang.Rmd")
 ```
 
 # Introduction
@@ -54,41 +58,39 @@ knitr::opts_knit$set(root.dir = here::here())  # Must be the project directory
 ## Background
 
 Heart failure (HF) is a chronic cardiac disease with complex pathophysiology 
-involving multiple factors. A major 
-hallmark of HF is the progressive degeneration of the myocardium that is 
-accompanied by cardiac fibrosis. [@garoffolo2022reduction] [@porter2009cardiac] [@tallquist2017redefining] 
-The identification of profibrotic pathways are essential to the development of 
-therapeutic strategies to delay or even to prevent the profibrotic remodelling 
-of the heart.
+with profound implications in the patient's quality of life. The progressively
+degenerating myocardium is a major hallmark of HF, which is accompanied by
+cardiac fibrosis. [@garoffolo2022reduction] [@porter2009cardiac] [@tallquist2017redefining]
+Therefore, the identification of profibrotic pathways is essential to the
+understanding the pathophysiology of HF and the development of therapeutic
+strategies to delay or even to prevent the profibrotic remodelling of the heart.
 
-Previous studies have found that mechanical stress on the cell cytoskeleton 
-can induce the nuclear entry of the YAP/TAZ complex, which subsequently 
-activates the proliferative pathways. 
-[@elosegui2017force] [@panciera2017mechanobiology] [@brusatin2018biomaterials] 
-Although such a 
-mechanism may seem to be beneficial for the restoration of the damaged 
-cardiomyocytes, this pathway has been shown to be more active in cardiac stromal 
-cells, which can subsequently differentiate into myofibroblasts that eventually 
-leads to the profibrotic remodelling of the heart. [@garoffolo2022reduction] 
-Therefore, directly suppressing the YAP/TAZ complex in cardiac stromal
-cells may be an effective strategy. Recently, [Garoffolo et al.](https://www.ahajournals.org/doi/10.1161/CIRCRESAHA.121.319373) 
-investigated the use of a small molecular inhibitor, verteporfin (VTP), to 
+The Hippo pathway is a conserved signalling pathway that regulates cell
+proliferation, cell survival, and cell migration. [@mia2019hippo] It has been
+previously discovered that a central component of this pathway, the YAP/TAZ
+complex, is dysregulated upon mechanimal stimulation of the cytoskeleton. 
+[@elosegui2017force] [@panciera2017mechanobiology] [@brusatin2018biomaterials]
+Interestingly, heart failure is usually accompanied by mechanical stress due to 
+the malfunctioning of the pumping capability of the heart. Therefore, the
+direct suppression of the YAP/TAZ complex may be a potential therapeutic
+approach to suppress the proliferation of pro-fibrotic cells and to prevent
+the profibrotic remodelling of the heart. [@garoffolo2022reduction] Recently, 
+[Garoffolo et al.](https://www.ahajournals.org/doi/10.1161/CIRCRESAHA.121.319373) 
+investigated the use of a small molecular inhibitor, verteporfin (VTP) in
+cardiac stromal cells, an important precursor to cardiac fibroblasts, to 
 suppress the YAP/TAZ complex with or without the presence of TGF-β1, a 
 profibrotic cytokine under the maximal strain condition.
 
 ## Objectives
 
-We aim to use RNA-seq data to identify the changes in the 
-transcriptional profile of cardiac stromal cells after the use of VTP. 
-[Figure 1.](#fig1) shows the experimental design of the study. Here, we perform 
-differential gene expression analysis comparing the transcriptome of the cells 
-treated with VTP with control under the known profibrotic straining condition. 
-Additionally, we test the efficacy of the drug (VTP) under the presence of 
-TGF-β1, a potent profibrotic cytokine. [@saadat2021pivotal] To investigate 
-whether direct inhibition of the YAP/TAZ complex with VTP, we perform threshold 
-over-representation analysis to identify enriched pathways in the differentially 
-expressed genes, which would allow us to identify whether VTP can effectively
-reverse a profibrotic phenotype.
+In the present analysis, we aim to use RNA-seq data to identify the changes in
+the transcriptional profile of cardiac stromal cells after the use of VTP. As
+shown in [Figure 1.](#fig1), the transcriptome was assessed by comparing the
+addition of VTP with the control with or without the presence of the profibrotic
+cytokine, TGF-β1. [@saadat2021pivotal] Upon the identification of differentially
+expressed genes, we aim to perform gene set enrichment analysis (GSEA) and
+network analysis to access the enriched pathways and using it to infer the
+molecular mechanisms underlying the effects of VTP on cardiac stromal cells.
 
 <a name="fig1"></a>
 ![](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/schematics.png)
@@ -113,43 +115,78 @@ groups:
 
 ## Previous Analysis
 
-Since we have previously performed initial data cleaning and normalization, here 
-we provide a brief summary of the previous analysis. The entire process can be 
-found [here](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html).
+### Data Normalization
 
-### Data QC and Filtering
+Upon filtering out genes with low counts, the dataset is 
+composed of `14814` genes and `24` samples. The reference genome used is the 
+human [GRCh38](https://useast.ensembl.org/Homo_sapiens/Info/Index?db=core).
 
-The original dataset is composed of `24` samples and `60583 `genes. After 
-removing genes with low counts, the dataset we use in the present analysis is 
-composed of `14814` genes. The reference genome used is the human [GRCh38](https://useast.ensembl.org/Homo_sapiens/Info/Index?db=core).
-
-### Identifier Mapping and Normalization
-
-The original dataset contains a mix of HUGO gene symbols and GenBank identifiers. 
-We used the [biomaRt](https://bioconductor.org/packages/release/bioc/html/biomaRt.html) 
-package to map the rest of the identifiers to HUGO gene symbols. [@durinck2009mapping] 
 The dataset was normalized using the Trimmed Mean of M-values (TMM) method 
 implemented by the [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) 
 package. [@robinson2010edger] After applying normalization, the library size for 
 each sample has been effectively adjusted such that the distribution of gene 
 expressions are comparable across samples.
 
-### Multidimensional Scaling
+### Cluster Analysis
 
-We evaluated the variance between the samples by accessing the clustering of 
-the samples using multidimensional 
-scaling (MDS). The MDS plot shown in [Assignment 1](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html) 
-reveals a moderate
-clustering of samples based on the treatment conditions, and in particular, the 
-control samples under mechanical strain alone are clustered separately with any 
-other groups. The other treatment groups show less separation along either the
-dimension, but clustering is still observed. Interestingly, although most of the 
-samples are clustered based on the treatment conditions and that we did not
-observe obvious clustering based on the cell culture replicates, we notice that 
-certain samples that do not cluster tightly with the rest in the same treatment 
-group seem to be consistent across the conditions. For example, comparing to 
-other replicates, in cells from culture `M89` and `M99`,
-different conditions seem to have a smaller effect on the gene expression profile.
+Samples were clustered based on transcriptional similarity. multidimensional
+scaling analysis indicates distinct separation based on treatment conditions,
+with the most highly distinguishable cluster of samples in the control group,
+without profibrotic TGF-β1 treatment. Additional hierarchical clustering with
+heatmap further supports that the control group has the most distinguishable
+transcriptome, with few samples having similar expression patterns with the 
+other groups. VTP treatment are found to alter the transcriptional profile 
+to an high extent, but its effect is less prominent when combined with TGF-β1.
+In addition, the samples show moderate to low degree of clustering based on the 
+cell culture replicates, suggesting that the variation between samples are less
+driven by the intrinsic biological variation between the cell cultures.
+
+### Differential Expression Analysis and Preliminary ORA
+
+Differential gene expression analysis was performed using the `edgeR` package. 
+[@robinson2010edger] [Figure 2.](#fig2) shows the volcano plot of the differentially
+expressed genes (DEGs) between the control and VTP treatment groups, with the
+top enriched GO: Biological Process terms in the significantly downregulated 
+genes. In this analysis, 
+
+
+<a name="fig2"></a>
+
+```{r fig.height=4, fig.width=10, echo=FALSE, fig.align="center"}
+# Replot the dot plot from assignment 2 with only the top 5 enriched GO terms
+# in the significantly downregulated genes
+gobp_downreg_5 <- gs_downreg_10[1:5,]
+dot_plot <- ggplot2::ggplot(gobp_downreg_5) + 
+                ggplot2::geom_point(ggplot2::aes(x = gene_ratio, 
+                            y = reorder(stringr::str_wrap(Term, 20), gene_ratio),
+                            color = FDR,
+                            size = Fold.Enrichment)) +
+                ggplot2::theme_bw() +
+                ggplot2::theme(axis.text.x = ggplot2::element_text(size = 10),
+                               axis.text.y = ggplot2::element_text(size = 10),
+                               axis.title.x = ggplot2::element_text(size = 10),
+                               axis.title.y = ggplot2::element_text(size = 10)) +
+                ggplot2::scale_color_gradient(low = "red", high = "blue") +
+                ggplot2::labs(x = "Gene Ratio", y = NULL,
+                              color = "FDR", size = "Fold Enrichment")
+
+# Replot the volcano plot from assignment 2
+vol_plot <- ggplot2::ggplot(results_vtp_ctrl, aes(logFC, -log(FDR, 10))) +
+    ggplot2::geom_point(aes(color = Expression), size = 2/5) +
+    xlab(expression("log"[2]*"FC")) + 
+    ylab(expression("-log"[10]*"FDR")) + 
+    ggplot2::scale_color_manual(values = c("Up-regulated" = "firebrick3", 
+                                           "Down-regulated" = "dodgerblue3", 
+                                           "Not DE" = "gray50")) +
+    ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size=1.5))) +
+    ggrepel::geom_label_repel(data = genes_to_label, 
+                        mapping = aes(logFC, -log(FDR, 10), label = rownames(genes_to_label)),
+                        size = 2.5, color = "black", nudge_x = 0.1, nudge_y = 0.1)
+
+# Draw the plots
+cowplot::plot_grid(vol_plot, dot_plot, ncol = 2, labels = "AUTO")
+```
+
 
 # Preparations
 
@@ -1164,78 +1201,6 @@ signals are present.
 
 # Interpretation and Analysis
 
-## Differential Gene Expression Analysis
-
-- **How many genes were significantly differentially expressed? What thresholds did you use and why?**
-
-    Based on unadjusted p-value, `r sum(results_vtp_ctrl$PValue < 0.05)` genes have unadjusted p-value < 0.05 when
-    comparing VTP treatment to control. When TGF-β1 is present, `r sum(results_vtp_tgf$PValue < 0.05)` genes have
-    unadjusted p-value < 0.05.
-
-    For details and reasons, see differential gene expression analysis without TGF-β1 [here](#dge_vtp) and with TGF-β1 [here](#dge_tgf).
-
-
-
-- **Multiple hypothesis testing - correct your p-values using a multiple hypothesis correction method. Which method did you use? And Why? How many genes passed correction?**
-
-    In the case of comparison between VTP and control without TGF-β1, `r nrow(deg_vtp_ctrl)` are differentially expressed.
-    A threshold of BH-adjusted p-value (FDR) < 0.05 was used to determine significance. This is a common threshold
-    used, which limits an acceptable false discovery rate and is not too stringent that may eliminate too many 
-    genes that may have a biological significance. When TGF-β1 is present, `r nrow(deg_vtp_tgf)` genes are differentially
-    expressed. The same threshold was used to determine significance.
-
-    For details and reasons, see how multiple tests are corrected [here](#dge_vtp_m) and [here](#dge_tgf).
-
-- **Show the amount of differentially expressed genes using an MA Plot or a Volcano plot. Highlight genes of interest.**
-
-    See [Figure 4](#fig4).
-
-- **Visualize your top hits using a heatmap. Do you conditions cluster together? Explain why or why not.**
-
-    See [Figure 5](#fig5) and [Figure 6](#fig6).
-
-## Threshold Over-representation Analysis
-
-- **Which method did you choose and why?**
-
-    We employed Fisher's Exact Test to determine the significance of the enrichment of genesets in all cases memtioneed
-    previously. This is the method used by the DAVID tool and is a can commonly be used for threshold over-representation
-    analysis based on hypergeometric distribution.
-
-    For detials and reasons, see [here](#fisher).
-
-- **What annotation data did you use and why? What version of the annotation are you using?**
-
-    We used the GO Biological Process and Reactome as the source annotation data, which are accessed from the DAVID tool.
-
-    For details and reasons, see [here](#fisher).
-
-- **How many genesets were returned with what thresholds?**
-
-    We use a threshold of BH-adjusted p-value (FDR) < 0.05 and a fold change > 2 to extract the list of differentially 
-    expressed genes for functional enrichment analysis. Without separating the up-regulated and down-regulated genes,
-    we obtained `r nrow(genesets_vtp_ctrl)` genesets.
-
-    For more details, see [Table 8](#tab8).
-
-- **Run the analysis using the up-regulated set of genes, and the down-regulated set of genes separately. How do these results compare to using the whole list (i.e all differentially expressed genes together vs. the up-regulated and down regulated differentially expressed genes separately)?**
-
-    For more details, see [Table 8](#tab8), [Table 9](#tab9), [Table 10](#tab10), and [Figure 7](#fig7).
-
-## Result Interpretation
-
-- **Do the over-representation results support conclusions or mechanism discussed in the original paper?**
-
-    Yes. Based on the result of the differential gene expression analysis, we found that VTP treatment
-    significantly down-regulates genes involved in cell adhesion and extracellular matrix remodeling, which are
-    consistent with the proposed mechanism that VTP inhibits the YAP/TAZ complex of fibroblast precursors (i.e.,
-    cardiac stromal cells) to prevent the initiation of fibroblast differentiation and ECM remodeling.
-
-    See discussion [here](#discussion).
-
-- **Can you find evidence, i.e. publications, to support some of the results that you see. How does this evidence support your results.**
-
-    See discussion [here](#discussion).
 
 # Journal Link
 The link to the concurrent journal entry can be found [here](https://github.com/bcb420-2023/Jielin_Yang/wiki/Differential-Gene-Expression-Analysis-and-Preliminary-ORA).
