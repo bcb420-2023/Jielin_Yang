@@ -166,7 +166,24 @@ genes being differentially expressed.
 # Replot the dot plot from assignment 2 with only the top 5 enriched GO terms
 # in the significantly downregulated genes
 gobp_downreg_5 <- gs_downreg_10[1:5,]
-dot_plot <- ggplot2::ggplot(gobp_downreg_5) + 
+dot_plot_down <- ggplot2::ggplot(gobp_downreg_5) + 
+                ggplot2::geom_point(ggplot2::aes(x = gene_ratio, 
+                            y = reorder(stringr::str_wrap(Term, 20), gene_ratio),
+                            color = FDR,
+                            size = Fold.Enrichment)) +
+                ggplot2::theme_bw() +
+                ggplot2::theme(axis.text.x = ggplot2::element_text(size = 10),
+                               axis.text.y = ggplot2::element_text(size = 10),
+                               axis.title.x = ggplot2::element_text(size = 10),
+                               axis.title.y = ggplot2::element_text(size = 10)) +
+                ggplot2::scale_color_gradient(low = "red", high = "blue") +
+                ggplot2::labs(x = "Gene Ratio", y = NULL,
+                              color = "FDR", size = "Fold Enrichment")
+
+# Replot the dot plot from assignment 2 with only the top 5 enriched GO terms
+# in the significantly upregulated genes
+gobp_upreg_5 <- gs_upreg_10[1:5,]
+dot_plot_up <- ggplot2::ggplot(gobp_upreg_5) + 
                 ggplot2::geom_point(ggplot2::aes(x = gene_ratio, 
                             y = reorder(stringr::str_wrap(Term, 20), gene_ratio),
                             color = FDR,
@@ -194,7 +211,7 @@ vol_plot <- ggplot2::ggplot(results_vtp_ctrl, aes(logFC, -log(FDR, 10))) +
                         size = 2.5, color = "black", nudge_x = 0.1, nudge_y = 0.1)
 
 # Draw the plots
-cowplot::plot_grid(vol_plot, dot_plot, ncol = 2, labels = "AUTO")
+cowplot::plot_grid(vol_plot, dot_plot_down, ncol = 2, labels = "AUTO")
 ```
 
 **Figure 2.** Differentially expressed genes and enriched GO: Biological Process terms
@@ -384,20 +401,156 @@ we will import the results from the `GSEA` software.
 # Import GSEA results for VTP vs Control
 # Since R is having problem correctly parsing the tab in the tsv files, we have
 # manually converted the results into a csv file to change the delimiters
+# Detailed description documented in the journal
 vtp_ctrl_gsea_upreg <- read.csv(
     "./Data/VTPControlPreranked/gsea_report_for_na_pos_1680148985575.csv", 
     header = TRUE)
-vtp_ctrl_gsea_downreg <- read.table(
+vtp_ctrl_gsea_downreg <- read.csv(
     "./Data/VTPControlPreranked/gsea_report_for_na_neg_1680148985575.csv", 
     header = TRUE)
 ```
 
 
-Our GSEA analysis identified `2282` out of `5256` specified gene sets associated
-with the upregulated genes in the VTP treatment condition. Of these, `503` gene 
-sets were significantly enriched (FDR < 0.05) with an average enrichment score
+Our GSEA analysis identified ``r nrow(vtp_ctrl_gsea_upreg)`` out of `5256` 
+specified gene sets associated with the upregulated genes in the VTP treatment 
+condition. Of these, ``r sum(vtp_ctrl_gsea_upreg$FDR.q.val < 0.25)`` gene 
+sets were significantly enriched (FDR < 0.25) with an average enrichment score
+of ``r round(mean(vtp_ctrl_gsea_upreg$ES[vtp_ctrl_gsea_upreg$FDR.q.val < 0.25]), 2)``.
+This signficance threshold was chosen in accordance with the default GSEA setting.
+[@subramanian2005gene] 
+
+[Table 1](#tab:1) shows the enriched gene sets with the corresponding enrichment
+score and FDR q value. The top enriched processes are related to mitocondrial
+functions, including mitochondrial translation as well as biological processes 
+related to ribosomal functions. The enriched biological processes shows that 
+the VTP treatment may be associated with an dystregualtion of metabolic processes
+in the cells. 
+
+<a name="tab1"></a>
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Filter and prepare the table for display
+upreg_table <- vtp_ctrl_gsea_upreg %>% 
+    dplyr::select(NAME, SIZE, ES, FDR.q.val) %>%
+    dplyr::rename("Gene Set" = NAME, "Size" = SIZE, 
+                  "Enrichment Score" = ES, "FDR q-value" = FDR.q.val) %>%
+    # Extract the gene set name, round the enrichment score and FDR q-value
+    dplyr::mutate(`Gene Set` = stringr::str_remove(`Gene Set`, "%.*$")) %>%
+    # Convert the gene set name to sentence case
+    dplyr::mutate(`Gene Set` = stringr::str_to_sentence(`Gene Set`)) %>%
+    # Sort the table by FDR q-value
+    dplyr::arrange(`FDR q-value`) %>%
+    # Select significantly enriched gene sets
+    dplyr::filter(`FDR q-value` < 0.25)
+
+# Display the table
+DT::datatable(upreg_table, rownames = FALSE, filter = "top", 
+    options = list(ppageLength = 10, scrollX = TRUE)) %>%
+    # Changing the font size of content
+    DT::formatStyle(names(upreg_table), fontSize = "12px")
+```
+
+**Table 1.** Enriched gene sets in the upregulated genes under VTP treatment.
 
 
+
+Furthermore, GSEA has also identified ``r nrow(vtp_ctrl_gsea_downreg)`` gene sets 
+associated with the downregulated genes in the VTP. Of these, ``r sum(vtp_ctrl_gsea_downreg$FDR.q.val < 0.25)``
+gene sets were significantly enriched (FDR < 0.25). The average enrichment score
+for these downregulated gene sets is ``r round(mean(vtp_ctrl_gsea_downreg$ES[vtp_ctrl_gsea_downreg$FDR.q.val < 0.25]), 2)``.
+There are more enriched gene sets identified in the downregulated genes compared
+to the upregulated genes, which is expected since VTP is an inhibitor of the 
+transcritpional activator complex YAP/TAZ. [@garoffolo2022reduction]
+As shown in [Table 2](#tab:2), the top enriched gene sets are related to integrin
+and collagen formaiton pathways. Since both are major components of the extracellular
+matrix as well as cell adhesion, these enrichment results suggest that the VTP
+has an effect on downregulating the processes involved in fibrosis formation.
+
+<a name="tab2"></a>
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Filter and prepare the table for display
+downreg_table <- vtp_ctrl_gsea_downreg %>% 
+    dplyr::select(NAME, SIZE, ES, FDR.q.val) %>%
+    dplyr::rename("Gene Set" = NAME, "Size" = SIZE, 
+                  "Enrichment Score" = ES, "FDR q-value" = FDR.q.val) %>%
+    dplyr::mutate(`Gene Set` = stringr::str_remove(`Gene Set`, "%.*$")) %>%
+    dplyr::mutate(`Gene Set` = stringr::str_to_sentence(`Gene Set`)) %>%
+    dplyr::arrange(`FDR q-value`) %>%
+    dplyr::filter(`FDR q-value` < 0.25)
+
+# Display the table
+DT::datatable(downreg_table, rownames = FALSE, filter = "top", 
+    options = list(ppageLength = 10, scrollX = TRUE)) %>%
+    DT::formatStyle(names(downreg_table), fontSize = "12px")
+```
+
+**Table 2.** Enriched gene sets in the downregulated genes under VTP treatment.
+
+### Comparative analysis of GSEA and ORA
+
+[Figure 3](#fig:3) illustrates the top enriched gene sets identified by GSEA and ORA,
+respectively for the up- and down-regualted genes. 
+
+
+<a name="fig3"></a>
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=10, fig.height=7}
+# Top 5 enriched gene sets of upregulated genes, GSEA
+gsea_up <- ggplot2::ggplot(upreg_table[1:5,], aes(x = `Enrichment Score`, 
+    y = stringr::str_wrap(`Gene Set`, 20))) +   
+    geom_bar(stat = "identity", color = "black") + # Define border color
+    labs(x = "Enrichment Score", y = NULL) +
+    theme_minimal() +
+    theme(axis.line.x = element_line(), # Add a solid line for the x-axis
+        axis.text.x = element_text(size = 10), # Change the font size of axis labels
+        axis.text.y.left = element_text(size = 10),
+        axis.text.y = element_text(hjust = 0)) # Align y-axis labels to the left
+
+# Top 5 enriched gene sets of downregulated genes, GSEA
+downreg_table$`Gene Set` <- gsub("_", " ", downreg_table$`Gene Set`)  # Replace underscore with space
+gsea_down <- ggplot2::ggplot(downreg_table[1:5,], aes(x = -`Enrichment Score`, 
+    y = stringr::str_wrap(`Gene Set`, 20))) +   
+    geom_bar(stat = "identity", color = "black") +
+    labs(x = "Enrichment Score (absolute value)", y = NULL) +
+    theme_minimal() +
+    theme(axis.line.x = element_line(),
+        axis.text.x = element_text(size = 10),
+        axis.text.y.left = element_text(size = 10),
+        axis.text.y = element_text(hjust = 0))
+
+# We have previously generated the plot for the ORA results in Assignment 2,
+# and we reuse it for clear comparison
+cowplot::plot_grid(dot_plot_up, gsea_up, dot_plot_down, gsea_down, 
+    ncol = 2, nrow = 2, labels = "AUTO", rel_heights = c(1, 1))
+```
+
+**Figure 3.** Top 5 enriched gene sets identified by GSEA and ORA for the up- 
+(A, B) and down-regulated (C, D) genes. Results from previous ORA was shown in
+A and C, with colour of the dots indicates significance level, and the size indicates
+the fold enrichment. B, D illustrate the top 5 enriched gene sets identified by
+GSEA, with the enrichment score on the x-axis. All GSEA results are coloured
+the same as all gene sets has a FDR q-value of 0 (up to the maximum signficant figure).
+
+
+
+
+
+
+Interestingly , it has been previously reported in other cell lines
+that VTP are associated with an inhibition of oxidative phosphorylation. [@kuramoto2020verteporfin]
+This is not expected since an increased mitochondrial activity is associated with
+an upregualted energy consuption. Therefore, further analysis on the global pathway
+network may allow us to better understand the transcriptional changes during 
+this process.
+
+
+
+
+
+
+
+**Table 1.** Enriched gene sets in the upregulated genes in the VTP treatment condition.
 
 
 # Interpretation and Analysis
