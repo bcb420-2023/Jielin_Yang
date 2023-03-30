@@ -45,8 +45,6 @@ Data/cpm_filtered_translated.csv
 Data/raw_counts_filtered_translated.csv
 R Notebook Template.Rmd
 .vscode/settings.json
-Data/dge_vtp_ctrl.csv
-Data/dge_vtp_tgf.csv
 Data/deg_vtp_ctrl_FDR_downreg.txt
 Data/deg_vtp_ctrl_FDR_FC2_downreg.txt
 Data/deg_vtp_ctrl_FDR_FC2_upreg.txt

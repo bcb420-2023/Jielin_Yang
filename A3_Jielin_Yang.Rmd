@@ -216,22 +216,6 @@ with the EnrichmentMap pipeline are also required for the analysis, but they are
 run manually outside of the R Notebook.
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
-# edgeR package for manupulating and analyzing RNAseq data
-if (! requireNamespace("edgeR", quietly = TRUE)) {
-  BiocManager::install("edgeR")
-}
-# limma package for differential expression analysis
-if (! requireNamespace("limma", quietly = TRUE)) {
-  BiocManager::install("limma")
-}
-# ComplexHeatmap package for creating heatmaps
-if (! requireNamespace("ComplexHeatmap", quietly = TRUE)) {
-  BiocManager::install("ComplexHeatmap")
-}
-# circlize package for circular visualization
-if (! requireNamespace("circlize", quietly = TRUE)) {
-  BiocManager::install("circlize")
-}
 # ggplot2 package for creating plots
 if (! requireNamespace("ggplot2", quietly = TRUE)) {
   install.packages("ggplot2")
@@ -266,19 +250,109 @@ library("ggplot2")
 # definitions of various operators such as %>%
 ```
 
+## Data Preparation
+
+Since our current analysis is dependent upon the differential gene expression
+analysis from assignment 2, we will load the data from the previous assignment.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Load the differential gene expression analysis results from assignment 2
+
+# Comparison between control and VTP without TGF-β1
+deg_vtp_ctrl <- read.csv("./Data/dge_vtp_ctrl.csv", row.names = 1,
+    header = TRUE, stringsAsFactors = FALSE, check.names = FALSE)
+
+# Comparison between control and VTP with TGF-β1
+deg_vtp_tgf <- read.csv("./Data/dge_vtp_tgf.csv", row.names = 1,
+    header = TRUE, stringsAsFactors = FALSE, check.names = FALSE)
+```
+
+The data we just loaded are produced from the `topTags` function in the `edgeR`
+package, which returns the log fold change, unadjusted p-value, and adjusted
+p-value (FDR) for each gene.
+
+# Gene Set Enrichment Analysis (GSEA)
+
+We will perform GSEA on the differentially expressed genes between the control
+and VTP treatment groups with and without the addition of TGF-β1 separately,
+and compare the GSEA result with the over representation analysis (ORA) result
+obtain previously from assignment 2.
+
+## Effect of VTP treatment in the absence of TGF-β1
+
+### Data Preparation
+
+First, we aim to assess the effect of VTP treatment in the absence of TGF-β1 on
+cardiac stromal cells by identifying its top enriched pathways. Since GSEA is a
+non-threshold method, the use of a ranked list of genes without an arbitrarily
+defined threshold allows the assessment of all genes in the list. The ranking of
+the genes is integrates the sign of fold change change, and
+the statistical significance of the change. [@subramanian2005gene] Since it has 
+been suggested that 
+GSEA is more consistent in identifying enriched gene sets and pathways, it is 
+a preferable method to ORA for analyzing the two sets of differential gene 
+expression results under two different conditions. [@abatangelo2009comparative]
+
+We will generate a ranked list of genes as an input to the GSEA software. The
+rank of each gene is calculated by the negative of log10 of the PValue by the 
+sign of the logFC.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Add row names as a column for naming purpose
+deg_vtp_ctrl$GeneName <- rownames(deg_vtp_ctrl)
+
+# Constructing ranked gene list
+deg_vtp_ctrl$rank <- (- log(deg_vtp_ctrl$PValue, base = 10)) * sign(deg_vtp_ctrl$logFC)
+deg_vtp_ctrl_ranked <- dplyr::select(deg_vtp_ctrl, GeneName, rank) %>% 
+    arrange(desc(rank)) %>%
+    dplyr::select(GeneName, rank)
+
+# Save the ranked gene list
+write.table(deg_vtp_ctrl_ranked, file = "./Data/vtp_ctrl.rnk", sep = "\t", 
+        col.name = TRUE, row.names = FALSE, quote = FALSE)
+```
 
 
+## Effect of VTP treatment in the presence of TGF-β1
 
+### Data Preparation
 
+In the previous analysis in assignment 2, the threshold over-representation
+analysis (ORA) on the up- and down-regulated genes in the presence of TGF-β1
+did not reveal any significant enriched gene sets due to the small number of genes
+that were differentially expressed. However, GSEA is a non-threshold method, which
+is not dependent on an arbitrary cutoff value. Therefore, it is expected to be
+more sensitive than ORA and may in turn reveal some enriched pathways.
 
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Add row names as a column for naming purpose
+deg_vtp_tgf$GeneName <- rownames(deg_vtp_tgf)
 
+# Constructing ranked gene list
+deg_vtp_tgf$rank <- (- log(deg_vtp_tgf$PValue, base = 10)) * sign(deg_vtp_tgf$logFC)
+deg_vtp_tgf_ranked <- dplyr::select(deg_vtp_tgf, GeneName, rank) %>% 
+    arrange(desc(rank)) %>%
+    dplyr::select(GeneName, rank)
 
+# Save the ranked gene list
+write.table(deg_vtp_tgf_ranked, file = "./Data/vtp_tgf.rnk", sep = "\t", 
+        col.name = TRUE, row.names = FALSE, quote = FALSE)
+```
 
+## GSEA Analysis
 
+The method
 
-
-
-
+Since we are interested in understanding the effect of VTP treatment of the 
+fibrotic phenotype/progression of the cardiac stromal cells, we are mainly
+interested in understanding the biological processes that may be involved
+in this process. Therefore, we used the most recent (March 2023) version of 
+the `Human_GOBP_AllPathways_no_GO_iea_March_02_2023_symbol.gmt` gene set,
+curated by the Bader Lab at the University of Toronto, available 
+[here](http://download.baderlab.org/EM_Genesets/March_02_2023/Human/symbol/). 
+[@reimand2019pathway] We specifically selected the gene set that does not 
+contain annotations inferred from electronic annotations (IEA). This is to
+ensure a high confidence inference of the biological processes from GSEA.
 
 
 
@@ -288,6 +362,6 @@ library("ggplot2")
 
 
 # Journal Link
-The link to the concurrent journal entry can be found [here](https://github.com/bcb420-2023/Jielin_Yang/wiki/Differential-Gene-Expression-Analysis-and-Preliminary-ORA).
+The link to the concurrent journal entry can be found [here](https://github.com/bcb420-2023/Jielin_Yang/wiki/Gene-Set-Enrichment-and-Network-Analysis).
 
 # References
