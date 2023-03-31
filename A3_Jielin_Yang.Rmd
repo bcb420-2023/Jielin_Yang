@@ -109,10 +109,10 @@ The data used in the present analysis is retrieved from the GEO database under
 the accession number [GSE203358](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE203358). 
 The dataset contains RNA-seq data from 24 samples, which are evenly split into 4 
 groups:
-- Control (maximal strain condition)
-- Verteporfin (VTP) treatment (maximal strain condition)
-- TGF-β1 treatment (maximal strain condition)
-- Verteporfin (VTP) treatment with TGF-β1 (maximal strain condition)
+* Control (maximal strain condition)
+* Verteporfin (VTP) treatment (maximal strain condition)
+* TGF-β1 treatment (maximal strain condition)
+* Verteporfin (VTP) treatment with TGF-β1 (maximal strain condition)
 
 ## Previous Analysis
 
@@ -330,7 +330,7 @@ write.table(deg_vtp_ctrl_ranked, file = "./Data/vtp_ctrl.rnk", sep = "\t",
 ```
 
 
-## Effect of VTP treatment in the presence of TGF-β1
+## Effect of VTP treatment in the absence of TGF-β1
 
 ### Data Preparation
 
@@ -490,7 +490,27 @@ DT::datatable(downreg_table, rownames = FALSE, filter = "top",
 ### Comparative analysis of GSEA and ORA
 
 [Figure 3](#fig:3) illustrates the top enriched gene sets identified by GSEA and ORA,
-respectively for the up- and down-regualted genes. 
+respectively for the up- and down-regualted genes. Qualitatively, the results
+from the two analysis are similar in terms of the top enriched gene sets.
+Both types of analysis identified dysregulation of mitochondrial functions in 
+the top enriched gene sets. However, ORA reveal additional terms relating to
+cellular responses to stress and external stimuli, which are either not identified
+or has a comparatively lower enrichment score and significance value in GSEA. 
+This may be due to the fact that when we performed ORA, we specificially limited
+the genes to have a fold change of at least 2 
+([Yang J. BCB420 Assignment 2](https://github.com/bcb420-2023/Jielin_Yang/blob/main/A2_Jielin_Yang.html)). 
+Putting such a limit may have
+resulted in the increased proportion of genes relating to cellular stress response,
+allowing ORA to identify these terms as top enriched gene sets. On the other hand,
+both analyses revealed a consistant enrichment of gene sets related to collagen
+formation and ECM remodeling in the downregulated genes. Since VTP is an inhibitory
+drug that targets a specific activator complex, the resulting inhibitory effect
+is expected to be more prominent than the stimulatory effect. Therefore, having
+both types of analyses showing a consistant enrichment in downregulated genes
+not only indicates that the VTP has an effect on downregulating the processes
+involved in fibrosis formation, but also provides a more robust evidence that
+reveals the consistency of the two types of analysis when using dataset showing
+a clear and strong differential expression.
 
 
 <a name="fig3"></a>
@@ -532,25 +552,132 @@ the fold enrichment. B, D illustrate the top 5 enriched gene sets identified by
 GSEA, with the enrichment score on the x-axis. All GSEA results are coloured
 the same as all gene sets has a FDR q-value of 0 (up to the maximum signficant figure).
 
+However, such qualitative comparason between the results from GSEA and ORA
+are neither straitforward nor conclusive. In this case, we have to compare top
+enriched gene sets to access the consistency between the most significant results.
+However, in both types of analysis, both the order of the significance value as 
+well as the effect sizes (enrichment score and fold enrichment. respectively)
+also critically effect our interpretation of the results. By qualitatively
+comparing them, it is unlikely for human eyes to identify the hierarchical
+structure returned by the two types of analysis, especially when it comes to
+gene sets beyond the first few top enrichments.
+
+
+## Effect of VTP treatment under TGF-β1
+
+Since the authors of the original publication also investigated whether the effect
+of VTP is preseved even under the profibrotic environment, we also performed
+GSEA based on the differential gene expression analysis results comparing the
+VTP-treated cardiac stromal cells and control under TGF-β1 treatment. 
+
+### Data Preparation
+
+While there are not many differntially expressed genes in this dataset,
+we calcualted the rank of each gene similarly to the previous analysis.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Add row names as a column for naming purpose
+deg_vtp_tgf$GeneName <- rownames(deg_vtp_tgf)
+
+# Constructing ranked gene list
+deg_vtp_tgf$rank <- (- log(deg_vtp_tgf$PValue, base = 10)) * sign(deg_vtp_tgf$logFC)
+deg_vtp_tgf_ranked <- dplyr::select(deg_vtp_tgf, GeneName, rank) %>% 
+    arrange(desc(rank)) %>%
+    dplyr::select(GeneName, rank)
+
+# Save the ranked gene list
+write.table(deg_vtp_tgf_ranked, file = "./Data/vtp_tgf.rnk", sep = "\t", 
+        col.name = TRUE, row.names = FALSE, quote = FALSE)
+```
+
+### GSEA Result
+
+We performed GSEA analysis using the same parameters as the previous analysis,
+except that this time we use the `vtp_tgf.rnk` gene list for the analysis. 
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Import GSEA results for up and down regulated genes under TGF-β1 treatment
+# Similarly, we have manually converted the GSEA results to a csv file for proper import
+gsea_vtp_tgf_up <- read.csv("./Data/VTPTGFPreranked/gsea_report_for_na_pos_1680149018385.csv",
+    header = TRUE)
+gsea_vtp_tgf_down <- read.csv("./Data/VTPTGFPreranked/gsea_report_for_na_neg_1680149018385.csv", 
+    header = TRUE)
+```
+
+[Figure 4](#fig4) summarizes the top enriched gene sets in the up- and down-
+regulated genes under TGF-β1 treatment. In this case, the top enriched gene sets
+for both up- and down-regulated genes are consistent with the GSEA result without
+the presence of TGF-β1. In summary, ``r nrows(gsea_vtp_tgf_up)`` gene sets are
+enriched in the up-regulated genes, with ``r sum(gsea_vtp_tgf_up$FDR.q.val < 0.25)`` 
+of them being significant. For down-regualted genes, ``r sum(gsea_vtp_tgf_down$FDR.q.val < 0.25)``
+out of ``r nrows(gsea_vtp_tgf_down)`` enriched gene sets are found to be signifiant.
+
+<a name="fig4"></a>
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=10, fig.height=4}
+# Filter the top 5 enriched gene sets, retain only fields of interest
+gsea_vtp_tgf_up <- gsea_vtp_tgf_up[1:5, c("NAME", "ES", "FDR.q.val")]
+gsea_vtp_tgf_down <- gsea_vtp_tgf_down[1:5, c("NAME", "ES", "FDR.q.val")]
+
+# Extract the gene set names and convert to sentence case
+gsea_vtp_tgf_up$NAME <- stringr::str_remove(gsea_vtp_tgf_up$NAME, "%.*$") %>%
+    stringr::str_to_sentence()
+gsea_vtp_tgf_down$NAME <- stringr::str_remove(gsea_vtp_tgf_down$NAME, "%.*$") %>%
+    stringr::str_to_sentence()
+
+# Plot the top 5 enriched gene sets
+gsea_vtp_tgf_up <- ggplot2::ggplot(gsea_vtp_tgf_up, aes(x = ES, y = NAME)) +   
+    geom_bar(stat = "identity") +
+    geom_text(aes(x = 0.01, y = NAME, label = NAME), size = 5, hjust = 0) +
+    labs(x = "Enrichment Score", y = "Term") +
+    theme_minimal() +
+    theme(axis.line.x = element_line(),
+        axis.text.x = element_text(size = 11),
+        axis.text.y = element_blank())
+
+gsea_vtp_tgf_down <- ggplot2::ggplot(gsea_vtp_tgf_down, aes(x = -ES, y = NAME)) +
+    geom_bar(stat = "identity") +
+    geom_text(aes(x = 0.01, y = NAME, label = NAME), size = 5, hjust = 0) +
+    labs(x = "Enrichment Score (absolute value)", y = "Term") +
+    theme_minimal() +
+    theme(axis.line.x = element_line(),
+        axis.text.x = element_text(size = 11),
+        axis.text.y = element_blank())
+
+# Combine the two plots
+cowplot::plot_grid(gsea_vtp_tgf_up, gsea_vtp_tgf_down, ncol = 2, labels = "AUTO")
+```
+
+**Figure 4.** Top 5 enriched gene sets under TGF-β1 for A) up- and B) down-
+regulated genes with VTP treatment. The length of the bars represent the
+absolute value of the enrichment score, and the gene set names are shown
+on the bars.
+
+
+Further examination on the result reveals that the enriched terms computed
+by GSEA are consistent between the two datasets (with and without TGF-β1). Since
+GSEA calculates enrichment score based on the ranking of the genes, it follows
+that the ranking in both cases are similar. [@reimand2019pathway] [@subramanian2005gene]
+Although in the presence of TGF-β1, there are only a few differentially expressed
+genes, the difference between the GSEA result with the previous ORA analysis,
+which returned no enriched gene set, reveals that GSEA is a more sensitive measure
+to detect functional enrichment of the genes. Thus, GSEA is not limited to the
+lack of differentially expressed genes, and it can reveals the global change in
+the pattern of gene expression once VTP treatment is applied, despite to a smaller
+effect. Therefore, GSEA varifies that under TGF-β1 treatment, VTP treatment still
+induces an overall antifibrotic change on the transcriptome of the cardiac 
+stromal cells.
+
+Since the GSEA analysis result reveals a consistent pattern of functional enrichment
+in both datasets (with and without TGF-β1), we will focus our analysis on the
+enrichment results without TGF-β1 treatment. This would allow us to concentrate
+on potential pathways that are significantly dysregualted by VTP treatment, and 
+having a clearly defined set of differentially expressed genes would further allow
+us to perform a robust network analysis.
 
 
 
 
-
-Interestingly , it has been previously reported in other cell lines
-that VTP are associated with an inhibition of oxidative phosphorylation. [@kuramoto2020verteporfin]
-This is not expected since an increased mitochondrial activity is associated with
-an upregualted energy consuption. Therefore, further analysis on the global pathway
-network may allow us to better understand the transcriptional changes during 
-this process.
-
-
-
-
-
-
-
-**Table 1.** Enriched gene sets in the upregulated genes in the VTP treatment condition.
 
 
 # Interpretation and Analysis
