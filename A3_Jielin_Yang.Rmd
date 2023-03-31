@@ -519,19 +519,19 @@ a clear and strong differential expression.
 # Top 5 enriched gene sets of upregulated genes, GSEA
 gsea_up <- ggplot2::ggplot(upreg_table[1:5,], aes(x = `Enrichment Score`, 
     y = stringr::str_wrap(`Gene Set`, 20))) +   
-    geom_bar(stat = "identity", color = "black") + # Define border color
+    geom_bar(stat = "identity",) +
     labs(x = "Enrichment Score", y = NULL) +
     theme_minimal() +
-    theme(axis.line.x = element_line(), # Add a solid line for the x-axis
-        axis.text.x = element_text(size = 10), # Change the font size of axis labels
+    theme(axis.line.x = element_line(),
+        axis.text.x = element_text(size = 10),
         axis.text.y.left = element_text(size = 10),
-        axis.text.y = element_text(hjust = 0)) # Align y-axis labels to the left
+        axis.text.y = element_text(hjust = 0))
 
 # Top 5 enriched gene sets of downregulated genes, GSEA
 downreg_table$`Gene Set` <- gsub("_", " ", downreg_table$`Gene Set`)  # Replace underscore with space
 gsea_down <- ggplot2::ggplot(downreg_table[1:5,], aes(x = -`Enrichment Score`, 
     y = stringr::str_wrap(`Gene Set`, 20))) +   
-    geom_bar(stat = "identity", color = "black") +
+    geom_bar(stat = "identity",) +
     labs(x = "Enrichment Score (absolute value)", y = NULL) +
     theme_minimal() +
     theme(axis.line.x = element_line(),
@@ -607,10 +607,10 @@ gsea_vtp_tgf_down <- read.csv("./Data/VTPTGFPreranked/gsea_report_for_na_neg_168
 [Figure 4](#fig4) summarizes the top enriched gene sets in the up- and down-
 regulated genes under TGF-β1 treatment. In this case, the top enriched gene sets
 for both up- and down-regulated genes are consistent with the GSEA result without
-the presence of TGF-β1. In summary, ``r nrows(gsea_vtp_tgf_up)`` gene sets are
+the presence of TGF-β1. In summary, ``r nrow(gsea_vtp_tgf_up)`` gene sets are
 enriched in the up-regulated genes, with ``r sum(gsea_vtp_tgf_up$FDR.q.val < 0.25)`` 
 of them being significant. For down-regualted genes, ``r sum(gsea_vtp_tgf_down$FDR.q.val < 0.25)``
-out of ``r nrows(gsea_vtp_tgf_down)`` enriched gene sets are found to be signifiant.
+out of ``r nrow(gsea_vtp_tgf_down)`` enriched gene sets are found to be signifiant.
 
 <a name="fig4"></a>
 
