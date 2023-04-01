@@ -250,10 +250,6 @@ if (! requireNamespace("ggrepel", quietly = TRUE)) {
 if (! requireNamespace("stringr", quietly = TRUE)) {
   install.packages("stringr")
 }
-# RCurl package for downloading files
-if (! requireNamespace("RCurl", quietly = TRUE)) {
-  install.packages("RCurl")
-}
 # RCy3 package for interacting with Cytoscape
 if (! requireNamespace("RCy3", quietly = TRUE)) {
   install.packages("RCy3")
@@ -729,6 +725,22 @@ us to perform a robust network analysis.
 # Network Analysis
 
 ## Network Construction
+
+As detailed in the [journal](https://github.com/bcb420-2023/Jielin_Yang/wiki/Gene-Set-Enrichment-and-Network-Analysis#network-analysis),
+we have tried to run EnrichmentMap from within R, but we have encountered several
+issues. The `RCy3` package was unable to establish a connection with Cytoscape
+from within Docker, and if we run R directly on the host machine, syntax errors
+exist that current version of the Cytoscape/EnrichmentMap plugin may use a slightly
+different syntax than the version in which the [tutorial](https://baderlab.github.io/Cytoscape_workflows/EnrichmentMapPipeline/Protocol2_createEM.html#28_Create_an_Enrichment_map) was written. Therefore,
+we have decided to run Cytoscape manually from the GUI.
+
+
+
+
+
+
+
+
 
 
 <a name="fig5"></a>
