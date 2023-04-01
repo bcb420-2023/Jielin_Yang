@@ -752,9 +752,9 @@ gsea_rank_file <- file.path(gsea_result, "vtp_ctrl.rnk")
 
 As recommended by the authors of EnrichmentMap, we used a more stringent FDR q-value
 threshold for the gene sets nodes in comparison to the 0.25 threshold used by GSEA.
-Since VTP is a drug that targets a specific pathway involving gene transcritpion, 
+Since VTP is a drug that targets a specific pathway involving gene transcription, 
 it is expected that the pathways affected by VTP treatment are more specific.
-Therefore, we used a comparateively stringent threshold to isolate the important
+Therefore, we used a comparatively stringent threshold to isolate the important
 genes sets that are significantly affected by VTP treatment. An initial set up
 using 0.05 is also not very stringent to filter out potential pathways that are
 affected as side effects of VTP treatment. The cutoff for the combined similarity
@@ -771,6 +771,7 @@ represent VTP and control phenotype pathways, which are up- and down-regulated
 pathways upon VTP treatment, respectively. Node sides correspond to gene set size,
 and edge width corresponds to the combined similarity score.
 
+## Network Optimization and Analysis
 
 However, the intial network shows a number of gene sets that are not very well
 connected to the rest of the network (as shown in the bottom of [Figure 5](#fig5)). This
@@ -828,18 +829,91 @@ further collaposed the clusters into a single node and applied the `Force Direct
 Layout` algorithm to visualize global themes of the network. A combined analysis
 using [Figure 7](#fig7) and [Figure 8](#fig8) would allow better interpretation.
 
+<a name="fig8"></a>
+![](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/collpased-a.png)
 
+**Figure 8.** Collapsed network of major biological themes. Each node represents
+a collapsed cluster of biological themes. Node sizes correspond to the number of
+gene sets annotated to the theme. Red and blue nodes represent up- and down-regulated
+pathways affected by VTP treatment. An edge exists between two nodes if any gene set
+annoated under the biological theme share common genes with combined similarity
+coefficient > 0.375.
 
+As expected from the initial analysis, the number of major biological themes discovered
+are more in the downregulated pathways by VTP treatment. Since VTP is an inhibitory
+drug, we would expect that it targets active transcriptional complexes downstream
+of the YAP/TAZ transcriptional co-activators, which are known  to be involved in
+multiple cellular processes. [@xin2011regulation] [@totaro2018yap] Additionally,
+previous studes has revealed different pathways (either cytosolic or nuclear) that
+are altered due to direct molecular interactions with VTP. [@wang2016verteporfin]
+[@wei2020verteporfin] Although our analysis did not reveal detailed mechanism, 
+the enriched biological themes in the downregulated pathways are consistent with
+previous reports, suggesting that the direct effect of VTP on YAP/TAZ are likely
+cell-type independent. Yet, the major theme we observed in the downregulated pathways
+is related to collagen formation and ECM organization. Although the human heart
+remains the most non-regenerative organ, the cardiac interstitial cells, including
+cardiac fibroblasts and stromal cells (the focus of this study), are shown to have
+a large proliferative potential. [@picchio2022dynamic] [@floy2020human] This phenotype
+also explains the observed fibrotic remodeling during heart failture. Hence, 
+although VTP may mediate an cell-type independent molecular interaction, its effect
+on cell proliferation and phenotypical change are likely cell-type specific,
+revealing a positive effect in reducing the formation of profibrotic structures.
 
-
-
-
+Interstingly, the major biological themes in the upregulated pathways are less
+understood. As shown in [Figure 7](#fig7) and [Figure 8](#fig8), the largest 
+theme are protein sysnthsis and damage response. Although we have seen an enriched
+translation-related pathways from the GSEA result, the observation of an fully 
+upregulated pathway from amino acid synthesis to translation is newly discovered
+via the network. Since VTP has been an FDA-approved drug, changes in the transcriptome
+beyond the targeted molecular pathways can be considered as a side effect. Toxicity
+study has shown that VTP can induce the formation of cross-linked protein oligomers,
+which are toxic to the cell. [@konstantinou2017verteporfin] Therefore, in conjunction
+with the major increase in translation-related pathways, we hypothesize that the
+upregulation in damage response pathways, as well as stress-related pathways
+(observed in ORA analysis from Assignment 2), may be a result of the toxic effect
+of VTP on the cell.
 
 
 
 
 
 # Interpretation and Analysis
+
+## Non-thresholded Gene Set Enrichment Analysis
+
+1. What method did you use? What genesets did you use? Make sure to specify versions and cite your methods.
+
+
+2. Summarize your enrichment results.
+
+3. How do these results compare to the results from the thresholded analysis in Assignment #2. Compare qualitatively. Is this a straight forward comparison? Why or why not?
+   
+
+## Visualize Gene Set Enrichment Analysis in Cytoscape
+
+1. Create an enrichment map - how many nodes and how many edges in the resulting map? What thresholds were used to create this map?
+
+
+2. Annotate your network - what parameters did you use to annotate the network. If you are using the default parameters make sure to list them as well.
+
+
+3. Make a publication ready figure - include this figure with proper legends in your notebook.
+
+
+4. Collapse your network to a theme network. What are the major themes present in this analysis? Do they fit with the model? Are there any novel pathways or themes?
+
+
+## Interpretation and detailed view of results
+
+1. Do the enrichment results support conclusions or mechanism discussed in the original paper? How do these results differ from the results you got from Assignment #2 thresholded methods?
+
+
+2. Can you find evidence, i.e. publications, to support some of the results that you see. How does this evidence support your result?
+
+
+
+
+
 
 
 # Journal Link
