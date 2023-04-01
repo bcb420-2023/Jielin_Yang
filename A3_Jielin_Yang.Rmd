@@ -109,10 +109,11 @@ The data used in the present analysis is retrieved from the GEO database under
 the accession number [GSE203358](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE203358). 
 The dataset contains RNA-seq data from 24 samples, which are evenly split into 4 
 groups:
-* Control (maximal strain condition)
-* Verteporfin (VTP) treatment (maximal strain condition)
-* TGF-β1 treatment (maximal strain condition)
-* Verteporfin (VTP) treatment with TGF-β1 (maximal strain condition)
+
+- Control (maximal strain condition)
+- Verteporfin (VTP) treatment (maximal strain condition)
+- TGF-β1 treatment (maximal strain condition)
+- Verteporfin (VTP) treatment with TGF-β1 (maximal strain condition)
 
 ## Previous Analysis
 
@@ -245,10 +246,6 @@ if (! requireNamespace("cowplot", quietly = TRUE)) {
 if (! requireNamespace("ggrepel", quietly = TRUE)) {
   install.packages("ggrepel")
 }
-# KableExtra package for creating tables and formatting
-if (! requireNamespace("kableExtra", quietly = TRUE)) {
-  install.packages("kableExtra")
-}
 # dplyr package for data manipulation
 if (! requireNamespace("dplyr", quietly = TRUE)) {
   install.packages("dplyr")
@@ -326,33 +323,6 @@ deg_vtp_ctrl_ranked <- dplyr::select(deg_vtp_ctrl, GeneName, rank) %>%
 
 # Save the ranked gene list
 write.table(deg_vtp_ctrl_ranked, file = "./Data/vtp_ctrl.rnk", sep = "\t", 
-        col.name = TRUE, row.names = FALSE, quote = FALSE)
-```
-
-
-## Effect of VTP treatment in the absence of TGF-β1
-
-### Data Preparation
-
-In the previous analysis in assignment 2, the threshold over-representation
-analysis (ORA) on the up- and down-regulated genes in the presence of TGF-β1
-did not reveal any significant enriched gene sets due to the small number of genes
-that were differentially expressed. However, GSEA is a non-threshold method, which
-is not dependent on an arbitrary cutoff value. Therefore, it is expected to be
-more sensitive than ORA and may in turn reveal some enriched pathways.
-
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
-# Add row names as a column for naming purpose
-deg_vtp_tgf$GeneName <- rownames(deg_vtp_tgf)
-
-# Constructing ranked gene list
-deg_vtp_tgf$rank <- (- log(deg_vtp_tgf$PValue, base = 10)) * sign(deg_vtp_tgf$logFC)
-deg_vtp_tgf_ranked <- dplyr::select(deg_vtp_tgf, GeneName, rank) %>% 
-    arrange(desc(rank)) %>%
-    dplyr::select(GeneName, rank)
-
-# Save the ranked gene list
-write.table(deg_vtp_tgf_ranked, file = "./Data/vtp_tgf.rnk", sep = "\t", 
         col.name = TRUE, row.names = FALSE, quote = FALSE)
 ```
 
@@ -674,6 +644,10 @@ enrichment results without TGF-β1 treatment. This would allow us to concentrate
 on potential pathways that are significantly dysregualted by VTP treatment, and 
 having a clearly defined set of differentially expressed genes would further allow
 us to perform a robust network analysis.
+
+# Network Analysis
+
+## Network Construction
 
 
 
