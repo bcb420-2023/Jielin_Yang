@@ -411,7 +411,6 @@ cmd <- paste(gsea_exe, "GSEAPreranked",
             "-set_min", min_size, 
             "-zip_report false", 
             "-out", gsea_dir)
-
 system(cmd)
 ```
 
@@ -613,17 +612,46 @@ write.table(deg_vtp_tgf_ranked, file = "./Data/vtp_tgf.rnk", sep = "\t",
         col.name = TRUE, row.names = FALSE, quote = FALSE)
 ```
 
-### GSEA Result
+### GSEA Analysis
 
-We performed GSEA analysis using the same parameters as the previous analysis,
-except that this time we use the `vtp_tgf.rnk` gene list for the analysis. 
+Similarly, we performed GSEA analysis using the same parameters as the previous
+analysis, except that this time we use the `vtp_tgf.rnk` gene list for the analysis.
+Only a few parameters needs to be changed. 
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE, eval=FALSE}
+# Change parameters
+
+# Rank file
+gsea_rnk <- "./Data/vtp_tgf.rnk"
+# GSEA directory
+gsea_dir <- "./Data/VTPTGF/"
+# Analysis name
+analysis_name <- "VTPTGF"
+
+# Run GSEA
+cmd <- paste(gsea_exe, "GSEAPreranked", 
+            "-gmx", gsea_gmt, 
+            "-collapse false", 
+            "-nperm", perm, 
+            "-rnk", gsea_rnk,
+            "-scoring_scheme weighted",
+            "-rpt_label", analysis_name,
+            "-plot_top_x 20 -rnd_seed 12345",
+            "-set_max", max_size, 
+            "-set_min", min_size, 
+            "-zip_report false", 
+            "-out", gsea_dir)
+system(cmd)
+```
+
+### GSEA Result 
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Import GSEA results for up and down regulated genes under TGF-β1 treatment
 # Similarly, we have manually converted the GSEA results to a csv file for proper import
-gsea_vtp_tgf_up <- read.csv("./Data/VTPTGFPreranked/gsea_report_for_na_pos_1680149018385.csv",
+gsea_vtp_tgf_up <- read.csv("./Data/VTPTGFPreranked/gsea_report_for_na_pos_1680319898865.csv",
     header = TRUE)
-gsea_vtp_tgf_down <- read.csv("./Data/VTPTGFPreranked/gsea_report_for_na_neg_1680149018385.csv", 
+gsea_vtp_tgf_down <- read.csv("./Data/VTPTGFPreranked/gsea_report_for_na_neg_1680319898865.csv", 
     header = TRUE)
 ```
 
