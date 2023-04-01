@@ -785,12 +785,35 @@ the pathways corresponding to each phenotype are grouped together.
 
 [Figure 6](#fig6) shows the topology of the network after manual formatting. For
 pathways of each phenotype, we applied the `Prefused Force Directed Layout` to 
-visualize the network based on the similarity coefficients between the nodes.
+visualize the network based on the similarity coefficients between the nodes. [@shannon2003cytoscape]
 The size of the nodes were annotated to reflect the gene set size, with the colour
 of node boarder reflecting the normalized enrichment score (NES).
 
 <a name="fig6"></a>
-![](
+![](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/topology.png)
+
+**Figure 6.** Topology of the enrichment map of the dysregualted gene sets under
+VTP treatment in the absence of profibrotic cytokine TGF-β1. Network was created
+with parameters FDR Q-value threshold < 0.01 and combined similarity cutoff > 0.375.
+Nodes were laied out with the `Prefused Force Directed Layout` algorithm following
+slight manual formatting to reduce node overlap. Annotation was performed as
+shown in the legend.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Interpretation and Analysis
 
