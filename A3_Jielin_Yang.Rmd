@@ -800,9 +800,33 @@ slight manual formatting to reduce node overlap. Annotation was performed as
 shown in the legend.
 
 
+However, understanding the topology of the network alone is not enough to interpret
+the biological themes of the network. Therefore, we focused on the clustering of 
+highly interconnected gene sets and applied semantic annotations to extract the
+major biological themes this network represents. The Cytoscape plugin `AutoAnnotate`
+was used for this purpose. [@kucera2016autoannotate] Futher manual adjustment on
+the summarized annotations was performed to accurately annotate the theme of a 
+cluster. Manual formatting was also applied to clearify the network, allowing for
+better interpretation of detailed pathways. [Figure 7](#fig7) shows the the 
+product of the above processes.
 
+<a name="fig7"></a>
+![](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/pub-ready.png)
 
+**Figure 7.** Enrichment network with major biological themes extracted. A) Overall 
+thumnail of the publication-ready network created with parameters FDR Q-value < 0.01
+and combined similarity cutoff > 0.375. Biological themes were extracted using the
+`AutoAnnotate` plugin and manually clearified. B) Detailed view of the top
+enriched clusteres of the network. Red and blue nodes represent VTP and control
+phenotype pathways, which are up- and down-regulated pathways affected by VTP
+treatment in cardiac stromal cells. Node sizes correspond to gene set size, coloured
+by normalized enrichment score (NES). The size of annotation text corresponds to
+the number of gene sets annotated to the theme.
 
+To better visualize the relationships between the biologial theme clusters, we
+further collaposed the clusters into a single node and applied the `Force Directed
+Layout` algorithm to visualize global themes of the network. A combined analysis
+using [Figure 7](#fig7) and [Figure 8](#fig8) would allow better interpretation.
 
 
 
