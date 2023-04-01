@@ -246,6 +246,18 @@ if (! requireNamespace("cowplot", quietly = TRUE)) {
 if (! requireNamespace("ggrepel", quietly = TRUE)) {
   install.packages("ggrepel")
 }
+# stringr package for string manipulation
+if (! requireNamespace("stringr", quietly = TRUE)) {
+  install.packages("stringr")
+}
+# RCurl package for downloading files
+if (! requireNamespace("RCurl", quietly = TRUE)) {
+  install.packages("RCurl")
+}
+# RCy3 package for interacting with Cytoscape
+if (! requireNamespace("RCy3", quietly = TRUE)) {
+  install.packages("RCy3")
+}
 # dplyr package for data manipulation
 if (! requireNamespace("dplyr", quietly = TRUE)) {
   install.packages("dplyr")
@@ -362,6 +374,47 @@ MSigDB. [@gillespie2022reactome] [@slenter2018wikipathways] [@liberzon2011molecu
 These annotation data should provide us an sufficient understanding of the enriched
 biological responses to VTP treatment.
 
+We use the following R code to run GSEA analysis.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE, eval=FALSE}
+# Configuring the GSEA software
+
+# Path to the GSEA software
+gsea_exe <- "/home/rstudio/projects/Jielin_Yang/GSEA_4.3.2/gsea-cli.sh"
+# GSEA directory
+gsea_dir <- "./Data/VTPControl/"
+# Path to the gene set GMT file
+gsea_gmt <- "./Data/Human_GOBP_AllPathways_no_GO_iea_March_02_2023_symbol.gmt"
+# Path to the ranked gene list
+gsea_rnk <- "./Data/vtp_ctrl.rnk"
+# Permutations
+perm <- 1000
+# Max size
+max_size <- 200
+# Min size
+min_size <- 15
+# Analysis name
+analysis_name <- "VTPControl"
+```
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE, eval=FALSE}
+# Running GSEA
+cmd <- paste(gsea_exe, "GSEAPreranked", 
+            "-gmx", gsea_gmt, 
+            "-collapse false", 
+            "-nperm", perm, 
+            "-rnk", gsea_rnk,
+            "-scoring_scheme weighted",
+            "-rpt_label", analysis_name,
+            "-plot_top_x 20 -rnd_seed 12345",
+            "-set_max", max_size, 
+            "-set_min", min_size, 
+            "-zip_report false", 
+            "-out", gsea_dir)
+
+system(cmd)
+```
+
 ### GSEA Results
 
 Since we performed GSEA manually (details discussed in the [journal](https://github.com/bcb420-2023/Jielin_Yang/wiki/Gene-Set-Enrichment-and-Network-Analysis)), 
@@ -373,10 +426,10 @@ we will import the results from the `GSEA` software.
 # manually converted the results into a csv file to change the delimiters
 # Detailed description documented in the journal
 vtp_ctrl_gsea_upreg <- read.csv(
-    "./Data/VTPControlPreranked/gsea_report_for_na_pos_1680148985575.csv", 
+    "./Data/VTPControl/gsea_report_for_na_pos_1680318768172.csv", 
     header = TRUE)
 vtp_ctrl_gsea_downreg <- read.csv(
-    "./Data/VTPControlPreranked/gsea_report_for_na_neg_1680148985575.csv", 
+    "./Data/VTPControl/gsea_report_for_na_neg_1680318768172.csv", 
     header = TRUE)
 ```
 
@@ -650,7 +703,8 @@ us to perform a robust network analysis.
 ## Network Construction
 
 
-
+<a name="fig5"></a>
+![](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/VTP_ctrl_network_no_format.svg)
 
 
 
