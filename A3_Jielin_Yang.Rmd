@@ -744,7 +744,7 @@ we have decided to run Cytoscape manually from the GUI.
 
 
 <a name="fig5"></a>
-![](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/VTP_ctrl_network_no_format.svg)
+![](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/VTP_ctrl_network_no_format.png)
 
 
 
