@@ -734,19 +734,63 @@ exist that current version of the Cytoscape/EnrichmentMap plugin may use a sligh
 different syntax than the version in which the [tutorial](https://baderlab.github.io/Cytoscape_workflows/EnrichmentMapPipeline/Protocol2_createEM.html#28_Create_an_Enrichment_map) was written. Therefore,
 we have decided to run Cytoscape manually from the GUI.
 
+The following thresholds were used to construct the network:
 
+```{r message = FALSE, tidy=TRUE, warning=FALSE, eval=FALSE}
+# Thresholds for gene set nodes
+pval_threshold <- 1
+qval_threshold <- 0.05
+# Thresholds for edges
+cutoff <- 0.375   # default for combined similarity score with Jaccard + Overlap
+metric <- "COMBINED"
+# Network parameters
+network_name <- "VTP_ctrl_network"
+gsea_result <- "./Data/VTPControl/edb/"
+gsea_result_file <- file.path(gsea_result, "results.edb")
+gsea_rank_file <- file.path(gsea_result, "vtp_ctrl.rnk")
+```
 
-
-
-
-
-
-
+As recommended by the authors of EnrichmentMap, we used a more stringent FDR q-value
+threshold for the gene sets nodes in comparison to the 0.25 threshold used by GSEA.
+Since VTP is a drug that targets a specific pathway involving gene transcritpion, 
+it is expected that the pathways affected by VTP treatment are more specific.
+Therefore, we used a comparateively stringent threshold to isolate the important
+genes sets that are significantly affected by VTP treatment. An initial set up
+using 0.05 is also not very stringent to filter out potential pathways that are
+affected as side effects of VTP treatment. The cutoff for the combined similarity
+score is set to 0.375, which used an combination of the Jaccard and Overlap similarity
+and is left as default for intial observation of the network. [Figure 5](#fig5) illustrates
+the network constructed using the above parameters prior to manual formatting.
 
 <a name="fig5"></a>
 ![](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/VTP_ctrl_network_no_format.png)
 
+**Figure 5.** Enrichment map of the dysregualted gene sets and pathways under
+VTP treatment in the absence of profibrotic cytokine TGF-β1. Red and blue nodes
+represent VTP and control phenotype pathways, which are up- and down-regulated
+pathways upon VTP treatment, respectively. Node sides correspond to gene set size,
+and edge width corresponds to the combined similarity score.
 
+
+However, the intial network shows a number of gene sets that are not very well
+connected to the rest of the network (as shown in the bottom of [Figure 5](#fig5)). This
+represents that these gene sets may be involved in a relatively independent
+processes and thus are not very useful for extracting the major biological themes
+in the network. In addition, after cross-referening with the list of enriched pathways
+from GSEA (Table 1 and 2), we notice that these gene sets are not found to be the
+most significantly enriched or having a large enrichment score. Therefore, to better
+extract and define the major biological themes altered by VTP treatment, we
+futher limited the FDR q-value threshold to 0.01 and manually formatted such that
+the pathways corresponding to each phenotype are grouped together.
+
+[Figure 6](#fig6) shows the topology of the network after manual formatting. For
+pathways of each phenotype, we applied the `Prefused Force Directed Layout` to 
+visualize the network based on the similarity coefficients between the nodes.
+The size of the nodes were annotated to reflect the gene set size, with the colour
+of node boarder reflecting the normalized enrichment score (NES).
+
+<a name="fig6"></a>
+![](
 
 # Interpretation and Analysis
 
