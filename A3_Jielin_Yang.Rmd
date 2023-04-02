@@ -233,7 +233,7 @@ we used in the analysis, including utility packages. The GSEA and Cytoscape soft
 with the EnrichmentMap pipeline are also required for the analysis, but they are
 run manually outside of the R Notebook.
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
+```{r message = FALSE, tidy=TRUE, warning=FALSE, message=FALSE}
 # ggplot2 package for creating plots
 if (! requireNamespace("ggplot2", quietly = TRUE)) {
   install.packages("ggplot2")
@@ -250,9 +250,17 @@ if (! requireNamespace("ggrepel", quietly = TRUE)) {
 if (! requireNamespace("stringr", quietly = TRUE)) {
   install.packages("stringr")
 }
+# fgsea package for gene set enrichment analysis and GMT file manipulation
+if (! requireNamespace("fgsea", quietly = TRUE)) {
+  BiocManager::install("fgsea")
+}
 # RCy3 package for interacting with Cytoscape
 if (! requireNamespace("RCy3", quietly = TRUE)) {
   install.packages("RCy3")
+}
+# VennDiagram package for creating Venn diagrams
+if (! requireNamespace("VennDiagram", quietly = TRUE)) {
+  install.packages("VennDiagram")
 }
 # dplyr package for data manipulation
 if (! requireNamespace("dplyr", quietly = TRUE)) {
@@ -372,7 +380,7 @@ biological responses to VTP treatment.
 
 We use the following R code to run GSEA analysis.
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE, eval=FALSE}
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Configuring the GSEA software
 
 # Path to the GSEA software
@@ -391,6 +399,14 @@ max_size <- 200
 min_size <- 15
 # Analysis name
 analysis_name <- "VTPControl"
+```
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Download the GMT file if not available
+if (!file.exists(gsea_gmt)) {
+    gmt_url <- "http://download.baderlab.org/EM_Genesets/March_02_2023/Human/symbol/Human_GOBP_AllPathways_no_GO_iea_March_02_2023_symbol.gmt"
+    download.file(gmt_url, destfile = gsea_gmt)
+}
 ```
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE, eval=FALSE}
@@ -873,6 +889,124 @@ upregulation in damage response pathways, as well as stress-related pathways
 (observed in ORA analysis from Assignment 2), may be a result of the toxic effect
 of VTP on the cell.
 
+
+# Dark Matter
+
+
+
+## Gene Set Not Significantly Enriched
+
+First, we obtain all gene sets and genes with annotation in the GMT file.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Load the gene sets in the GMT file
+gene_sets <- fgsea::gmtPathways(gsea_gmt)
+# Get the collection of all genes having annotation
+anno_genes <- unique(unlist(gene_sets))
+```
+
+Then, we obtain all gene sets and genes in the enrichment result. We have
+previously imported the enrichment result for the up- and down-regulated genes
+when performing GSEA analysis. The results are stored in the `vtp_ctrl_gsea_upreg`
+and `vtp_ctrl_gsea_downreg` variables.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# List of enriched gene sets
+gene_sets_enriched <- c(vtp_ctrl_gsea_upreg$NAME, vtp_ctrl_gsea_downreg$NAME)
+
+# List of all genes in the enriched gene sets
+genes_enriched <- unique(unlist(gene_sets[gene_sets_enriched]))
+```
+
+Finally, we obtain the set of genes that in our expression dataset.
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Read the differential expression results
+dge_vtp_ctrl <- read.csv("./Data/dge_vtp_ctrl.csv", header = TRUE, row.names = 1)
+
+# List of all genes in our dataset
+query_genes <- rownames(dge_vtp_ctrl)
+```
+
+Our expression data set comparing the effect of VTP treatment to control contains
+a total of ``r length(query_genes)`` genes. By examining the enrichment results
+and the source annotation file, we found that there are ``r length(genes_enriched)``
+genes in the enrichment results, out of which ``r length(anno_genes)`` have
+annotation. We now examine whether there are any genes in our expression dataset
+that are not found to be enriched or annotated.
+
+```{r message=FALSE, warning=FALSE, include=FALSE, tidy=TRUE}
+# Define the Venn Diagram parameters
+genes <- list(
+  "Enriched" = genes_enriched,
+  "Annotated" = anno_genes,
+  "Expression" = query_genes
+)
+colors <- c("#FF0000", "#00FF00", "#0000FF")
+
+# Plot the Venn Diagram
+VennDiagram::venn.diagram(
+    genes,
+    fill = colors,
+    imagetype = "png",
+    filename = "./images/venn.png",
+    alpha = 0.4,
+    label.col = "black",
+    cex = 1.3,
+    fontface = "bold",
+    cat.cex = 1.3,
+    cat.fontface = "bold",
+    )
+```
+
+<a name="fig9"></a>
+
+```{r message=FALSE, warning=FALSE, tidy=TRUE, fig.align="center", fig.width=6}
+# Import and display the Venn Diagram png file
+knitr::include_graphics("./images/venn.png")
+```
+
+**Figure 9.** Venn Diagram showing the overlap between the expressed genes in the
+dataset, genes in the enriched gene sets, and genes with annotation. Enriched
+genes are completely enclosed in the set of annotated genes, while ``r length(setdiff(query_genes, genes_enriched))``
+out of ``r length(query_genes)`` genes in the dataset are not found in any 
+enriched genes sets, and out of which ``r length(setdiff(query_genes, anno_genes))``
+have no annotation.
+
+
+## Genes with No Annotation
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Set of genes with no annotation
+genes_no_anno <- setdiff(query_genes, anno_genes)
+
+# How many genes have no annotation?
+length(genes_no_anno)
+```
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# How many of those genes are significantly differentially expressed?
+sum(dge_vtp_ctrl[genes_no_anno, "FDR"] < 0.05)
+```
+
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Obtain the set of upregulated genes with no annotation
+up_genes_no_anno <- intersect(genes_no_anno, rownames(dge_vtp_ctrl[dge_vtp_ctrl$FDR < 0.05 & dge_vtp_ctrl$logFC > 0, ]))
+
+# List the genes
+DT::datatable(dge_vtp_ctrl[up_genes_no_anno, c("logFC", "logCPM", "FDR")],
+              options = list(pageLength = 10, scrollX = TRUE, autoWidth = TRUE))
+```
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+```
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+
+```
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
 
 
 
