@@ -417,7 +417,7 @@ if (!file.exists(gsea_gmt)) {
 }
 ```
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE, eval=FALSE}
+```{r message = FALSE, tidy=FALSE, warning=FALSE, eval=FALSE}
 # Running GSEA
 cmd <- paste(gsea_exe, "GSEAPreranked", 
             "-gmx", gsea_gmt, 
@@ -561,7 +561,7 @@ a clear and strong differential expression.
 
 <a name="fig3"></a>
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=10, fig.height=7}
+```{r message = FALSE, tidy=FALSE, warning=FALSE, fig.align="center", fig.width=10, fig.height=7}
 # Top 5 enriched gene sets of upregulated genes, GSEA
 gsea_up <- ggplot2::ggplot(upreg_table[1:5,], aes(x = `Enrichment Score`, 
     y = stringr::str_wrap(`Gene Set`, 20))) +   
@@ -644,7 +644,7 @@ Similarly, we performed GSEA analysis using the same parameters as the previous
 analysis, except that this time we use the `vtp_tgf.rnk` gene list for the analysis.
 Only a few parameters needs to be changed. 
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE, eval=FALSE}
+```{r message = FALSE, tidy=FALSE, warning=FALSE, eval=FALSE}
 # Change parameters
 
 # Rank file
@@ -691,7 +691,7 @@ out of ``r nrow(gsea_vtp_tgf_down)`` enriched gene sets are found to be signifia
 
 <a name="fig4"></a>
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=10, fig.height=4}
+```{r message = FALSE, tidy=FALSE, warning=FALSE, fig.align="center", fig.width=10, fig.height=4}
 # Filter the top 5 enriched gene sets, retain only fields of interest
 gsea_vtp_tgf_up <- gsea_vtp_tgf_up[1:5, c("NAME", "ES", "FDR.q.val")]
 gsea_vtp_tgf_down <- gsea_vtp_tgf_down[1:5, c("NAME", "ES", "FDR.q.val")]
@@ -1218,7 +1218,9 @@ the most observent downregulated genes in the above visualization is `ARL10`.
 Manual searching for the gene reveals that it is a [GTPase](https://www.genecards.org/cgi-bin/carddisp.pl?gene=ARL10&keywords=ARL10) that are related to
 multiple transcription factors. Further examination shows that although the gene 
 has an [GO annotation](http://amigo.geneontology.org/amigo/gene_product/UniProtKB:Q8N8L6), the data is available from IEA, which we specifically
-excluded in our analysis.
+excluded in our analysis. We have separately performed ORA for the up- and down-regualted
+genes with no annotation using all available pathways including GO IEA terms.
+No enriched terms were found. Details documented in the [jounral](https://github.com/bcb420-2023/Jielin_Yang/wiki/Gene-Set-Enrichment-and-Network-Analysis#genes-with-no-annotation).
 
 Based on the results obtained from analyzing the genes that are not involved in
 our previous analysis, it remains inconclusive to determine the side effects
