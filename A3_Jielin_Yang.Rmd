@@ -896,7 +896,24 @@ of VTP on the cell.
 
 # Dark Matter
 
+Verteporfin (VTP) is a photodynamic therapy (PDT) drug that has been approved by
+the FDA and have been investigated on the treatment of various cancers. [@huggett2014phase]
+[@feng2016verteporfin] Among these applications, VTP has been shown to be effective
+in mediating cancer cell death by inducing apoptosis via its anti-proliferative
+effect in inhibiting the YAP/TAZ complex and its cytotoxic effect due to the 
+observed protein-cross linking as discussed previously. [@dasari2017verteporfin]
+[@konstantinou2017verteporfin] However, these treatment replies on the direct effect
+of VTP to inhibit cancer cells, whereas in our analysis, the application of VTP
+is to prevent the fibrotic progressiom of cardiac stromal cells. Despite the 
+negative consequence of profibrotic remodeling, these cardiac interstitial cells
+are still important to mediate the normal cardiac function. Therefore, the potential
+side effect of VTP on the cardiac stromal cells is of great concern.
 
+In our previous analysis, we hae idntified the major biological themes in the
+up- and down-regulated pathways affected by VTP treatment. However, it is also
+important to note any dysregualted genes and pathways that are not captured
+by the GSEA and network analysis. Here, we further examine the "dark matters"
+to access any potential side effect of VTP on the cardiac stromal cells.
 
 ## Identifying Dark Matter Genes
 
@@ -936,15 +953,14 @@ Our expression data set comparing the effect of VTP treatment to control contain
 a total of ``r length(query_genes)`` genes. By examining the enrichment results
 and the source annotation file, we found that there are ``r length(genes_enriched)``
 genes in the enrichment results, out of which ``r length(anno_genes)`` have
-annotation. We now examine whether there are any genes in our expression dataset
-that are not found to be enriched or annotated.
+annotation.
 
 ```{r message=FALSE, warning=FALSE, include=FALSE, tidy=TRUE}
 # Define the Venn Diagram parameters
 genes <- list(
   "Enriched" = genes_enriched,
   "Annotated" = anno_genes,
-  "Expression" = query_genes
+  "Expressed" = query_genes
 )
 colors <- c("#FF0000", "#00FF00", "#0000FF")
 
@@ -965,7 +981,7 @@ VennDiagram::venn.diagram(
 
 <a name="fig9"></a>
 
-```{r message=FALSE, warning=FALSE, tidy=TRUE, fig.align="center", fig.width=6}
+```{r message=FALSE, warning=FALSE, tidy=TRUE, fig.align="center", out.width="50%"}
 # Import and display the Venn Diagram png file
 knitr::include_graphics("./images/venn.png")
 ```
@@ -977,8 +993,22 @@ out of ``r length(query_genes)`` genes in the dataset are not found in any
 enriched genes sets, and out of which ``r length(setdiff(query_genes, anno_genes))``
 have no annotation.
 
+The Venn Diagram reveals that there are significant number of genes that are 
+not found in any of the enriched gene sets, or having any annotation. The scale
+of non-annoated genes is out of expectation. Since in our annotation, we specified
+the GO terms to have no IEA terms for high-quality mapping, but it is likely that
+many of our dysregulated genes are not annotated in the base GO database. Additionally,
+in our previous analysis in [Assignment 1](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html), we found that the original expression 
+dataset is curated using a mixture of NGNC symbols and GenBank ID. These IDs are
+not curated of high quality due to having different version of genes treated as
+different genes, and some of which are not even valid GenBank IDs with version.
+Hence, it is also likely that the ID mapping is not of the best quality. Therefore,
+we will explore the genes that are not found in the enriched gene sets or having
+annotation manually examine the genes to assess their functions.
 
 ## Genes Not Found in Enriched Gene Sets
+
+We first analyze the genes that are not found in the enriched gene sets.
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Set of genes not found in enriched gene sets
@@ -1005,8 +1035,16 @@ sets. The genes are sorted by rank in descreasing order. Top genes desplayed are
 found to be upregulated. The table is interacive, and the list can be sorted in 
 ascending order by rank. This way the table displays the top downregulated genes.
 
+The result shows that there are two genes among the top 10 upregulated genes in
+the dataset. The two genes are `SPRYD3` and `ERV3-1`. Manual searching for the 
+genes reveals that they do not have strong evidence for their functions. `SPRYD3`
+is only predicted to be involved in cell surface receptor signaling pathway and 
+cytoskeleton organization according to the latest [Entrenz annotation](https://www.ncbi.nlm.nih.gov/gene/84926#summary).
+The Gene Ontology database also did not store any annotation for the gene.
 
-
+Therefore, despite the highly significant differential expression, we are not able
+to obtain the function on some of such genes due to the lack of annotation.
+We further examine the general expression pattern of such genes across the samples.
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Extract the genes not found in enriched gene sets that are significantly
@@ -1017,7 +1055,7 @@ genes_not_enriched_dge <- dge_vtp_ctrl[genes_not_enriched, ] %>%
 
 There are ``r nrow(genes_not_enriched_dge)`` genes that are not found in any
 enriched gene sets, but are significantly differentially expressed. We now
-visualize them using a heatmap to assess their expression pattern using the
+visualize them using a heatmap in [Figure 10](#fig10) to assess their expression pattern using the
 ComplexHeatmap and circlize packages. [@gu2016complex] [@gu2014circlize]
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
@@ -1074,8 +1112,16 @@ hmap_enrich
 enriched gene sets. Samples are annotated based on treatment conditions and 
 culture replicates.
 
+The heatmap reveals a clear clustering of the samples based on the treatment
+condition, except the `M81` culture. A clear expression pattern of these genes
+are observed in most samples, with a small subset of the samples showing
+moderate expression of genes in either phenotype.
 
 ## Genes with No Annotation
+
+Since we have observed that some of the most highly differentially expressed genes 
+that are not found in the enriched gene sets are due to the lack of annotation,
+we further examine the subset of such genes that do not have any annotation.
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Set of genes with no annotation
@@ -1149,7 +1195,22 @@ hmap_no_anno
 **Figure 11.** Heatmap of the expression of genes that have no annotation. Samples
 are annotated based on treatment conditions and culture replicates.
 
+Similar to the heatmap in [Figure 10](#fig10), the heatmap reveals a clear clustering
+of the samples based on the treatment condition, except the `M81` culture. Interstingly,
+the most observent downregulated genes in the above visualization is `ARL10`. 
+Manual searching for the gene reveals that it is a [GTPase](https://www.genecards.org/cgi-bin/carddisp.pl?gene=ARL10&keywords=ARL10) that are related to
+multiple transcription factors. Further examination shows that although the gene 
+has an [GO annotation](http://amigo.geneontology.org/amigo/gene_product/UniProtKB:Q8N8L6), the data is available from IEA, which we specifically
+excluded in our analysis.
 
+Based on the results obtained from analyzing the genes that are not involved in
+our previous analysis, it remains inconclusive to determine the side effects
+of VTP treatment based on the current evidence. However, using the data available,
+we can conclude that VTP treatment has a antifibrotic effect in down-regulating
+pathways involved in collagen formation and extracellular matrix remodeling.
+Since we have also discovered its potential cytotoxic effect relating to 
+protein synthesis and damage, further investigation is needed to properly
+understand the safety of using VTP as a therapeutic agent for fribosis treatment.
 
 
 # Interpretation and Analysis
