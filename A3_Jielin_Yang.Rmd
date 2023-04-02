@@ -254,13 +254,17 @@ if (! requireNamespace("stringr", quietly = TRUE)) {
 if (! requireNamespace("fgsea", quietly = TRUE)) {
   BiocManager::install("fgsea")
 }
-# RCy3 package for interacting with Cytoscape
-if (! requireNamespace("RCy3", quietly = TRUE)) {
-  install.packages("RCy3")
-}
 # VennDiagram package for creating Venn diagrams
 if (! requireNamespace("VennDiagram", quietly = TRUE)) {
   install.packages("VennDiagram")
+}
+# ComplexHeatmap package for creating heatmaps
+if (! requireNamespace("ComplexHeatmap", quietly = TRUE)) {
+  BiocManager::install("ComplexHeatmap")
+}
+# circlize package for heatmap color schemes
+if (! requireNamespace("circlize", quietly = TRUE)) {
+  BiocManager::install("circlize")
 }
 # dplyr package for data manipulation
 if (! requireNamespace("dplyr", quietly = TRUE)) {
@@ -894,7 +898,7 @@ of VTP on the cell.
 
 
 
-## Gene Set Not Significantly Enriched
+## Identifying Dark Matter Genes
 
 First, we obtain all gene sets and genes with annotation in the GMT file.
 
@@ -974,39 +978,176 @@ enriched genes sets, and out of which ``r length(setdiff(query_genes, anno_genes
 have no annotation.
 
 
+## Genes Not Found in Enriched Gene Sets
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Set of genes not found in enriched gene sets
+genes_not_enriched <- setdiff(query_genes, genes_enriched)
+
+# Read the gene rank file
+gene_rnk <- read.table(gsea_rnk, header = TRUE, sep = "\t")
+
+# We now obtain the rank of the genes not found in enriched gene sets
+genes_not_enriched_rank <- gene_rnk[gene_rnk$GeneName %in% genes_not_enriched,]
+```
+
+<a name="tab3"></a>
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Visualize the genes
+DT::datatable(genes_not_enriched_rank, 
+    options = list(pageLength = 10, autoWidth = TRUE)) %>%
+    DT::formatStyle(colnames(gene_rnk), fontSize = "12px") %>%
+    DT::formatStyle(0, fontSize = "12px")
+```
+
+**Table 3.** Genes and associated ranks that are not found in any enriched gene
+sets. The genes are sorted by rank in descreasing order. Top genes desplayed are
+found to be upregulated. The table is interacive, and the list can be sorted in 
+ascending order by rank. This way the table displays the top downregulated genes.
+
+
+
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Extract the genes not found in enriched gene sets that are significantly
+# differentially expressed
+genes_not_enriched_dge <- dge_vtp_ctrl[genes_not_enriched, ] %>%
+    dplyr::filter(FDR < 0.05)
+```
+
+There are ``r nrow(genes_not_enriched_dge)`` genes that are not found in any
+enriched gene sets, but are significantly differentially expressed. We now
+visualize them using a heatmap to assess their expression pattern using the
+ComplexHeatmap and circlize packages. [@gu2016complex] [@gu2014circlize]
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Define the heatmap matrix for these genes
+# We directly operate on the matrix created in Assignment 2, which has been
+# run implicitly in the previous code chunks
+heatmap_matrix_not_enrich <- heatmap_matrix[rownames(genes_not_enriched_dge), 
+                            grepl("\\.VTP|\\.CTRL", colnames(heatmap_matrix))]
+```
+
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=9}
+# Checking the range of the heatmap matrix
+hmap_range <- range(heatmap_matrix_not_enrich)
+
+# Set the 3 color palette based on the scaled heatmap matrix
+hmap_col <- circlize::colorRamp2(c(hmap_range[1], 0, hmap_range[2]), 
+                                 c("blue", "white", "red"))
+
+# Redefine 2 colours for the 2 treatment conditions
+treatment_col <- hcl.colors(2, palette = "viridis")
+names(treatment_col) <- c("VTP", "CTRL")
+
+# Create an annotation dataframe
+anno_df <- data.frame(treatment = sample_matrix_sorted[grepl("\\.VTP|\\.CTRL", 
+                                  rownames(sample_matrix_sorted)), "treatment"],
+                      culture = sample_matrix_sorted[grepl("\\.VTP|\\.CTRL", 
+                                  rownames(sample_matrix_sorted)), "culture"])
+anno_col <- list(treatment = treatment_col, culture = culture_col)
+
+# Create the heatmap annotation
+hmap_anno <- ComplexHeatmap::HeatmapAnnotation(
+                    df = anno_df,
+                    col = anno_col)
+
+# Since we use k-means clustering to better separate the set of up- and
+# downregulated genes, for reproducibility we set the seed
+set.seed(91711)
+
+# Create the heatmap
+hmap_enrich <- ComplexHeatmap::Heatmap(heatmap_matrix_not_enrich,
+                                    show_row_dend = TRUE,
+                                    show_column_dend = TRUE,
+                                    show_column_names = TRUE,
+                                    show_row_names = FALSE,
+                                    col = hmap_col,
+                                    top_annotation = hmap_anno,
+                                    k = 2)
+hmap_enrich
+set.seed(NULL)
+```
+<a name="fig10"></a>
+
+**Figure 10.** Heatmap of the expression of genes that are not found in any
+enriched gene sets. Samples are annotated based on treatment conditions and 
+culture replicates.
+
+
 ## Genes with No Annotation
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Set of genes with no annotation
 genes_no_anno <- setdiff(query_genes, anno_genes)
 
-# How many genes have no annotation?
-length(genes_no_anno)
+# Significantly differentially expressed genes with no annotation
+genes_no_anno_dge <- dge_vtp_ctrl[genes_no_anno, ] %>%
+    dplyr::filter(FDR < 0.05)
 ```
 
+There are ``r length(genes_no_anno)`` genes that have no annotation. Of those,
+``r sum(dge_vtp_ctrl[genes_no_anno, "FDR"] < 0.05)`` are significantly
+differentially expressed. The genes are similarly visualized in [Table 4](#tab4).
+
+<a name="tab4"></a>
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
-# How many of those genes are significantly differentially expressed?
-sum(dge_vtp_ctrl[genes_no_anno, "FDR"] < 0.05)
+# Rank of the significantly differentially expressed genes with no annotation
+genes_no_anno_rank <- gene_rnk[gene_rnk$GeneName %in% rownames(genes_no_anno_dge),]
+
+# Visualize the genes
+DT::datatable(genes_no_anno_rank, 
+    options = list(pageLength = 10, autoWidth = TRUE)) %>%
+    DT::formatStyle(colnames(gene_rnk), fontSize = "12px") %>%
+    DT::formatStyle(0, fontSize = "12px")
 ```
 
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
-# Obtain the set of upregulated genes with no annotation
-up_genes_no_anno <- intersect(genes_no_anno, rownames(dge_vtp_ctrl[dge_vtp_ctrl$FDR < 0.05 & dge_vtp_ctrl$logFC > 0, ]))
+The most highly upregualted gene is 
+`r rnk_no_anno <- gene_rnk[gene_rnk$GeneName %in% genes_no_anno,]`
+``r rnk_no_anno[1, "GeneName"]`` on the ``r rownames(rnk_no_anno)[1]`` postion
+of the ranked list, which is among the most highly upregulated genes. In addition,
+the most highly downregulated gene is ``r rnk_no_anno[nrow(rnk_no_anno), "GeneName"]``,
+which is the ``r nrow(gene_rnk) - as.numeric(rownames(rnk_no_anno)[nrow(rnk_no_anno)]) + 1``st
+most highly downregulated gene. The result is very intersting. Among the genes
+with no annotation, we have observe that the most highly upregulated and downregulated
+genes. This suggests that while the evidence from our analysis supports the 
+the hypothesis that VTP has a antifibrotic effect, our current analysis may also
+miss some additional pathways that are also dysregualted in VTP-treated samples.
+We now visualize the expression of these genes in a heatmap in [Figure 11](#fig11).
 
-# List the genes
-DT::datatable(dge_vtp_ctrl[up_genes_no_anno, c("logFC", "logCPM", "FDR")],
-              options = list(pageLength = 10, scrollX = TRUE, autoWidth = TRUE))
+```{r message = FALSE, tidy=TRUE, warning=FALSE}
+# Define the heatmap matrix for these genes
+heatmap_matrix_no_anno <- heatmap_matrix[rownames(genes_no_anno_dge), 
+                            grepl("\\.VTP|\\.CTRL", colnames(heatmap_matrix))]
 ```
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
+```{r message = FALSE, tidy=TRUE, warning=FALSE, fig.align="center", fig.width=9}
+# Checking the range of the heatmap matrix
+hmap_range <- range(heatmap_matrix_no_anno)
+
+# Set the 3 color palette based on the scaled heatmap matrix
+hmap_col <- circlize::colorRamp2(c(hmap_range[1], 0, hmap_range[2]), 
+                                 c("blue", "white", "red"))
+
+# Create the heatmap
+set.seed(91711)
+hmap_no_anno <- ComplexHeatmap::Heatmap(heatmap_matrix_no_anno,
+                                    show_row_dend = TRUE,
+                                    show_column_dend = TRUE,
+                                    show_column_names = TRUE,
+                                    show_row_names = FALSE,
+                                    col = hmap_col,
+                                    top_annotation = hmap_anno,
+                                    k = 2)
+hmap_no_anno
+set.seed(NULL)
 ```
 
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
+<a name="fig11"></a>
 
-```
-
-```{r message = FALSE, tidy=TRUE, warning=FALSE}
+**Figure 11.** Heatmap of the expression of genes that have no annotation. Samples
+are annotated based on treatment conditions and culture replicates.
 
 
 
