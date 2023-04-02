@@ -900,7 +900,7 @@ of VTP on the cell.
 
 ## Identifying Dark Matter Genes
 
-First, we obtain all gene sets and genes with annotation in the GMT file.
+First, we obtain all gene sets and genes with annotation in the GMT file. [@korotkevich2016fast]
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE}
 # Load the gene sets in the GMT file
@@ -1065,8 +1065,8 @@ hmap_enrich <- ComplexHeatmap::Heatmap(heatmap_matrix_not_enrich,
                                     col = hmap_col,
                                     top_annotation = hmap_anno,
                                     k = 2)
-hmap_enrich
 set.seed(NULL)
+hmap_enrich
 ```
 <a name="fig10"></a>
 
@@ -1140,8 +1140,8 @@ hmap_no_anno <- ComplexHeatmap::Heatmap(heatmap_matrix_no_anno,
                                     col = hmap_col,
                                     top_annotation = hmap_anno,
                                     k = 2)
-hmap_no_anno
 set.seed(NULL)
+hmap_no_anno
 ```
 
 <a name="fig11"></a>
