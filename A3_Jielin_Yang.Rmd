@@ -79,8 +79,8 @@ the profibrotic remodelling of the heart. [@garoffolo2022reduction] Recently,
 [Garoffolo et al.](https://www.ahajournals.org/doi/10.1161/CIRCRESAHA.121.319373) 
 investigated the use of a small molecular inhibitor, verteporfin (VTP) in
 cardiac stromal cells, an important precursor to cardiac fibroblasts, to 
-suppress the YAP/TAZ complex with or without the presence of TGF-β1, a 
-profibrotic cytokine under the maximal strain condition.
+suppress the YAP/TAZ complex under the maximal strain condition with or without the presence of TGF-β1, a 
+profibrotic cytokine.
 
 ## Objectives
 
@@ -90,7 +90,7 @@ shown in [Figure 1.](#fig1), the transcriptome was assessed by comparing the
 addition of VTP with the control with or without the presence of the profibrotic
 cytokine, TGF-β1. [@saadat2021pivotal] Upon the identification of differentially
 expressed genes, we aim to perform gene set enrichment analysis (GSEA) and
-network analysis to access the enriched pathways and using it to infer the
+network analysis to access the enriched pathways and using them to infer the
 molecular mechanisms underlying the effects of VTP on cardiac stromal cells.
 
 <a name="fig1"></a>
@@ -131,7 +131,7 @@ expressions are comparable across samples.
 
 ### Cluster Analysis
 
-Samples were clustered based on transcriptional similarity. multidimensional
+Samples were clustered based on transcriptional similarity. Multidimensional
 scaling analysis indicates distinct separation based on treatment conditions,
 with the most highly distinguishable cluster of samples in the control group,
 without profibrotic TGF-β1 treatment. Additional hierarchical clustering with
@@ -229,9 +229,10 @@ in the significantly downregulated genes.
 
 The current R Notebook assumes that it is being run on the BCB420-2023 base image. 
 Additional packages required are noted below. For reproducibility we list all packages
-we used in the analysis, including utility packages. The GSEA and Cytoscape softwares
-with the EnrichmentMap pipeline are also required for the analysis, but they are
-run manually outside of the R Notebook.
+we used in the analysis, including utility packages. [GSEA 4.3.2](https://www.gsea-msigdb.org/gsea/index.jsp) 
+and [Cytoscape 3.9.1](https://cytoscape.org/) softwares
+with the EnrichmentMap pipeline are also required for the analysis, and they must 
+be installed separately.
 
 ```{r message = FALSE, tidy=TRUE, warning=FALSE, message=FALSE}
 # ggplot2 package for creating plots
@@ -307,7 +308,7 @@ p-value (FDR) for each gene.
 
 # Gene Set Enrichment Analysis (GSEA)
 
-We will perform GSEA on the differentially expressed genes between the control
+We will perform GSEA on the differential gene expression results between the control
 and VTP treatment groups with and without the addition of TGF-β1 separately,
 and compare the GSEA result with the over representation analysis (ORA) result
 obtain previously from assignment 2.
@@ -322,7 +323,7 @@ First, we aim to assess the effect of VTP treatment in the absence of TGF-β1 on
 cardiac stromal cells by identifying its top enriched pathways. Since GSEA is a
 non-threshold method, the use of a ranked list of genes without an arbitrarily
 defined threshold allows the assessment of all genes in the list. The ranking of
-the genes is integrates the sign of fold change change, and
+the genes integrates the sign of fold change change, and
 the statistical significance of the change. [@subramanian2005gene] Since it has 
 been suggested that 
 GSEA is more consistent in identifying enriched gene sets and pathways, it is 
@@ -378,9 +379,8 @@ curated by the Bader Lab at the University of Toronto, available
 [here](http://download.baderlab.org/EM_Genesets/March_02_2023/Human/symbol/). 
 [@reimand2019pathway] We specifically selected the gene set that does not 
 contain annotations inferred from electronic annotations (IEA). This is to
-ensure a high confidence inference of the biological processes from GSEA. The 
-`gmt` file has been previously downloaded for [prior analysis](https://github.com/bcb420-2023/Jielin_Yang/wiki/GSEA). 
-In this annotation file isc curates all GO: Biological Process terms as well as
+ensure a high confidence inference of the biological processes from GSEA. 
+This annotation file curates all GO: Biological Process terms as well as
 pathways from multiple pathway databases, including Reactome, WikiPathways,
 MSigDB. [@gillespie2022reactome] [@slenter2018wikipathways] [@liberzon2011molecular]
 These annotation data should provide us an sufficient understanding of the enriched
@@ -860,8 +860,8 @@ by normalized enrichment score (NES). The size of annotation text corresponds to
 the number of gene sets annotated to the theme.
 
 To better visualize the relationships between the biologial theme clusters, we
-further collaposed the clusters into a single node and applied the `Force Directed
-Layout` algorithm to visualize global themes of the network. A combined analysis
+further collaposed the clusters into a single node and applied the `CoSE (Compound Spring Embedder)`
+algorithm to visualize global themes of the network. A combined analysis
 using [Figure 7](#fig7) and [Figure 8](#fig8) would allow better interpretation.
 
 <a name="fig8"></a>
@@ -969,10 +969,10 @@ query_genes <- rownames(dge_vtp_ctrl)
 Our expression data set comparing the effect of VTP treatment to control contains
 a total of ``r length(query_genes)`` genes. By examining the enrichment results
 and the source annotation file, we found that there are ``r length(genes_enriched)``
-genes in the enrichment results, out of which ``r length(anno_genes)`` have
+genes in the enrichment results, and there are ``r length(anno_genes)`` genes having
 annotation.
 
-```{r message=FALSE, warning=FALSE, include=FALSE, tidy=TRUE}
+```{r message=FALSE, warning=FALSE, tidy=TRUE}
 # Define the Venn Diagram parameters
 genes <- list(
   "Enriched" = genes_enriched,
@@ -1016,7 +1016,7 @@ of non-annoated genes is out of expectation. Since in our annotation, we specifi
 the GO terms to have no IEA terms for high-quality mapping, but it is likely that
 many of our dysregulated genes are not annotated in the base GO database. Additionally,
 in our previous analysis in [Assignment 1](https://github.com/bcb420-2023/Jielin_Yang/blob/main/Dataset%20selection%20and%20initial%20processing/Assignment_1_Data_cleaning_and_identifier_mapping.html), we found that the original expression 
-dataset is curated using a mixture of NGNC symbols and GenBank ID. These IDs are
+dataset is curated using a mixture of HGNC symbols and GenBank ID. These IDs are
 not curated of high quality due to having different version of genes treated as
 different genes, and some of which are not even valid GenBank IDs with version.
 Hence, it is also likely that the ID mapping is not of the best quality. Therefore,
