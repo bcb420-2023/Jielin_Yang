@@ -316,6 +316,8 @@ obtain previously from assignment 2.
 
 ### Data Preparation
 
+<a name="gseaprep"></a>
+
 First, we aim to assess the effect of VTP treatment in the absence of TGF-β1 on
 cardiac stromal cells by identifying its top enriched pathways. Since GSEA is a
 non-threshold method, the use of a ranked list of genes without an arbitrarily
@@ -347,6 +349,8 @@ write.table(deg_vtp_ctrl_ranked, file = "./Data/vtp_ctrl.rnk", sep = "\t",
 ```
 
 ### GSEA Analysis
+
+<a name="gseaana"></a>
 
 Gene set enrichment analysis (GSEA) was performed using the GSEA software (version
 4.3.2) with the previously defined ranked gene list. We performed GSEA using the
@@ -431,6 +435,8 @@ system(cmd)
 ```
 
 ### GSEA Results
+
+<a name="gseactrl"></a>
 
 Since we performed GSEA manually (details discussed in the [journal](https://github.com/bcb420-2023/Jielin_Yang/wiki/Gene-Set-Enrichment-and-Network-Analysis)), 
 we will import the results from the `GSEA` software.
@@ -527,6 +533,8 @@ DT::datatable(downreg_table, rownames = FALSE, filter = "top",
 
 ### Comparative analysis of GSEA and ORA
 
+<a name="gseacomp"></a>
+
 [Figure 3](#fig:3) illustrates the top enriched gene sets identified by GSEA and ORA,
 respectively for the up- and down-regualted genes. Qualitatively, the results
 from the two analysis are similar in terms of the top enriched gene sets.
@@ -602,6 +610,8 @@ gene sets beyond the first few top enrichments.
 
 
 ## Effect of VTP treatment under TGF-β1
+
+<a name="gseatgf"></a>
 
 Since the authors of the original publication also investigated whether the effect
 of VTP is preseved even under the profibrotic environment, we also performed
@@ -746,6 +756,8 @@ us to perform a robust network analysis.
 
 ## Network Construction
 
+<a name="netcons"></a>
+
 As detailed in the [journal](https://github.com/bcb420-2023/Jielin_Yang/wiki/Gene-Set-Enrichment-and-Network-Analysis#network-analysis),
 we have tried to run EnrichmentMap from within R, but we have encountered several
 issues. The `RCy3` package was unable to establish a connection with Cytoscape
@@ -781,6 +793,7 @@ affected as side effects of VTP treatment. The cutoff for the combined similarit
 score is set to 0.375, which used an combination of the Jaccard and Overlap similarity
 and is left as default for intial observation of the network. [Figure 5](#fig5) illustrates
 the network constructed using the above parameters prior to manual formatting.
+This initial network has 663 nodes with 4627 edges.
 
 <a name="fig5"></a>
 ![](https://github.com/bcb420-2023/Jielin_Yang/raw/main/images/VTP_ctrl_network_no_format.png)
@@ -792,6 +805,8 @@ pathways upon VTP treatment, respectively. Node sides correspond to gene set siz
 and edge width corresponds to the combined similarity score.
 
 ## Network Optimization and Analysis
+
+<a name="netopt"></a>
 
 However, the intial network shows a number of gene sets that are not very well
 connected to the rest of the network (as shown in the bottom of [Figure 5](#fig5)). This
@@ -858,6 +873,8 @@ gene sets annotated to the theme. Red and blue nodes represent up- and down-regu
 pathways affected by VTP treatment. An edge exists between two nodes if any gene set
 annoated under the biological theme share common genes with combined similarity
 coefficient > 0.375.
+
+<a name="netanal"></a>
 
 As expected from the initial analysis, the number of major biological themes discovered
 are more in the downregulated pathways by VTP treatment. Since VTP is an inhibitory
@@ -1212,6 +1229,44 @@ Since we have also discovered its potential cytotoxic effect relating to
 protein synthesis and damage, further investigation is needed to properly
 understand the safety of using VTP as a therapeutic agent for fribosis treatment.
 
+## Connection to Original publication
+
+<a name="connorig"></a>
+
+The analysis performed here is only part of the global objective of the original
+publication. [@garoffolo2022reduction] However, the aim of the present analysis 
+is to investigate whether VTP has an antifibrotic effect in cardiac stromal
+cells under the profibrotic conditions of mechanical strains. Our analysis supports
+the conclusion from the original publication that VTP, which mediates direct
+inhibition on the YAP/TAZ transcriptional co-activators, has an antifibrotic
+effect. This is supported by the downregulation of genes involved in collagen
+formation and extracellular matrix remodeling. These results are also consistent
+with the threshold-based analysis performed in Assignment 2. The obervent downregulation
+of profibrotic pathways are also consistent with previously reported results that
+inhibition of YAP/TAZ complex inhibits fibrosis in both human and mouse models. [@piersma2015signaling] [@zhang2021inhibition]
+The antifibrotic effect of VTP has also been reported in other organs. [@shi2021verteporfin]
+
+
+Yet, when we consider the enrichment results under the presence of the profibrotic
+cytokine TGF-β1, the differential gene expression analysis as well as ORA in 
+Assignment 2 revealed a much weaker effect of VTP when a strong profibrotic
+stimulus is present. Yet in our current anlysis using non-threshold based method,
+we observed a similar effect of VTP. This means that despite VTP is weaker in mediating
+the process when a profibrotic pathway is stimulated, the antifrobotic effect
+is still present, via the same pathways, despite to a lesser extent.
+
+However, it is also intersting to observe the upregulation of vairous pathways 
+involved in various stages of protein synthesis, from altering the translational 
+machinaries to amino acid synthesis. This is a result that is not reported by 
+the original publication. [@garoffolo2022reduction] As discussed previously, 
+we have found evidence that VTP has cytotoxic effects via protein cross linking. [@konstantinou2017verteporfin]
+The observed cytotoxic effect of VTP as well as this mechanism reported explains
+the enrichment of damage related pathways and also provides a feasible explanation
+that such damage also arrise from the highly upregualted translational and protein
+synthesis pathways. [@dasari2017verteporfin] [@konstantinou2017verteporfin]
+Our analysis has provided a new insights into the mechanism of VTP action and its
+potential side effects for the treatment of cardiac fibrosis.
+
 
 # Interpretation and Analysis
 
@@ -1219,37 +1274,53 @@ understand the safety of using VTP as a therapeutic agent for fribosis treatment
 
 1. What method did you use? What genesets did you use? Make sure to specify versions and cite your methods.
 
+    See the [preparation](#gseaprep) and [analysis](#gseaana) of GSEA.
 
 2. Summarize your enrichment results.
 
+    See GSEA results for [VTP vs. Control without TGF](#gseactrl) and 
+    [VTP vs. Control in the presence of TGF](#gseatgf).
+
 3. How do these results compare to the results from the thresholded analysis in Assignment #2. Compare qualitatively. Is this a straight forward comparison? Why or why not?
    
+   See the [comparison](#gseacomp) of GSEA results between thresholded and non-thresholded methods.
 
 ## Visualize Gene Set Enrichment Analysis in Cytoscape
 
 1. Create an enrichment map - how many nodes and how many edges in the resulting map? What thresholds were used to create this map?
 
+    The initial network has 663 nodes with 4627 edges. It is constructed under
+    the following parameters:
+
+        - FDR < 0.05
+        - Combined similarity score > 0.375
+    
+    For details, see [network construction](#netcons).
 
 2. Annotate your network - what parameters did you use to annotate the network. If you are using the default parameters make sure to list them as well.
 
+    Here, we have modified the parameters to create a better network topology.
+    For details, see [network optimization and analysis](#netopt).
 
 3. Make a publication ready figure - include this figure with proper legends in your notebook.
 
+    See [Figure 7](#fig7).
 
 4. Collapse your network to a theme network. What are the major themes present in this analysis? Do they fit with the model? Are there any novel pathways or themes?
 
+    See [Figure 8](#fig8) and associated [analysis](#netanal).
 
 ## Interpretation and detailed view of results
 
 1. Do the enrichment results support conclusions or mechanism discussed in the original paper? How do these results differ from the results you got from Assignment #2 thresholded methods?
 
+    This has been discussed in multiple places in the report. See the [GSEA comparison](#gseacomp),
+    [network interpretation](#netanal), and the [connection to original publication](#connorig).
 
 2. Can you find evidence, i.e. publications, to support some of the results that you see. How does this evidence support your result?
 
-
-
-
-
+    Again this is discussed in multiple places in the report. See the my
+    [interpretation of the network ](#netanal) and the [remarks on the results](#connorig).
 
 
 # Journal Link
